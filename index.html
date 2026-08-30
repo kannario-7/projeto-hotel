@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hotel Manager - Sistema de Gestao Hoteleira</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0B1D3A;--gold:#C9A84C;--sidebar-w:260px}
+body{font-family:"DM Sans",sans-serif;background:#f5f5f5;display:flex;min-height:100vh;color:#333}
+.sidebar{width:var(--sidebar-w);background:var(--navy);color:#fff;position:fixed;height:100vh;z-index:1000;display:flex;flex-direction:column}
+.sidebar-logo{padding:24px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1)}
+.sidebar-logo h1{font-family:Sora,sans-serif;font-size:20px;font-weight:700;color:var(--gold)}
+.sidebar-logo p{font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px}
+.sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sidebar-nav a{display:flex;align-items:center;padding:12px 20px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;border-left:3px solid transparent;gap:12px;transition:0.2s}
+.sidebar-nav a:hover{color:#fff;background:rgba(255,255,255,0.05)}
+.sidebar-nav a.active{color:var(--gold);background:rgba(201,168,76,0.1);border-left-color:var(--gold)}
+.sidebar-nav a svg{flex-shrink:0;width:20px;height:20px}
+.main-content{margin-left:var(--sidebar-w);flex:1;padding:32px;min-height:100vh;max-width:100vw}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:1px solid #eee;padding-bottom:16px;flex-wrap:wrap;gap:12px}
+.page-header h2{font-family:Sora,sans-serif;color:var(--navy);font-size:22px}
+.page-header p{color:#888;font-size:14px;margin-top:4px}
+.btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:14px;transition:0.2s;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.btn-primary{background:var(--gold);color:#fff}
+.btn-primary:hover{background:#b8972a}
+.btn-secondary{background:#eee;color:#333}
+.btn-secondary:hover{background:#ddd}
+.btn-danger{background:#e74c3c;color:#fff}
+.btn-danger:hover{background:#c0392b}
+.btn-success{background:#2ecc71;color:#fff}
+.btn-success:hover{background:#27ae60}
+.btn-sm{padding:6px 12px;font-size:12px}
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #eee}
+.stat-card h3{font-size:12px;text-transform:uppercase;color:#888;margin-bottom:8px;letter-spacing:0.5px}
+.stat-card .value{font-size:28px;font-weight:700;color:var(--navy)}
+.stat-card .sub{font-size:12px;color:#999;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-success{background:#e8f8ef;color:#2ecc71}
+.badge-warning{background:#fef5e7;color:#f39c12}
+.badge-danger{background:#fdedec;color:#e74c3c}
+.badge-info{background:#ebf5fb;color:#3498db}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #eee;margin-bottom:24px}
+th{background:#f8f8f8;padding:12px 16px;text-align:left;font-size:12px;text-transform:uppercase;color:#666;border-bottom:2px solid #eee}
+td{padding:12px 16px;border-bottom:1px solid #eee;font-size:14px}
+.form-container{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #eee;margin-bottom:24px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:6px;font-weight:500;color:#555;font-size:14px}
+input,select,textarea{width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.15)}
+.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:24px;padding-top:16px;border-top:1px solid #eee}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.room-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #eee;transition:0.2s}
+.room-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.room-number{font-family:Sora,sans-serif;font-size:24px;font-weight:700;color:var(--navy)}
+.room-type{font-size:13px;color:#999;margin:4px 0}
+.room-status{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.room-status.disponivel{background:#e8f8ef;color:#2ecc71}
+.room-status.ocupado{background:#ebf5fb;color:#3498db}
+.room-status.reservado{background:#fef5e7;color:#f39c12}
+.room-status.manutencao{background:#fdedec;color:#e74c3c}
+.room-status.limpeza{background:#fef5e7;color:#f39c12}
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:14px 20px;border-radius:12px;color:#fff;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,0.12);animation:slideIn 0.3s;display:flex;align-items:center;gap:10px;min-width:280px}
+.toast.success{background:#2ecc71}
+.toast.warning{background:#f39c12}
+.toast.error{background:#e74c3c}
+.toast.info{background:#3498db}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:0.3s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-width:500px;width:90%;max-height:85vh;overflow-y:auto}
+.modal-header{padding:20px 24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:12px}
+.alerts{margin-bottom:24px}
+.alert{padding:14px 18px;border-radius:12px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid}
+.alert-danger{background:#fdedec;border-left-color:#e74c3c;color:#e74c3c}
+.alert-warning{background:#fef5e7;border-left-color:#f39c12;color:#f39c12}
+.alert-info{background:#ebf5fb;border-left-color:#3498db;color:#3498db}
+.tabs{display:flex;margin-bottom:24px;border-bottom:2px solid #eee;flex-wrap:wrap}
+.tab{padding:12px 24px;cursor:pointer;font-weight:500;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;transition:0.2s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover{color:var(--navy)}
+.report-container{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #eee;margin-bottom:24px;overflow-x:auto}
+@media(max-width:1024px){.sidebar{width:72px}.sidebar-logo h1,.sidebar-nav a span,.sidebar-logo p{display:none}.sidebar-nav a{justify-content:center;padding:12px}.main-content{margin-left:72px}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.show{transform:translateX(0)}.main-content{margin-left:0;padding:16px}.form-grid{grid-template-columns:1fr}}
+@media print{.sidebar,.page-header-actions,.toast-container,.modal-overlay,.btn,.tabs,.page-header p{display:none!important}.main-content{margin-left:0!important;padding:0!important}body{background:#fff!important;font-size:11px!important;color:#000!important}.page-header{border-bottom:1px dashed #ccc!important;margin-bottom:12px!important;padding-bottom:8px!important}.page-header h2{font-size:16px!important;color:#000!important}.stat-card{box-shadow:none!important;border:1px solid #ddd!important;padding:8px 12px!important;margin-bottom:8px!important}.stat-card .value{font-size:18px!important;color:#000!important}.stat-card h3{font-size:9px!important;color:#555!important}.cards-row{grid-template-columns:repeat(3,1fr)!important;gap:8px!important;margin-bottom:12px!important}table{box-shadow:none!important;border:1px solid #ddd!important;margin-bottom:12px!important;font-size:10px!important}th{padding:4px 8px!important;font-size:9px!important;background:#f5f5f5!important;color:#333!important;border-bottom:1px solid #ccc!important}td{padding:4px 8px!important;border-bottom:1px solid #eee!important;font-size:10px!important;color:#000!important}.badge{border:1px solid #999!important;color:#000!important;background:#fff!important;padding:1px 6px!important}.badge-success,.badge-warning,.badge-danger,.badge-info{background:#f5f5f5!important;color:#000!important}.report-container,.form-container{box-shadow:none!important;border:1px solid #ddd!important;padding:12px!important;margin-bottom:12px!important;page-break-inside:avoid!important}.room-card{box-shadow:none!important;border:1px solid #ddd!important;padding:8px!important;page-break-inside:avoid!important}.room-number{font-size:16px!important;color:#000!important}.room-status{color:#000!important;background:#f5f5f5!important;border:1px solid #999!important;padding:1px 6px!important}.grid-cards{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}.alert{page-break-inside:avoid!important;border:1px solid #ddd!important;padding:6px 10px!important;margin-bottom:6px!important}h3{font-size:13px!important;color:#000!important;margin-bottom:8px!important}.form-grid{grid-template-columns:1fr!important}input,select,textarea{border:none!important;padding:3px 0!important;font-size:10px!important;color:#000!important;background:transparent!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}@page{margin:1cm!important}}
+.login-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:5000}
+.login-box{background:#fff;border-radius:16px;padding:40px;width:400px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-box h1{font-family:Sora,sans-serif;color:var(--navy);text-align:center;font-size:24px;margin-bottom:4px}
+.login-box .sub{text-align:center;color:#888;font-size:14px;margin-bottom:28px}
+.login-box .form-group{margin-bottom:18px}
+.login-box label{display:block;margin-bottom:6px;font-weight:500;color:#555;font-size:14px}
+.login-box input{width:100%;padding:12px 16px;border:1px solid #ddd;border-radius:8px;font-size:15px}
+.login-box input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.15)}
+.login-box .btn{width:100%;padding:14px;font-size:16px;justify-content:center}
+.login-box .login-error{color:#e74c3c;font-size:13px;text-align:center;margin-top:8px;display:none}
+.login-box .login-links{text-align:center;margin-top:14px;font-size:13px;color:#888}
+.login-box .login-links a{color:var(--gold);cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+<div class="sidebar-logo"><h1>Hotel Manager</h1><p>Sistema de Gestao Hoteleira</p></div>
+<nav class="sidebar-nav">
+<a href="#d" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Painel</span></a>
+<a href="#r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Reservas</span></a>
+<a href="#h"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Hospedes</span></a>
+<a href="#q"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg><span>Quartos</span></a>
+<a href="#ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>Check-in</span></a>
+<a href="#co"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Check-out</span></a>
+<a href="#f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Financeiro</span></a>
+<a href="#s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Servicos</span></a>
+<a href="#fu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Funcionarios</span></a>
+<a href="#rl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Relatorios</span></a>
+<a href="#cg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg><span>Configuracoes</span></a>
+</nav><div style="border-top:1px solid rgba(255,255,255,0.1);padding:12px 20px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:rgba(255,255,255,0.6)"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span id="userInfo" style="color:rgba(255,255,255,0.6);font-size:13px"></span></div>
+</aside>
+<main class="main-content" id="mainContent"><div id="pageContent"></div></main>
+<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-header"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">&times;</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
+<div class="toast-container" id="toastContainer"></div>
+<div class="login-overlay" id="loginOverlay">
+<div class="login-box" id="loginBox">
+<h1>Hotel Manager</h1>
+<p class="sub">Sistema de Gestao Hoteleira</p>
+<div id="loginContent"></div>
+</div>
+</div>
+<script>
+
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fmtC(c){if(c==null||isNaN(c))return"R$ 0,00";return"R$ "+(c/100).toLocaleString("pt-BR",{minimumFractionDigits:2})}
+function fmtD(d){return d?d.split("-").reverse().join("/"):"-"}
+function td(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function dB(a,b){var d1=new Date(a),d2=new Date(b);return Math.round((d2-d1)/86400000)}
+function isValidCPF(c){c=c.replace(/\D/g,"");if(c.length!=11||/^(\d)\1{10}$/.test(c))return false;var s=0,r1,r2,i;for(i=0;i<9;i++)s+=parseInt(c[i])*(10-i);r1=(s*10)%11;if(r1==10)r1=0;if(r1!=parseInt(c[9]))return false;s=0;for(i=0;i<10;i++)s+=parseInt(c[i])*(11-i);r2=(s*10)%11;if(r2==10)r2=0;return r2==parseInt(c[10])}
+
+var St={cc:{u:"hms_u",tq:"hms_tq",q:"hms_q",h:"hms_h",r:"hms_r",sv:"hms_sv",os:"hms_os",pg:"hms_pg",f:"hms_f",fa:"hms_fa",cfg:"hms_cfg"},
+ga:function(k){try{return JSON.parse(localStorage.getItem(this.cc[k]))||[]}catch(e){return[]}},
+sa:function(k,v){localStorage.setItem(this.cc[k],JSON.stringify(v))},
+gc:function(){try{return JSON.parse(localStorage.getItem(this.cc.cfg))}catch(e){return{pm:["dinheiro","cartao","debito","credito","pix"],hci:"14:00",hco:"12:00",tax:10,hn:"Hotel Manager",hcnpj:"",htel:"",hemail:""}}},
+sc:function(v){localStorage.setItem(this.cc.cfg,JSON.stringify(v))},
+in:function(k,v){v.id=crypto.randomUUID();var a=this.ga(k);a.push(v);this.sa(k,a);return v},
+up:function(k,i,u){var a=this.ga(k),p=a.findIndex(function(x){return x.id===i});if(p>-1){Object.assign(a[p],u);this.sa(k,a);return a[p]}return null},
+rm:function(k,i){this.sa(k,this.ga(k).filter(function(x){return x.id!==i}))},
+fi:function(k,i){return this.ga(k).find(function(x){return x.id===i})}
+};
+
+function st(m,t){var n=document.createElement("div");n.className="toast "+(t||"info");n.innerHTML=(t==="success"?"✓":t==="error"?"✗":"ℹ")+" "+esc(m);document.getElementById("toastContainer").appendChild(n);setTimeout(function(){n.remove()},3500)}
+function sm(t,b,f){document.getElementById("modalTitle").textContent=t;document.getElementById("modalBody").innerHTML=b||"";document.getElementById("modalFooter").innerHTML=f||"";document.getElementById("modalOverlay").classList.add("show")}
+function cm(){document.getElementById("modalOverlay").classList.remove("show");document.getElementById("modalBody").innerHTML="";document.getElementById("modalFooter").innerHTML=""}
+
+function showLogin(){var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";var usuarios=St.ga("u");if(!usuarios.length){document.getElementById("loginContent").innerHTML='<h3 style="text-align:center;margin-bottom:16px;color:var(--navy)">Primeiro Acesso</h3><p style="text-align:center;color:#888;font-size:14px;margin-bottom:20px">Cadastre o usuario administrador do sistema</p><div class="form-group"><label>Nome</label><input type="text" id="sAdmNome" placeholder="Admin"></div><div class="form-group"><label>Login</label><input type="text" id="sAdmLogin" placeholder="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="sAdmSenha" placeholder="1234"></div><div class="form-group"><label>Confirmar Senha</label><input type="password" id="sAdmConf" placeholder="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="setupAdmin()">Criar Administrador</button>';return}
+document.getElementById("loginContent").innerHTML='<div class="form-group"><label>Usuario</label><input type="text" id="loginUser" placeholder="Seu login"></div><div class="form-group"><label>Senha</label><input type="password" id="loginPass" placeholder="Sua senha"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="fazerLogin()">Entrar</button><div class="login-links">Sem acesso? <a onclick="showSetupAdminForce()">Configurar administrador</a></div>';}
+function hideLogin(){document.getElementById("loginOverlay").style.display="none";var u=getCurrentUser();if(u){document.getElementById("userInfo").innerHTML=esc(u.nome)+' &nbsp; Sair';filtrarSidebar()}}
+function setupAdmin(){var n=document.getElementById("sAdmNome"),l=document.getElementById("sAdmLogin"),s=document.getElementById("sAdmSenha"),c=document.getElementById("sAdmConf");if(!n||!l||!s||!c)return;if(!n.value.trim()||!l.value.trim()||!s.value.trim())return document.getElementById("loginError").textContent="Preencha todos os campos.",document.getElementById("loginError").style.display="block";if(s.value!==c.value)return document.getElementById("loginError").textContent="Senhas nao conferem.",document.getElementById("loginError").style.display="block";St.in("u",{nome:n.value.trim(),login:l.value.trim(),senha:s.value,tipo:"admin",ativo:true});st("Administrador criado! Faca o login.","success");showLogin()}
+function showSetupAdminForce(){document.getElementById("loginContent").innerHTML='<h3 style="text-align:center;margin-bottom:16px;color:var(--navy)">Novo Administrador</h3><div class="form-group"><label>Nome</label><input type="text" id="sAdmNome" placeholder="Admin"></div><div class="form-group"><label>Login</label><input type="text" id="sAdmLogin" placeholder="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="sAdmSenha" placeholder="1234"></div><div class="form-group"><label>Confirmar Senha</label><input type="password" id="sAdmConf" placeholder="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="setupAdmin()">Criar Administrador</button><div class="login-links"><a onclick="showLogin()">Voltar ao login</a></div>';}
+function fazerLogin(){var l=document.getElementById("loginUser"),s=document.getElementById("loginPass"),e=document.getElementById("loginError");if(!l||!s)return;var user=St.ga("u").find(function(u){return u.login===l.value&&u.senha===s.value&&u.ativo!==false});if(user){sessionStorage.setItem("hms_user",JSON.stringify(user));hideLogin();renderPage()}else{e.textContent="Usuario ou senha incorretos.";e.style.display="block"}}
+function logout(){sessionStorage.removeItem("hms_user");document.getElementById("userInfo").innerHTML="";window.location.hash="#d";showLogin()}
+function getCurrentUser(){try{return JSON.parse(sessionStorage.getItem("hms_user"))}catch(e){return null}}
+function getTurnoAtual(){var h=new Date().getHours();if(h>=6&&h<14)return"Manha";if(h>=14&&h<22)return"Tarde";return"Noite"}
+function hasAccess(m){var u=getCurrentUser();if(!u)return false;var t=u.tipo;
+if(t==="admin")return true;
+if(u.turno&&u.turno!==""&&u.turno!==getTurnoAtual()){if(m==="d")return true;return false}
+if(t==="operador")return m!=="fu"&&m!=="cg";
+if(t==="recepcao"){if(m==="f"||m==="fu"||m==="cg"||m==="rl")return false;if(m==="q")return"view";return true}
+return false}
+function filtrarSidebar(){var u=getCurrentUser();if(!u)return;
+var ta=getTurnoAtual(),foraTurno=u.turno&&u.turno!==""&&u.turno!==ta;
+var acessos={admin:true,operador:{d:true,r:true,h:true,q:true,ci:true,co:true,f:true,s:true,fu:false,rl:"view",cg:false},recepcao:{d:true,r:true,h:true,q:"view",ci:true,co:true,f:false,s:true,fu:false,rl:false,cg:false}};
+var perm=foraTurno?{d:true}:acessos[u.tipo];
+document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAttribute("href").slice(1);if(perm===true||perm[mod])a.style.display="flex";else a.style.display="none"});
+if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:#f39c12;font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}
+var LOGIN_CHECK=function(){var user=getCurrentUser();if(!user){showLogin();return true}hideLogin();return false}();
+
+function seed(){if(localStorage.getItem("hms_s"))return;
+var tp=[["Standard",2,19900],["Superior",3,29900],["Deluxe",3,44900],["Suite Master",4,69900]].map(function(t){return{id:crypto.randomUUID(),nome:t[0],capacidade:t[1],precoDiaria:t[2],ativo:true}});St.sa("tq",tp);
+var qq=[];for(var a=1;a<=4;a++){for(var q=0;q<(a<=2?3:2);q++){var ti=a<=1?0:a===2?1:a===3?2:3;qq.push({id:crypto.randomUUID(),numero:""+(100*a+q+1).toString().slice(1),andar:a,tipoQuartoId:tp[ti].id,status:"disponivel",ativo:true})}}St.sa("q",qq);
+var sc=[["Cafe da Manha",3500],["Lavanderia",1500],["Estacionamento",2500],["Minibar",800],["Spa Massagem",12000],["Room Service",5000],["Late Checkout",8000],["Early Checkin",6000]].map(function(s){return{id:crypto.randomUUID(),nome:s[0],preco:s[1],categoria:"Servico",unidade:"unidade",ativo:true}});St.sa("sv",sc);
+St.sc({hn:"Hotel Manager",hcnpj:"00.000.000/0001-00",htel:"(11)3000-0000",hemail:"contato@hotel.com",tax:10,hci:"14:00",hco:"12:00",pm:["dinheiro","cartao","debito","credito","pix"]});
+localStorage.setItem("hms_s","1");}
+seed();
+
+function checkDisponivel(quartoId,checkin,checkout,excluirId){return!St.ga("r").some(function(r){return r.id!==excluirId&&r.quartoId===quartoId&&["confirmada","pendente","checkin"].includes(r.status)&&r.dataCheckin<checkout&&r.dataCheckout>checkin})}
+function quartosDisponiveis(tipoId,checkin,checkout,excluirId){return St.ga("q").filter(function(q){return q.ativo!==false&&q.tipoQuartoId===tipoId&&(q.status==="disponivel"||q.status==="limpeza")&&checkDisponivel(q.id,checkin,checkout,excluirId)})}
+
+function getStatusBadge(s){var m={disponivel:"success",ocupado:"info",reservado:"warning",pendente:"warning",confirmada:"info",checkin:"info",checkout:"",cancelada:"danger",manutencao:"danger",limpeza:"warning"};return'<span class="badge badge-'+m[s]+'">'+esc(s.charAt(0).toUpperCase()+s.slice(1))+'</span>'}
+
+function navTo(h){window.location.hash=h}
+
+var el=document.getElementById("pageContent");
+
+function renderDashboard(){el=document.getElementById("pageContent");
+var config=St.gc(),hoje=td(),mesAtual=hoje.slice(0,7),anoAtual=hoje.slice(0,4);
+var u=getCurrentUser(),ta=getTurnoAtual(),infoTurno=u&&u.turno&&u.turno!==""?'<span style="font-size:12px;color:#888;margin-left:8px">Turno: '+u.turno+' ('+ta+')</span>':'';
+var reservas=St.ga("r"),quartos=St.ga("q"),hospedes=St.ga("h"),servicos=St.ga("sv"),tq=St.ga("tq"),pg=St.ga("pg");
+var ativas=reservas.filter(function(r){return["confirmada","pendente","checkin"].includes(r.status)});
+var pendentes=reservas.filter(function(r){return r.status==="pendente"});
+var checkinsHoje=reservas.filter(function(r){return r.dataCheckin===hoje&&["confirmada","pendente","checkin"].includes(r.status)});
+var checkoutsHoje=reservas.filter(function(r){return r.dataCheckout===hoje&&["checkin","confirmada"].includes(r.status)});
+var ocupados=quartos.filter(function(q){return q.status==="ocupado"}).length;
+var manutencao=quartos.filter(function(q){return q.status==="manutencao"}).length;
+var limpeza=quartos.filter(function(q){return q.status==="limpeza"}).length;
+var totalQuartos=quartos.filter(function(q){return q.ativo!==false}).length;
+var ocPercent=totalQuartos?Math.round(ocupados/totalQuartos*100):0;
+var faturamentoHoje=pg.filter(function(p){return p.data===hoje}).reduce(function(s,p){return s+(p.valor||0)},0);
+var faturamentoMes=pg.filter(function(p){return p.data&&p.data.slice(0,7)===mesAtual}).reduce(function(s,p){return s+(p.valor||0)},0);
+var faturamentoAno=pg.filter(function(p){return p.data&&p.data.slice(0,4)===anoAtual}).reduce(function(s,p){return s+(p.valor||0)},0);
+
+el.innerHTML='<div class="page-header"><div><h2>Painel de Controle</h2><p>Visao geral do hotel'+infoTurno+'</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="navTo(\'#r\')">Nova Reserva</button><button class="btn btn-secondary" onclick="navTo(\'#ci\')">Check-in Rapido</button></div></div>'+
+'<div class="cards-row">'+
+'<div class="stat-card"><h3>Ocupacao</h3><div class="value">'+ocPercent+'%</div><div class="sub">'+ocupados+'/'+totalQuartos+' quartos</div></div>'+
+'<div class="stat-card"><h3>Reservas Pendentes</h3><div class="value">'+pendentes.length+'</div></div>'+
+'<div class="stat-card"><h3>Check-ins Hoje</h3><div class="value">'+checkinsHoje.length+'</div></div>'+
+'<div class="stat-card"><h3>Check-outs Hoje</h3><div class="value">'+checkoutsHoje.length+'</div></div>'+
+'<div class="stat-card"><h3>Receita Hoje</h3><div class="value">'+fmtC(faturamentoHoje)+'</div></div>'+
+'<div class="stat-card"><h3>Receita do Mes</h3><div class="value">'+fmtC(faturamentoMes)+'</div></div>'+
+'<div class="stat-card"><h3>Receita do Ano</h3><div class="value">'+fmtC(faturamentoAno)+'</div></div>'+
+'</div>';
+
+var alertas='<div class="alerts">';
+if(checkoutsHoje.length>0)alertas+='<div class="alert alert-warning"><span>⚠️</span><span>'+checkoutsHoje.length+' hospede(s) precisam fazer check-out hoje.</span></div>';
+if(pendentes.length>0)alertas+='<div class="alert alert-info"><span>ℹ️</span><span>'+pendentes.length+' reserva(s) pendente(s) aguardando confirmacao.</span></div>';
+if(ocupados/totalQuartos>0.8)alertas+='<div class="alert alert-warning"><span>⚠️</span><span>Ocupacao acima de 80%! Considere verificar disponibilidade.</span></div>';
+if(ocupados/totalQuartos<0.3)alertas+='<div class="alert alert-info"><span>ℹ️</span><span>Ocupacao abaixo de 30%. Considere promover o hotel.</span></div>';
+if(manutencao>0)alertas+='<div class="alert alert-warning"><span>🔧</span><span>'+manutencao+' quarto(s) em manutencao.</span></div>';
+if(limpeza>0)alertas+='<div class="alert alert-info"><span>🧹</span><span>'+limpeza+' quarto(s) aguardando limpeza.</span></div>';
+alertas+='</div>';
+el.innerHTML+=alertas;
+
+var prox=ativas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).slice(0,5);
+if(prox.length){el.innerHTML+='<h3 style="margin-bottom:12px;color:var(--navy)">Proximas Reservas</h3><table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr>'+
+prox.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td>'+getStatusBadge(r.status)+'</td></tr>'}).join('')+'</table>';}
+}
+
+function renderReservas(){el=document.getElementById("pageContent");
+var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
+el.innerHTML='<div class="page-header"><div><h2>Reservas</h2><p>Gerenciar reservas do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button></div></div>';
+
+var filtro='<div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">'+
+'<button class="btn btn-sm '+(location.hash==="#r"||!location.hash?"btn-primary":"btn-secondary")+'" onclick="window.location.hash=\'#r\'">Todas</button>'+
+'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'pendente\')">Pendentes</button>'+
+'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'confirmada\')">Confirmadas</button>'+
+'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'checkin\')">Em Andamento</button>'+
+'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'cancelada\')">Canceladas</button>'+
+'</div>';
+el.innerHTML+=filtro;
+
+el.innerHTML+='<div id="reservasTable">'+buildReservasTable(reservas,quartos,hospedes,servicos,tq)+'</div>';}
+
+function filtrarReservas(s){var reservas=St.ga("r").filter(function(r){return r.status===s});document.getElementById("reservasTable").innerHTML=buildReservasTable(reservas,St.ga("q"),St.ga("h"),St.ga("sv"),St.ga("tq"))}
+
+function buildReservasTable(reservas,quartos,hospedes,servicos,tq){if(!reservas.length)return'<p style="padding:24px;text-align:center;color:#999">Nenhuma reserva encontrada.</p>';
+return'<table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Total</th><th>Status</th><th>Acoes</th></tr>'+
+reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+' <small style="color:#999">'+(h?esc(h.documento||""):"")+'</small></td><td>'+(q?"Apto "+q.numero:"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td>'+fmtC(r.total)+'</td><td>'+getStatusBadge(r.status)+'</td>'+
+'<td>'+
+(r.status==="pendente"||r.status==="confirmada"?'<button class="btn btn-sm btn-primary" onclick="editarReserva(\''+r.id+'\')" style="margin-right:4px">Editar</button>':'')+
+(r.status==="pendente"?'<button class="btn btn-sm btn-success" onclick="confirmarReserva(\''+r.id+'\')" style="margin-right:4px">Confirmar</button>':'')+
+(r.status!=="cancelada"&&r.status!=="checkout"?'<button class="btn btn-sm btn-danger" onclick="cancelarReserva(\''+r.id+'\')">Cancelar</button>':'')+
+'</td></tr>'}).join('')+'</table>'}
+
+function showNovaReserva(){sm("Nova Reserva",formReserva(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva()">Salvar</button>')}
+function editarReserva(id){sm("Editar Reserva",formReserva(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva(\''+id+'\')">Salvar</button>')}
+function confirmarReserva(id){St.up("r",id,{status:"confirmada"});st("Reserva confirmada!","success");cm();renderReservas()}
+function cancelarReserva(id){if(!confirm("Cancelar esta reserva?"))return;St.up("r",id,{status:"cancelada"});st("Reserva cancelada.","warning");renderReservas()}
+
+function formReserva(id){var r=id?St.fi("r",id):null;
+var hospedes=St.ga("h").filter(function(h){return h.ativo!==false});
+var tq=St.ga("tq").filter(function(t){return t.ativo!==false});
+return'<div class="form-grid">'+
+'<div class="form-group"><label>Hospede *</label><select id="rfHospede">'+(r?'':'<option value="">Selecione...</option>')+hospedes.map(function(h){return'<option value="'+h.id+'"'+(r&&r.hospedeId===h.id?' selected':'')+'>'+esc(h.nome)+(h.documento?' - '+esc(h.documento):'')+'</option>'}).join('')+'</select></div>'+
+'<div class="form-group"><label>Tipo de Quarto *</label><select id="rfTipo" onchange="atualizarQuartosDisponiveis()">'+(r?'':'<option value="">Selecione...</option>')+tq.map(function(t){return'<option value="'+t.id+'" data-capacidade="'+t.capacidade+'"'+(r?St.fi("q",r.quartoId)&&St.fi("q",r.quartoId).tipoQuartoId===t.id?' selected':'':'')+'>'+esc(t.nome)+' - '+fmtC(t.precoDiaria)+'/noite</option>'}).join('')+'</select></div>'+
+'<div class="form-group"><label>Check-in *</label><input type="date" id="rfCheckin" value="'+(r?r.dataCheckin:td())+'" onchange="atualizarQuartosDisponiveis()"></div>'+
+'<div class="form-group"><label>Check-out *</label><input type="date" id="rfCheckout" value="'+(r?r.dataCheckout:td())+'" onchange="atualizarQuartosDisponiveis()"></div>'+
+'<div class="form-group"><label>Quarto *</label><select id="rfQuarto">'+(r?'<option value="'+r.quartoId+'">Apto '+(St.fi("q",r.quartoId)?St.fi("q",r.quartoId).numero:'')+'</option>':'<option value="">Selecione tipo e datas</option>')+'</select></div>'+
+'<div class="form-group"><label>Status</label><select id="rfStatus"><option value="pendente"'+(r&&r.status==="pendente"?' selected':'')+'>Pendente</option><option value="confirmada"'+(r&&r.status==="confirmada"?' selected':'')+'>Confirmada</option></select></div>'+
+'</div>';}
+
+function atualizarQuartosDisponiveis(){var sel=document.getElementById("rfQuarto");if(!sel)return;
+var tipo=document.getElementById("rfTipo"),ci=document.getElementById("rfCheckin"),co=document.getElementById("rfCheckout");
+if(!tipo||!ci||!co||!tipo.value)return;
+var qs=quartosDisponiveis(tipo.value,ci.value,co.value,null);
+var editId=document.getElementById("modalTitle").textContent.includes("Editar");
+sel.innerHTML=qs.length?'<option value="">Selecione...</option>'+qs.map(function(q){return'<option value="'+q.id+'">Apto '+q.numero+'</option>'}).join(''):'<option value="">Nenhum quarto disponivel</option>';}
+
+function salvarReserva(id){var h=document.getElementById("rfHospede"),t=document.getElementById("rfTipo"),q=document.getElementById("rfQuarto"),ci=document.getElementById("rfCheckin"),co=document.getElementById("rfCheckout"),selSt=document.getElementById("rfStatus");
+if(!h||!t||!q||!ci||!co)return;
+if(!h.value||!t.value||!q.value||!ci.value||!co.value)return window.st("Preencha todos os campos obrigatorios.","error"),false;
+if(ci.value>=co.value)return window.st("Check-out deve ser apos Check-in.","error"),false;
+var qo=St.fi("q",q.value),tq=St.fi("tq",qo?qo.tipoQuartoId:null);
+var noites=dB(ci.value,co.value),total=noites*(tq?tq.precoDiaria:0);
+var dados={hospedeId:h.value,quartoId:q.value,tipoQuartoId:t.value,dataCheckin:ci.value,dataCheckout:co.value,noites:noites,total:total,status:(selSt?selSt.value:"pendente"),servicosIds:[]};
+var r;
+if(id){r=St.up("r",id,dados);window.st("Reserva atualizada!","success")}
+else{r=St.in("r",dados);window.st("Reserva criada!","success")}
+cm();renderReservas()}
+
+function renderHospedes(){el=document.getElementById("pageContent");
+var hospedes=St.ga("h"),reservas=St.ga("r");
+el.innerHTML='<div class="page-header"><div><h2>Hospedes</h2><p>Cadastro de hospedes</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovoHospede()">+ Novo Hospede</button></div></div>';
+el.innerHTML+='<div id="hospedesList">'+buildHospedesTable(hospedes,reservas)+'</div>';}
+
+function buildHospedesTable(hospedes,reservas){if(!hospedes.length)return'<p style="padding:24px;text-align:center;color:#999">Nenhum hospede cadastrado.</p>';
+return'<table><tr><th>Nome</th><th>Documento</th><th>Telefone</th><th>Email</th><th>Total Reservas</th><th>Acoes</th></tr>'+
+hospedes.map(function(h){var total=reservas.filter(function(r){return r.hospedeId===h.id}).length;return'<tr><td>'+esc(h.nome)+'</td><td>'+esc(h.documento||"-")+'</td><td>'+esc(h.telefone||"-")+'</td><td>'+esc(h.email||"-")+'</td><td>'+total+'</td><td><button class="btn btn-sm btn-primary" onclick="editarHospede(\''+h.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirHospede(\''+h.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>'}
+
+function showNovoHospede(){sm("Novo Hospede",formHospede(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarHospede()">Salvar</button>')}
+function editarHospede(id){sm("Editar Hospede",formHospede(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarHospede(\''+id+'\')">Salvar</button>')}
+
+function formHospede(id){var h=id?St.fi("h",id):null;
+return'<div class="form-grid">'+
+'<div class="form-group"><label>Nome Completo *</label><input type="text" id="hfNome" value="'+(h?esc(h.nome):'')+'" placeholder="Nome do hospede"></div>'+
+'<div class="form-group"><label>CPF/ Documento</label><input type="text" id="hfDoc" value="'+(h?esc(h.documento||""):'')+'" placeholder="000.000.000-00"></div>'+
+'<div class="form-group"><label>Telefone *</label><input type="text" id="hfTel" value="'+(h?esc(h.telefone||""):'')+'" placeholder="(11)99999-9999"></div>'+
+'<div class="form-group"><label>Email</label><input type="email" id="hfEmail" value="'+(h?esc(h.email||""):'')+'" placeholder="email@exemplo.com"></div>'+
+'<div class="form-group"><label>Endereco</label><input type="text" id="hfEnd" value="'+(h?esc(h.endereco||""):'')+'" placeholder="Endereco completo"></div>'+
+'<div class="form-group"><label>Observacoes</label><textarea id="hfObs" rows="2">'+(h?esc(h.observacoes||""):'')+'</textarea></div>'+
+'</div>';}
+
+function salvarHospede(id){var n=document.getElementById("hfNome"),d=document.getElementById("hfDoc"),t=document.getElementById("hfTel"),e=document.getElementById("hfEmail"),en=document.getElementById("hfEnd"),o=document.getElementById("hfObs");
+if(!n||!n.value.trim())return st("Nome e obrigatorio.","error"),false;
+if(d&&d.value.trim()&&d.value.replace(/\D/g,"").length!==11)return st("CPF deve ter 11 digitos.","error"),false;
+var dados={nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:(e?e.value.trim():""),endereco:(en?en.value.trim():""),observacoes:(o?o.value.trim():""),ativo:true};
+if(id){St.up("h",id,dados);st("Hospede atualizado!","success")}
+else{St.in("h",dados);st("Hospede cadastrado!","success")}
+cm();renderHospedes()}
+
+function excluirHospede(id){if(!confirm("Excluir este hospede?"))return;St.rm("h",id);st("Hospede excluido.","warning");renderHospedes()}
+
+function renderQuartos(){el=document.getElementById("pageContent");
+var quartos=St.ga("q"),tq=St.ga("tq");
+el.innerHTML='<div class="page-header"><div><h2>Quartos</h2><p>Gerenciar quartos do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovoQuarto()">+ Novo Quarto</button></div></div>';
+
+var porAndar={};quartos.filter(function(q){return q.ativo!==false}).forEach(function(q){if(!porAndar[q.andar])porAndar[q.andar]=[];porAndar[q.andar].push(q)});
+var html='';
+Object.keys(porAndar).sort().forEach(function(a){html+='<h3 style="margin:16px 0 8px;color:var(--navy)">Andar '+a+'</h3><div class="grid-cards">';
+porAndar[a].forEach(function(q){var t=tq.find(function(x){return x.id===q.tipoQuartoId});html+='<div class="room-card"><div class="room-number">Apto '+q.numero+'</div><div class="room-type">'+(t?esc(t.nome):"")+' - '+(t?fmtC(t.precoDiaria):"")+'/noite</div><div><span class="room-status '+q.status+'">'+esc(q.status.charAt(0).toUpperCase()+q.status.slice(1))+'</span></div>'+
+'<div style="margin-top:12px;display:flex;gap:4px">'+
+(q.status==="disponivel"?('<button class="btn btn-sm btn-primary" onclick="showManutencaoQuarto(\''+q.id+'\')">Manutencao</button>'):'')+
+(q.status==="manutencao"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Liberar</button>'):'')+
+(q.status==="limpeza"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Limpo</button>'):'')+
+'<button class="btn btn-sm btn-secondary" onclick="editarQuarto(\''+q.id+'\')">Editar</button></div></div>'});
+html+='</div>'});
+el.innerHTML+=html;}
+
+function showManutencaoQuarto(id){St.up("q",id,{status:"manutencao"});st("Quarto em manutencao.","warning");renderQuartos()}
+function liberarQuarto(id){St.up("q",id,{status:"disponivel"});st("Quarto disponivel.","success");renderQuartos()}
+
+function showNovoQuarto(){sm("Novo Quarto",formQuarto(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarQuarto()">Salvar</button>')}
+function editarQuarto(id){sm("Editar Quarto",formQuarto(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarQuarto(\''+id+'\')">Salvar</button>')}
+
+function formQuarto(id){var q=id?St.fi("q",id):null;
+var tq=St.ga("tq").filter(function(t){return t.ativo!==false});
+return'<div class="form-grid">'+
+'<div class="form-group"><label>Numero *</label><input type="text" id="qfNum" value="'+(q?esc(q.numero):'')+'"></div>'+
+'<div class="form-group"><label>Andar *</label><input type="number" id="qfAndar" value="'+(q?q.andar:'1')+'"></div>'+
+'<div class="form-group"><label>Tipo de Quarto *</label><select id="qfTipo">'+tq.map(function(t){return'<option value="'+t.id+'"'+(q&&q.tipoQuartoId===t.id?' selected':'')+'>'+esc(t.nome)+'</option>'}).join('')+'</select></div>'+
+'<div class="form-group"><label>Status</label><select id="qfStatus"><option value="disponivel"'+(q&&q.status==="disponivel"?' selected':'')+'>Disponivel</option><option value="manutencao"'+(q&&q.status==="manutencao"?' selected':'')+'>Manutencao</option><option value="limpeza"'+(q&&q.status==="limpeza"?' selected':'')+'>Limpeza</option></select></div>'+
+'</div>';}
+
+function salvarQuarto(id){var n=document.getElementById("qfNum"),a=document.getElementById("qfAndar"),t=document.getElementById("qfTipo"),s=document.getElementById("qfStatus");
+if(!n||!n.value.trim())return st("Numero obrigatorio.","error"),false;
+var dados={numero:n.value.trim(),andar:parseInt(a?a.value:1),tipoQuartoId:t?t.value:null,status:s?s.value:"disponivel",ativo:true};
+if(id){St.up("q",id,dados);st("Quarto atualizado!","success")}
+else{St.in("q",dados);st("Quarto cadastrado!","success")}
+cm();renderQuartos()}
+
+function renderCheckin(){el=document.getElementById("pageContent");
+var hoje=td();
+var reservas=St.ga("r").filter(function(r){return["confirmada","pendente"].includes(r.status)&&r.dataCheckin<=hoje});
+var ocupados=St.ga("r").filter(function(r){return r.status==="checkin"});
+el.innerHTML='<div class="page-header"><div><h2>Check-in</h2><p>Realizar check-in de hospedes</p></div></div>';
+
+if(ocupados.length){el.innerHTML+='<h3 style="margin-bottom:12px;color:var(--navy)">Em Andamento ('+ocupados.length+')</h3><table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th></tr>'+
+ocupados.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td></tr>'}).join('')+'</table>';}
+
+if(reservas.length){el.innerHTML+='<h3 style="margin-bottom:12px;color:var(--navy)">Reservas para Check-in</h3><table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Documento</th><th>Acao</th></tr>'+
+reservas.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td>'+(h?esc(h.documento||""):"-")+'</td><td><button class="btn btn-sm btn-success" onclick="realizarCheckin(\''+r.id+'\')">Fazer Check-in</button></td></tr>'}).join('')+'</table>';}
+else if(!ocupados.length){el.innerHTML+='<p style="padding:24px;text-align:center;color:#999">Nenhuma reserva pendente para check-in hoje.</p>';}
+}
+
+function realizarCheckin(id){if(!confirm("Confirmar check-in deste hospede?"))return;
+var r=St.fi("r",id);if(!r)return;
+St.up("r",id,{status:"checkin"});
+St.up("q",r.quartoId,{status:"ocupado"});
+st("Check-in realizado com sucesso!","success");
+renderCheckin();}
+
+function renderCheckout(){el=document.getElementById("pageContent");
+var hoje=td();
+var ativas=St.ga("r").filter(function(r){return r.status==="checkin"});
+el.innerHTML='<div class="page-header"><div><h2>Check-out</h2><p>Realizar check-out e encerrar estadia</p></div></div>';
+
+if(!ativas.length){el.innerHTML+='<p style="padding:24px;text-align:center;color:#999">Nenhum hospede em estadia ativa.</p>';return;}
+
+el.innerHTML+='<table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out Previsto</th><th>Acoes</th></tr>'+
+ativas.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td><button class="btn btn-sm btn-primary" onclick="realizarCheckout(\''+r.id+'\')">Fazer Check-out</button></td></tr>'}).join('')+'</table>';}
+
+function realizarCheckout(id){var r=St.fi("r",id);if(!r)return;
+var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);
+var hoje=td(),noitesReais=Math.max(1,dB(r.dataCheckin,hoje));
+var tq=St.fi("tq",r.tipoQuartoId);
+var diarias=tq?noitesReais*tq.precoDiaria:0;
+var servicos=St.ga("os").filter(function(o){return o.reservaId===id});
+var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
+var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
+var total=diarias+totalServicos+taxaImp;
+var temServicos=servicos.length>0;
+
+var fatura='<div style="background:#f8f8f8;padding:20px;border-radius:12px;margin-bottom:16px">'+
+'<h4 style="margin-bottom:12px;color:var(--navy)">Fatura - '+(h?esc(h.nome):"")+' (Apto '+(q?q.numero:"")+')</h4>'+
+'<table style="margin-bottom:8px"><tr><td>Periodo:</td><td>'+fmtD(r.dataCheckin)+' a '+fmtD(hoje)+' ('+noitesReais+' noite(s))</td></tr>'+
+'<tr><td>Tipo Quarto:</td><td>'+(tq?esc(tq.nome):"-")+'</td></tr>'+
+'<tr><td>Diarias:</td><td>'+fmtC(diarias)+'</td></tr></table>'+
+(temServicos?'<h5 style="margin:8px 0 4px;color:var(--navy)">Consumo Detalhado</h5><table><tr><th>Servico</th><th>Qtd</th><th>Valor Unit.</th><th>Subtotal</th></tr>'+
+servicos.map(function(o){var sv=St.fi("sv",o.servicoId);return'<tr><td>'+(sv?esc(sv.nome):"-")+'</td><td>'+o.quantidade+'</td><td>'+fmtC(o.precoUnit)+'</td><td>'+fmtC(o.total)+'</td></tr>'}).join('')+'</table>':'')+
+'<table style="margin-top:8px"><tr><td>Taxa ('+taxa+'%):</td><td>'+fmtC(taxaImp)+'</td></tr>'+
+'<tr style="font-weight:700"><td>Total:</td><td>'+fmtC(total)+'</td></tr></table></div>'+
+'<div class="form-group"><label>Forma de Pagamento *</label><select id="coPag">'+
+config.pm.map(function(p){return'<option value="'+p+'">'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</option>'}).join('')+'</select></div>'+
+'<div class="form-group"><label>Observacoes</label><textarea id="coObs" rows="2" placeholder="Observacoes do checkout"></textarea></div>';
+
+sm("Check-out - Fatura",fatura,'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="finalizarCheckout(\''+id+'\')">Finalizar Check-out</button>');}
+
+function finalizarCheckout(id){var r=St.fi("r",id);if(!r)return;
+var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);
+var hoje=td(),noitesReais=Math.max(1,dB(r.dataCheckin,hoje));
+var tq=St.fi("tq",r.tipoQuartoId);
+var diarias=tq?noitesReais*tq.precoDiaria:0;
+var servicos=St.ga("os").filter(function(o){return o.reservaId===id});
+var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
+var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
+var total=diarias+totalServicos+taxaImp;
+var pag=document.getElementById("coPag"),obs=document.getElementById("coObs");
+var pagamento={id:crypto.randomUUID(),reservaId:id,hospedeId:r.hospedeId,valor:total,forma:(pag?pag.value:"dinheiro"),data:hoje,observacoes:(obs?obs.value.trim():"")};
+St.in("pg",pagamento);
+St.up("r",id,{status:"checkout",dataCheckout:hoje,total:total});
+St.up("q",r.quartoId,{status:"limpeza"});
+st("Check-out realizado! Total: "+fmtC(total),"success");
+cm();renderCheckout();}
+
+function renderFinanceiro(){el=document.getElementById("pageContent");
+el.innerHTML='<div class="page-header"><div><h2>Financeiro</h2><p>Controle financeiro do hotel</p></div></div>'+
+'<div style="display:flex;gap:12px;align-items:end;margin-bottom:16px;flex-wrap:wrap"><div class="form-group" style="margin:0"><label>Data Inicio</label><input type="date" id="filtroFi"></div>'+
+'<div class="form-group" style="margin:0"><label>Data Fim</label><input type="date" id="filtroFf"></div>'+
+'<button class="btn btn-primary btn-sm" onclick="filtrarFinanceiro()">Filtrar</button>'+
+'<button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'filtroFi\').value=\'\';document.getElementById(\'filtroFf\').value=\'\';filtrarFinanceiro()">Limpar</button></div><div id="financeiroContent">'+buildFinanceiroContent()+'</div>';}
+
+function filtrarFinanceiro(){var fi=document.getElementById("filtroFi"),ff=document.getElementById("filtroFf");
+var pagamentos=St.ga("pg");if(fi&&fi.value)pagamentos=pagamentos.filter(function(p){return p.data>=fi.value});
+if(ff&&ff.value)pagamentos=pagamentos.filter(function(p){return p.data<=ff.value});
+document.getElementById("financeiroContent").innerHTML=buildFinanceiroContent(pagamentos);}
+function buildFinanceiroContent(pg){if(!pg)pg=St.ga("pg");
+var hospedes=St.ga("h");var totalPago=pg.reduce(function(s,p){return s+(p.valor||0)},0);
+var hoje=td();var hojePago=pg.filter(function(p){return p.data===hoje}).reduce(function(s,p){return s+(p.valor||0)},0);
+var porForma={};pg.forEach(function(p){porForma[p.forma]=(porForma[p.forma]||0)+(p.valor||0)});
+var html='<div class="cards-row"><div class="stat-card"><h3>Receita Total</h3><div class="value">'+fmtC(totalPago)+'</div></div>'+
+'<div class="stat-card"><h3>Receita Hoje</h3><div class="value">'+fmtC(hojePago)+'</div></div>'+
+'<div class="stat-card"><h3>Transacoes</h3><div class="value">'+pg.length+'</div></div></div>';
+if(Object.keys(porForma).length){html+='<h3 style="margin-bottom:12px;color:var(--navy)">Resumo por Forma de Pagamento</h3><table><tr><th>Forma</th><th>Total</th></tr>'+
+Object.keys(porForma).map(function(f){return'<tr><td>'+esc(f.charAt(0).toUpperCase()+f.slice(1))+'</td><td>'+fmtC(porForma[f])+'</td></tr>'}).join('')+'</table>';}
+if(pg.length){html+='<h3 style="margin-bottom:12px;color:var(--navy)">Historico de Pagamentos</h3><table><tr><th>Data</th><th>Hospede</th><th>Valor</th><th>Forma</th><th>Obs</th></tr>'+
+pg.sort(function(a,b){return b.data.localeCompare(a.data)}).slice(0,100).map(function(p){var h=hospedes.find(function(x){return x.id===p.hospedeId});return'<tr><td>'+fmtD(p.data)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+fmtC(p.valor)+'</td><td>'+esc(p.forma.charAt(0).toUpperCase()+p.forma.slice(1))+'</td><td>'+esc(p.observacoes||"-")+'</td></tr>'}).join('')+'</table>';}
+else{html+='<p style="padding:24px;text-align:center;color:#999">Nenhum pagamento neste periodo.</p>';}
+return html;}
+
+function renderServicos(){el=document.getElementById("pageContent");
+var servicos=St.ga("sv"),reservas=St.ga("r"),hospedes=St.ga("h"),os=St.ga("os");
+el.innerHTML='<div class="page-header"><div><h2>Servicos</h2><p>Gerenciar servicos e consumo</p></div></div>'+
+'<div class="tabs"><div class="tab active" onclick="this.parentElement.querySelector(\'.active\').classList.remove(\'active\');this.classList.add(\'active\');document.getElementById(\'tabServicosLista\').style.display=\'block\';document.getElementById(\'tabServicosConsumo\').style.display=\'none\';renderServicosLista()">Servicos Disponiveis</div>'+
+'<div class="tab" onclick="this.parentElement.querySelector(\'.active\').classList.remove(\'active\');this.classList.add(\'active\');document.getElementById(\'tabServicosLista\').style.display=\'none\';document.getElementById(\'tabServicosConsumo\').style.display=\'block\';renderConsumoServicos()">Consumo</div></div>'+
+'<div id="tabServicosLista">'+buildServicosTable(servicos)+'</div>'+
+'<div id="tabServicosConsumo" style="display:none">'+(os.length?buildConsumoServicosTable(os,reservas,hospedes,servicos):'<p style="padding:24px;text-align:center;color:#999">Nenhum consumo registrado.</p>')+'</div>';}
+
+function buildServicosTable(servicos){if(!servicos.length)return'<p style="padding:24px;text-align:center;color:#999">Nenhum servico cadastrado.</p>';
+return'<button class="btn btn-primary" onclick="showNovoServico()" style="margin-bottom:16px">+ Novo Servico</button><table><tr><th>Servico</th><th>Preco</th><th>Categoria</th><th>Acoes</th></tr>'+
+servicos.map(function(s){return'<tr><td>'+esc(s.nome)+'</td><td>'+fmtC(s.preco)+'</td><td>'+esc(s.categoria||"-")+'</td><td><button class="btn btn-sm btn-primary" onclick="editarServico(\''+s.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirServico(\''+s.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>'}
+
+function renderServicosLista(){document.getElementById("tabServicosLista").innerHTML=buildServicosTable(St.ga("sv"))}
+
+function buildConsumoServicosTable(os,reservas,hospedes,servicos){return'<button class="btn btn-primary" onclick="showNovoConsumo()" style="margin-bottom:16px">+ Novo Consumo</button><table><tr><th>Data</th><th>Hospede</th><th>Servico</th><th>Qtd</th><th>Total</th><th>Acoes</th></tr>'+
+os.sort(function(a,b){return b.data.localeCompare(a.data)}).map(function(o){var r=reservas.find(function(x){return x.id===o.reservaId}),h=hospedes.find(function(x){return r&&x.id===r.hospedeId}),s=servicos.find(function(x){return x.id===o.servicoId});return'<tr><td>'+fmtD(o.data)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+(s?esc(s.nome):"-")+'</td><td>'+o.quantidade+'</td><td>'+fmtC(o.total)+'</td><td><button class="btn btn-sm btn-danger" onclick="excluirConsumo(\''+o.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>'}
+
+function renderConsumoServicos(){var os=St.ga("os");document.getElementById("tabServicosConsumo").innerHTML=os.length?buildConsumoServicosTable(os,St.ga("r"),St.ga("h"),St.ga("sv")):'<p style="padding:24px;text-align:center;color:#999">Nenhum consumo registrado.</p>';}
+
+function showNovoServico(){sm("Novo Servico",formServico(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarServico()">Salvar</button>')}
+function editarServico(id){sm("Editar Servico",formServico(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarServico(\''+id+'\')">Salvar</button>')}
+
+function formServico(id){var s=id?St.fi("sv",id):null;
+return'<div class="form-grid">'+
+'<div class="form-group"><label>Nome *</label><input type="text" id="sfNome" value="'+(s?esc(s.nome):'')+'"></div>'+
+'<div class="form-group"><label>Preco (R$) *</label><input type="number" id="sfPreco" value="'+(s?s.preco/100:'')+'" step="0.01" min="0"></div>'+
+'<div class="form-group"><label>Categoria</label><select id="sfCat"><option value="Alimentacao"'+(s&&s.categoria==="Alimentacao"?' selected':'')+'>Alimentacao</option><option value="Lavanderia"'+(s&&s.categoria==="Lavanderia"?' selected':'')+'>Lavanderia</option><option value="Estacionamento"'+(s&&s.categoria==="Estacionamento"?' selected':'')+'>Estacionamento</option><option value="Entretenimento"'+(s&&s.categoria==="Entretenimento"?' selected':'')+'>Entretenimento</option><option value="Bem-Estar"'+(s&&s.categoria==="Bem-Estar"?' selected':'')+'>Bem-Estar</option><option value="Servico de Quarto"'+(s&&s.categoria==="Servico de Quarto"?' selected':'')+'>Servico de Quarto</option><option value="Outros"'+(s&&s.categoria==="Outros"?' selected':'')+'>Outros</option></select></div>'+
+'<div class="form-group"><label>Unidade</label><input type="text" id="sfUn" value="'+(s?esc(s.unidade||"unidade"):'unidade')+'"></div>'+
+'</div>';}
+
+function salvarServico(id){var n=document.getElementById("sfNome"),p=document.getElementById("sfPreco"),c=document.getElementById("sfCat"),u=document.getElementById("sfUn");
+if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
+var preco=Math.round(parseFloat(p?p.value:0)*100);
+var dados={nome:n.value.trim(),preco:preco,categoria:(c?c.value.trim():""),unidade:(u?u.value.trim():"unidade"),ativo:true};
+if(id){St.up("sv",id,dados);st("Servico atualizado!","success")}
+else{St.in("sv",dados);st("Servico cadastrado!","success")}
+cm();renderServicos()}
+
+function excluirServico(id){if(!confirm("Excluir servico?"))return;St.rm("sv",id);st("Servico excluido.","warning");renderServicos()}
+
+function showNovoConsumo(){sm("Novo Consumo",formConsumo(),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarConsumo()">Salvar</button>')}
+
+function formConsumo(){var ativas=St.ga("r").filter(function(r){return r.status==="checkin"});
+var servicos=St.ga("sv").filter(function(s){return s.ativo!==false});
+return'<div class="form-grid">'+
+'<div class="form-group"><label>Hospede (Estadia Ativa) *</label><select id="osfReserva">'+
+(ativas.length?'':'<option value="">Nenhum hospede em estadia</option>')+
+ativas.map(function(r){var h=St.fi("h",r.hospedeId);return'<option value="'+r.id+'">'+(h?esc(h.nome):"")+' - Apto '+(St.fi("q",r.quartoId)?St.fi("q",r.quartoId).numero:"")+'</option>'}).join('')+'</select></div>'+
+'<div class="form-group"><label>Servico *</label><select id="osfServico">'+servicos.map(function(s){return'<option value="'+s.id+'" data-preco="'+(s.preco||0)+'">'+esc(s.nome)+' - '+fmtC(s.preco)+'</option>'}).join('')+'</select></div>'+
+'<div class="form-group"><label>Quantidade</label><input type="number" id="osfQtd" value="1" min="1"></div>'+
+'<div class="form-group"><label>Data</label><input type="date" id="osfData" value="'+td()+'"></div>'+
+'</div>';}
+
+function salvarConsumo(){var r=document.getElementById("osfReserva"),s=document.getElementById("osfServico"),q=document.getElementById("osfQtd"),d=document.getElementById("osfData");
+if(!r||!s||!r.value)return st("Selecione um hospede em estadia.","error"),false;
+var preco=parseFloat(s.options[s.selectedIndex].dataset.preco||0);
+var qtd=parseInt(q?q.value:1);
+var total=preco*qtd;
+St.in("os",{reservaId:r.value,servicoId:s.value,quantidade:qtd,precoUnit:preco,total:total,data:(d?d.value:td())});
+st("Consumo registrado!","success");cm();renderServicos()}
+
+function excluirConsumo(id){St.rm("os",id);st("Consumo excluido.","warning");renderServicos()}
+
+function renderFuncionarios(){el=document.getElementById("pageContent");
+var funcionarios=St.ga("fa");
+el.innerHTML='<div class="page-header"><div><h2>Funcionarios</h2><p>Gerenciar equipe do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovoFuncionario()">+ Novo Funcionario</button></div></div>';
+
+if(!funcionarios.length){el.innerHTML+='<p style="padding:24px;text-align:center;color:#999">Nenhum funcionario cadastrado.</p>';return;}
+
+el.innerHTML+='<table><tr><th>Nome</th><th>Cargo</th><th>Telefone</th><th>Email</th><th>Turno</th><th>Ativo</th><th>Acoes</th></tr>'+
+funcionarios.map(function(f){return'<tr><td>'+esc(f.nome)+'</td><td>'+esc(f.cargo||"-")+'</td><td>'+esc(f.telefone||"-")+'</td><td>'+esc(f.email||"-")+'</td><td>'+esc(f.turno||"-")+'</td><td>'+(f.ativo!==false?'<span class="badge badge-success">Sim</span>':'<span class="badge badge-danger">Nao</span>')+'</td><td><button class="btn btn-sm btn-primary" onclick="editarFuncionario(\''+f.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirFuncionario(\''+f.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
+
+function showNovoFuncionario(){sm("Novo Funcionario",formFuncionario(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarFuncionario()">Salvar</button>')}
+function editarFuncionario(id){sm("Editar Funcionario",formFuncionario(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarFuncionario(\''+id+'\')">Salvar</button>')}
+
+function formFuncionario(id){var f=id?St.fi("fa",id):null;
+return'<div class="form-grid">'+
+'<div class="form-group"><label>Nome *</label><input type="text" id="ffNome" value="'+(f?esc(f.nome):'')+'"></div>'+
+'<div class="form-group"><label>Cargo *</label><select id="ffCargo"><option value="Recepcionista"'+(f&&f.cargo==="Recepcionista"?' selected':'')+'>Recepcionista</option><option value="Camareira"'+(f&&f.cargo==="Camareira"?' selected':'')+'>Camareira</option><option value="Gerente"'+(f&&f.cargo==="Gerente"?' selected':'')+'>Gerente</option><option value="Manutencao"'+(f&&f.cargo==="Manutencao"?' selected':'')+'>Manutencao</option><option value="Cozinha"'+(f&&f.cargo==="Cozinha"?' selected':'')+'>Cozinha</option><option value="Seguranca"'+(f&&f.cargo==="Seguranca"?' selected':'')+'>Seguranca</option><option value="Outro"'+(f&&f.cargo==="Outro"?' selected':'')+'>Outro</option></select></div>'+
+'<div class="form-group"><label>Telefone</label><input type="text" id="ffTel" value="'+(f?esc(f.telefone||""):'')+'"></div>'+
+'<div class="form-group"><label>Email</label><input type="email" id="ffEmail" value="'+(f?esc(f.email||""):'')+'"></div>'+
+'<div class="form-group"><label>Turno</label><select id="ffTurno"><option value="Manha"'+(f&&f.turno==="Manha"?' selected':'')+'>Manha (06-14h)</option><option value="Tarde"'+(f&&f.turno==="Tarde"?' selected':'')+'>Tarde (14-22h)</option><option value="Noite"'+(f&&f.turno==="Noite"?' selected':'')+'>Noite (22-06h)</option><option value="Administrativo"'+(f&&f.turno==="Administrativo"?' selected':'')+'>Administrativo</option></select></div>'+
+'<div class="form-group"><label>Salario (R$)</label><input type="number" id="ffSal" value="'+(f?f.salario?'R$ '+(f.salario/100).toFixed(2):'':'')+'" step="0.01" min="0"></div>'+
+'</div>';}
+
+function salvarFuncionario(id){var n=document.getElementById("ffNome"),c=document.getElementById("ffCargo"),t=document.getElementById("ffTel"),e=document.getElementById("ffEmail"),tu=document.getElementById("ffTurno"),s=document.getElementById("ffSal");
+if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
+var salario=s&&s.value?Math.round(parseFloat(s.value)*100):0;
+var dados={nome:n.value.trim(),cargo:(c?c.value:""),telefone:(t?t.value.trim():""),email:(e?e.value.trim():""),turno:(tu?tu.value:""),salario:salario,ativo:true};
+if(id){St.up("fa",id,dados);st("Funcionario atualizado!","success")}
+else{St.in("fa",dados);st("Funcionario cadastrado!","success")}
+cm();renderFuncionarios()}
+
+function excluirFuncionario(id){if(!confirm("Excluir funcionario?"))return;St.rm("fa",id);st("Funcionario excluido.","warning");renderFuncionarios()}
+
+function renderRelatorios(){el=document.getElementById("pageContent");
+var config=St.gc(),hoje=td();
+var reservas=St.ga("r"),quartos=St.ga("q"),hospedes=St.ga("h"),pagamentos=St.ga("pg"),servicos=St.ga("sv"),tq=St.ga("tq");
+el.innerHTML='<div class="page-header"><div><h2>Relatorios</h2><p>Relatorios e estatisticas do hotel</p></div></div>'+
+'<div class="tabs">'+
+'<div class="tab active" onclick="mudarRelatorio(this,\'ocupacao\')">Ocupacao</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'receita\')">Receita</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'proximas\')">Proximas Chegadas</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'vip\')">Hospedes Fieis</div>'+
+'</div><div id="relatorioContent">'+buildRelatorioOcupacao(reservas,quartos,tq)+'</div>';}
+
+function mudarRelatorio(tab,tipo){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");
+var reservas=St.ga("r"),quartos=St.ga("q"),hospedes=St.ga("h"),pagamentos=St.ga("pg"),tq=St.ga("tq");
+var html="";
+if(tipo==="ocupacao")html=buildRelatorioOcupacao(reservas,quartos,tq);
+else if(tipo==="receita")html=buildRelatorioReceita(pagamentos);
+else if(tipo==="proximas")html=buildRelatorioChegadas(reservas,hospedes,quartos);
+else if(tipo==="vip")html=buildRelatorioVIP(reservas,hospedes);
+document.getElementById("relatorioContent").innerHTML=html;}
+
+function buildRelatorioOcupacao(reservas,quartos,tq){var total=quartos.filter(function(q){return q.ativo!==false}).length;
+var ocupados=quartos.filter(function(q){return q.status==="ocupado"}).length;
+var disponiveis=quartos.filter(function(q){return q.status==="disponivel"}).length;
+var manutencao=quartos.filter(function(q){return q.status==="manutencao"}).length;
+var limpeza=quartos.filter(function(q){return q.status==="limpeza"}).length;
+return'<div class="report-container"><h3 style="margin-bottom:16px;color:var(--navy)">Taxa de Ocupacao</h3>'+
+'<div class="cards-row">'+
+'<div class="stat-card"><h3>Total Quartos</h3><div class="value">'+total+'</div></div>'+
+'<div class="stat-card"><h3>Ocupados</h3><div class="value">'+ocupados+'</div><div class="sub">'+Math.round(ocupados/total*100)+'%</div></div>'+
+'<div class="stat-card"><h3>Disponiveis</h3><div class="value">'+disponiveis+'</div></div>'+
+'<div class="stat-card"><h3>Manutencao</h3><div class="value">'+manutencao+'</div></div>'+
+'<div class="stat-card"><h3>Limpeza</h3><div class="value">'+limpeza+'</div></div>'+
+'</div></div>'+
+'<div style="text-align:right"><button class="btn btn-secondary" onclick="window.print()">Imprimir Relatorio</button></div>';}
+
+function buildRelatorioReceita(pagamentos){var total=pagamentos.reduce(function(s,p){return s+(p.valor||0)},0);
+var porMes={};pagamentos.forEach(function(p){var mes=p.data?p.data.slice(0,7):"";if(mes){porMes[mes]=(porMes[mes]||0)+(p.valor||0)}});
+var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--navy)">Receita Total: '+fmtC(total)+'</h3>';
+if(Object.keys(porMes).length){html+='<table><tr><th>Mes</th><th>Receita</th></tr>'+
+Object.keys(porMes).sort().reverse().map(function(m){return'<tr><td>'+m+'</td><td>'+fmtC(porMes[m])+'</td></tr>'}).join('')+'</table>';}
+else{html+='<p style="color:#999">Nenhuma receita registrada.</p>';}
+html+='</div><div style="text-align:right"><button class="btn btn-secondary" onclick="window.print()">Imprimir Relatorio</button></div>';return html;}
+
+function buildRelatorioChegadas(reservas,hospedes,quartos){var hoje=td(),prox=reservas.filter(function(r){return r.dataCheckin>=hoje&&["confirmada","pendente"].includes(r.status)}).sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).slice(0,20);
+if(!prox.length)return'<div class="report-container"><p style="color:#999">Nenhuma chegada prevista.</p></div>';
+var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--navy)">Proximas Chegadas</h3><table><tr><th>Data</th><th>Hospede</th><th>Quarto</th><th>Noites</th><th>Status</th></tr>'+
+prox.map(function(r){var h=hospedes.find(function(x){return x.id===r.hospedeId}),q=quartos.find(function(x){return x.id===r.quartoId});return'<tr><td>'+fmtD(r.dataCheckin)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+r.noites+'</td><td>'+getStatusBadge(r.status)+'</td></tr>'}).join('')+'</table></div>'+
+'<div style="text-align:right"><button class="btn btn-secondary" onclick="window.print()">Imprimir Relatorio</button></div>';return html;}
+
+function buildRelatorioVIP(reservas,hospedes){var count={};reservas.filter(function(r){return r.status==="checkout"}).forEach(function(r){count[r.hospedeId]=(count[r.hospedeId]||0)+1});
+var sorted=Object.keys(count).sort(function(a,b){return count[b]-count[a]}).slice(0,10);
+if(!sorted.length)return'<div class="report-container"><p style="color:#999">Nenhum hospede com estadias concluidas.</p></div>';
+var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--navy)">Top Hospedes - Mais Estadias</h3><table><tr><th>#</th><th>Hospede</th><th>Estadias</th></tr>'+
+sorted.map(function(id,i){var h=hospedes.find(function(x){return x.id===id});return'<tr><td>'+(i+1)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+count[id]+'</td></tr>'}).join('')+'</table></div>'+
+'<div style="text-align:right"><button class="btn btn-secondary" onclick="window.print()">Imprimir Relatorio</button></div>';return html;}
+
+function renderConfig(){el=document.getElementById("pageContent");
+var config=St.gc(),tq=St.ga("tq");
+el.innerHTML='<div class="page-header"><div><h2>Configuracoes</h2><p>Configurar dados do hotel e sistema</p></div></div>'+
+'<div class="tabs">'+
+'<div class="tab active" onclick="mudarConfigTab(this,\'hotel\')">Hotel</div>'+
+'<div class="tab" onclick="mudarConfigTab(this,\'tp\')">Tipos de Quarto</div>'+
+'<div class="tab" onclick="mudarConfigTab(this,\'pg\')">Pagamento</div>'+
+'<div class="tab" onclick="mudarConfigTab(this,\'us\')">Usuarios</div>'+
+'</div><div id="configContent">'+formConfigHotel(config)+'</div>';}
+
+function mudarConfigTab(tab,aba){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");
+var config=St.gc(),tq=St.ga("tq"),html="";
+if(aba==="hotel")html=formConfigHotel(config);
+else if(aba==="tp")html=formConfigTipoQuarto(tq);
+else if(aba==="pg")html=formConfigPagamento(config);
+else if(aba==="us")html=formConfigUsuarios();
+document.getElementById("configContent").innerHTML=html;}
+
+function formConfigHotel(c){return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--navy)">Dados do Hotel</h3><div class="form-grid">'+
+'<div class="form-group"><label>Nome do Hotel</label><input type="text" id="cfgNome" value="'+esc(c.hn||"")+'"></div>'+
+'<div class="form-group"><label>CNPJ</label><input type="text" id="cfgCnpj" value="'+esc(c.hcnpj||"")+'"></div>'+
+'<div class="form-group"><label>Telefone</label><input type="text" id="cfgTel" value="'+esc(c.htel||"")+'"></div>'+
+'<div class="form-group"><label>Email</label><input type="email" id="cfgEmail" value="'+esc(c.hemail||"")+'"></div>'+
+'<div class="form-group"><label>Horario Check-in</label><input type="time" id="cfgHci" value="'+esc(c.hci||"14:00")+'"></div>'+
+'<div class="form-group"><label>Horario Check-out</label><input type="time" id="cfgHco" value="'+esc(c.hco||"12:00")+'"></div>'+
+'<div class="form-group"><label>Taxa de Servico (%)</label><input type="number" id="cfgTax" value="'+(c.tax||10)+'" min="0" max="100"></div>'+
+'</div><div class="form-actions"><button class="btn btn-primary" onclick="salvarConfigHotel()">Salvar</button></div></div>'}
+
+function salvarConfigHotel(){var cfg=St.gc();
+var n=document.getElementById("cfgNome"),c=document.getElementById("cfgCnpj"),t=document.getElementById("cfgTel"),e=document.getElementById("cfgEmail");
+var hci=document.getElementById("cfgHci"),hco=document.getElementById("cfgHco"),tax=document.getElementById("cfgTax");
+cfg.hn=n?n.value:"Hotel";cfg.hcnpj=c?c.value:"";cfg.htel=t?t.value:"";cfg.hemail=e?e.value:"";
+cfg.hci=hci?hci.value:"14:00";cfg.hco=hco?hco.value:"12:00";cfg.tax=parseFloat(tax?tax.value:10);
+St.sc(cfg);st("Configuracoes salvas!","success");}
+
+function formConfigTipoQuarto(tq){var html='<div class="form-container"><h3 style="margin-bottom:16px;color:var(--navy)">Tipos de Quarto</h3>';
+if(tq.length){html+='<table><tr><th>Nome</th><th>Capacidade</th><th>Preco Diaria</th><th>Acoes</th></tr>'+
+tq.map(function(t){return'<tr><td>'+esc(t.nome)+'</td><td>'+t.capacidade+' pessoa(s)</td><td>'+fmtC(t.precoDiaria)+'</td><td><button class="btn btn-sm btn-primary" onclick="editarTipoQuarto(\''+t.id+'\')">Editar</button></td></tr>'}).join('')+'</table>';}
+html+='<div class="form-actions"><button class="btn btn-primary" onclick="showNovoTipoQuarto()">+ Novo Tipo</button></div></div>';return html;}
+
+function showNovoTipoQuarto(){sm("Novo Tipo de Quarto",'<div class="form-group"><label>Nome</label><input type="text" id="tqfNome"></div>'+
+'<div class="form-group"><label>Capacidade (pessoas)</label><input type="number" id="tqfCap" value="2" min="1"></div>'+
+'<div class="form-group"><label>Preco da Diaria (R$)</label><input type="number" id="tqfPreco" step="0.01" min="0"></div>'+
+'<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarTipoQuarto()">Salvar</button></div>',"")}
+
+function editarTipoQuarto(id){var t=St.fi("tq",id);if(!t)return;
+sm("Editar Tipo de Quarto",'<div class="form-group"><label>Nome</label><input type="text" id="tqfNome" value="'+esc(t.nome)+'"></div>'+
+'<div class="form-group"><label>Capacidade (pessoas)</label><input type="number" id="tqfCap" value="'+t.capacidade+'" min="1"></div>'+
+'<div class="form-group"><label>Preco da Diaria (R$)</label><input type="number" id="tqfPreco" step="0.01" min="0" value="'+(t.precoDiaria/100).toFixed(2)+'"></div>'+
+'<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarTipoQuarto(\''+id+'\')">Salvar</button></div>',"")}
+
+function salvarTipoQuarto(id){var n=document.getElementById("tqfNome"),c=document.getElementById("tqfCap"),p=document.getElementById("tqfPreco");
+if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
+var dados={nome:n.value.trim(),capacidade:parseInt(c?c.value:2),precoDiaria:Math.round(parseFloat(p?p.value:0)*100),ativo:true};
+if(id){St.up("tq",id,dados);st("Tipo atualizado!","success")}
+else{St.in("tq",dados);st("Tipo cadastrado!","success")}
+cm();renderConfig()}
+
+function formConfigPagamento(c){return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--navy)">Formas de Pagamento</h3>'+
+'<p style="color:#888;margin-bottom:16px">Selecione as formas de pagamento aceitas pelo hotel:</p>'+
+["dinheiro","cartao","debito","credito","pix","boleto","cheque"].map(function(p){return'<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer"><input type="checkbox" value="'+p+'" '+(c.pm&&c.pm.includes(p)?'checked':'')+' onchange="togglePagamento(this)"> <span>'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</span></label>'}).join('')+
+'<div class="form-actions"><button class="btn btn-primary" onclick="salvarFormasPagamento()">Salvar</button></div></div>'+
+'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--navy)">Dados do Sistema</h3>'+
+'<button class="btn btn-danger" onclick="if(confirm(\'Restaurar dados padrao? Todos os dados serao perdidos!\')){localStorage.clear();location.reload()}">Restaurar Dados Padrao</button>'+
+'<p style="color:#999;font-size:12px;margin-top:8px">Isso apagara todos os dados e recriara os dados iniciais.</p></div>'}
+
+function togglePagamento(el){if(el.checked)el.checked=true;else el.checked=false}
+
+function salvarFormasPagamento(){var cfg=St.gc();cfg.pm=[];
+document.querySelectorAll("#configContent input[type=checkbox]").forEach(function(cb){if(cb.checked)cfg.pm.push(cb.value)});
+if(!cfg.pm.length)return st("Selecione ao menos uma forma.","error"),false;
+St.sc(cfg);st("Formas de pagamento salvas!","success");}
+
+function formConfigUsuarios(){var users=St.ga("u"),meu=getCurrentUser();
+var html='<div class="form-container"><h3 style="margin-bottom:16px;color:var(--navy)">Usuarios do Sistema</h3>'+
+'<button class="btn btn-primary" onclick="showNovoUsuario()" style="margin-bottom:16px">+ Novo Usuario</button>';
+if(!users.length)html+='<p style="color:#999">Nenhum usuario cadastrado.</p>';
+else{html+='<table><tr><th>Nome</th><th>Login</th><th>Tipo</th><th>Ativo</th><th>Acoes</th></tr>'+
+users.map(function(u){return'<tr><td>'+esc(u.nome)+'</td><td>'+esc(u.login)+'</td><td>'+esc(u.tipo)+'</td><td>'+(u.ativo!==false?'<span class="badge badge-success">Sim</span>':'<span class="badge badge-danger">Nao</span>')+'</td><td>'+
+(meu&&meu.tipo==="admin"?''+
+'<button class="btn btn-sm btn-secondary" onclick="editarUsuario(\''+u.id+'\')">Editar</button> '+
+(u.id!==meu.id?'<button class="btn btn-sm btn-danger" onclick="excluirUsuario(\''+u.id+'\')">Excluir</button>':'')+
+(u.ativo===false?' <button class="btn btn-sm btn-success" onclick="ativarUsuario(\''+u.id+'\')">Ativar</button>':''):'')+
+'</td></tr>'}).join('')+'</table>';}
+html+='</div>';return html;}
+
+function showNovoUsuario(){var user=getCurrentUser();if(!user||user.tipo!=="admin")return st("Apenas administradores podem criar usuarios.","error"),false;
+sm("Novo Usuario",'<div class="form-group"><label>Nome *</label><input type="text" id="ufNome"></div>'+
+'<div class="form-group"><label>Login *</label><input type="text" id="ufLogin"></div>'+
+'<div class="form-group"><label>Senha *</label><input type="password" id="ufSenha"></div>'+
+'<div class="form-group"><label>Tipo</label><select id="ufTipo"><option value="admin">Administrador</option><option value="operador" selected>Operador</option><option value="recepcao">Recepcao</option></select></div>'+
+'<div class="form-group"><label>Turno</label><select id="ufTurno"><option value="">Sem restricao</option><option value="Manha">Manha (06-14h)</option><option value="Tarde">Tarde (14-22h)</option><option value="Noite">Noite (22-06h)</option><option value="Administrativo">Administrativo</option></select></div>'+
+'<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarUsuario()">Salvar</button></div>',"")}
+
+function editarUsuario(id){var u=St.fi("u",id);if(!u)return;
+sm("Editar Usuario",'<div class="form-group"><label>Nome *</label><input type="text" id="ufNome" value="'+esc(u.nome)+'"></div>'+
+'<div class="form-group"><label>Login *</label><input type="text" id="ufLogin" value="'+esc(u.login)+'"></div>'+
+'<div class="form-group"><label>Nova Senha (deixe em branco para manter)</label><input type="password" id="ufSenha"></div>'+
+'<div class="form-group"><label>Tipo</label><select id="ufTipo"><option value="admin"'+(u.tipo==="admin"?' selected':'')+'>Administrador</option><option value="operador"'+(u.tipo==="operador"?' selected':'')+'>Operador</option><option value="recepcao"'+(u.tipo==="recepcao"?' selected':'')+'>Recepcao</option></select></div>'+
+'<div class="form-group"><label>Turno</label><select id="ufTurno"><option value="">Sem restricao</option><option value="Manha"'+esc(u.turno==='Manha'?' selected':'')+'>Manha (06-14h)</option><option value="Tarde"'+esc(u.turno==='Tarde'?' selected':'')+'>Tarde (14-22h)</option><option value="Noite"'+esc(u.turno==='Noite'?' selected':'')+'>Noite (22-06h)</option><option value="Administrativo"'+esc(u.turno==='Administrativo'?' selected':'')+'>Administrativo</option></select></div>'+
+'<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarUsuario(\''+id+'\')">Salvar</button></div>',"")}
+
+function salvarUsuario(id){var n=document.getElementById("ufNome"),l=document.getElementById("ufLogin"),s=document.getElementById("ufSenha"),t=document.getElementById("ufTipo"),tu=document.getElementById("ufTurno");
+if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
+if(!l||!l.value.trim())return st("Login obrigatorio.","error"),false;
+if(!id&&(!s||!s.value.trim()))return st("Senha obrigatoria.","error"),false;
+if(!id&&St.ga("u").some(function(u){return u.login===l.value.trim()}))return st("Este login ja existe.","error"),false;
+var dados={nome:n.value.trim(),login:l.value.trim(),tipo:t?t.value:"operador",turno:tu?tu.value:"",ativo:true};
+if(s&&s.value.trim())dados.senha=s.value.trim();
+if(id){St.up("u",id,dados);st("Usuario atualizado!","success")}
+else{if(!dados.senha)return st("Senha obrigatoria.","error"),false;St.in("u",dados);st("Usuario cadastrado!","success")}
+cm();renderConfig()}
+
+function excluirUsuario(id){var user=getCurrentUser();if(!user||user.tipo!=="admin")return;if(user.id===id)return st("Voce nao pode excluir a si mesmo.","error"),false;
+if(!confirm("Excluir este usuario?"))return;St.rm("u",id);st("Usuario excluido.","warning");renderConfig()}
+function ativarUsuario(id){St.up("u",id,{ativo:true});st("Usuario ativado!","success");renderConfig()}
+
+function renderPage(){var p=window.location.hash.slice(1)||"d";
+el=document.getElementById("pageContent");
+document.querySelectorAll(".sidebar-nav a").forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+p)});
+var acesso=hasAccess(p);if(acesso===false){st("Acesso negado a este modulo.","error");window.location.hash="d";return}
+filtrarSidebar();
+switch(p){
+case"d":renderDashboard();break;
+case"r":renderReservas();break;
+case"h":renderHospedes();break;
+case"q":renderQuartos();break;
+case"ci":renderCheckin();break;
+case"co":renderCheckout();break;
+case"f":renderFinanceiro();break;
+case"s":renderServicos();break;
+case"fu":renderFuncionarios();break;
+case"rl":renderRelatorios();break;
+case"cg":renderConfig();break;
+default:renderDashboard();}}
+
+window.addEventListener("hashchange",renderPage);
+renderPage();
+</script>
+</body>
+</html>
