@@ -21,6 +21,7 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 ## Versão 0.9.8-beta — 02/09/2026
 
 - **Melhoria**: O sistema agora se chama HospedaPrime.
+- **Melhoria**: Código reorganizado internamente para evoluir com mais segurança.
 
 ## Versão 0.9.7-beta — 01/09/2026
 
