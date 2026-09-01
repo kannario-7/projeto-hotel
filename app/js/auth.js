@@ -38,7 +38,18 @@ export function hideLogin(){
   if(usuarioAtual){document.getElementById("userInfo").innerHTML=esc(usuarioAtual.nome)+' &nbsp; Sair';filtrarSidebar();atualizarBadgeNovidade();if(temNovidade()){setTimeout(function(){showChangelog(true)},400)}}
 }
 
-function erroLogin(msg){var e=document.getElementById("loginError");if(e){e.textContent=msg;e.style.display="block"}}
+function traduzErro(msg){
+  msg = String(msg||"");
+  var m = msg.toLowerCase();
+  if(m.indexOf("already registered")>=0 || m.indexOf("already been registered")>=0) return "Este e-mail ja possui conta. Clique em \"Fazer login\".";
+  if(m.indexOf("invalid login")>=0 || m.indexOf("invalid credentials")>=0) return "E-mail ou senha incorretos.";
+  if(m.indexOf("password should be at least")>=0) return "A senha deve ter ao menos 6 caracteres.";
+  if(m.indexOf("unable to validate email")>=0 || m.indexOf("invalid email")>=0) return "E-mail invalido.";
+  if(m.indexOf("email not confirmed")>=0) return "Confirme seu e-mail antes de entrar.";
+  if(m.indexOf("rate limit")>=0 || m.indexOf("too many")>=0) return "Muitas tentativas. Aguarde um instante e tente de novo.";
+  return msg;
+}
+function erroLogin(msg){var e=document.getElementById("loginError");if(e){e.textContent=traduzErro(msg);e.style.display="block"}}
 
 // --- LOGIN ---
 export async function fazerLogin(){
