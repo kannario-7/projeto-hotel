@@ -87,9 +87,15 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .changelog-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .changelog-ver{font-family:Sora,sans-serif;font-weight:700;color:var(--navy);font-size:16px}
 .changelog-date{color:#999;font-size:12px;margin-bottom:10px}
-.changelog-list{list-style:none;margin:0;padding:0}
-.changelog-list li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:14px;color:#444;line-height:1.4}
-.chg-tag{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:0.3px;margin-top:1px}
+.chg-grupo{margin-bottom:16px}
+.chg-grupo:last-child{margin-bottom:0}
+.chg-grupo-titulo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.chg-grupo-nome{font-family:Sora,sans-serif;font-weight:600;color:var(--navy);font-size:13px}
+.chg-count{display:inline-block;background:#eee;color:#888;font-size:11px;font-weight:700;padding:0 7px;border-radius:10px;margin-left:2px}
+.changelog-list{list-style:none;margin:0;padding:0 0 0 4px}
+.changelog-list li{position:relative;padding:4px 0 4px 18px;font-size:14px;color:#444;line-height:1.45}
+.changelog-list li:before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.chg-tag{flex-shrink:0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;text-transform:uppercase;letter-spacing:0.3px}
 .chg-novo{background:#e8f8ef;color:#27ae60}
 .chg-correcao{background:#fdedec;color:#e74c3c}
 .chg-melhoria{background:#ebf5fb;color:#3498db}
@@ -226,13 +232,19 @@ function marcarVersaoVista(){try{localStorage.setItem("hms_lastseen_ver",APP_VER
 function temNovidade(){return getUltimaVersaoVista()!==APP_VERSION}
 function chgTagLabel(t){return t==="novo"?"Novo":t==="correcao"?"Correcao":"Melhoria"}
 function chgTagIcon(t){return t==="novo"?"✨":t==="correcao"?"🔧":"⬆"}
+function chgGrupoTitulo(t){return t==="novo"?"Novidades":t==="melhoria"?"Melhorias":"Correcoes"}
 function renderChangelogHTML(nova){var h="";
 if(nova){var ult=CHANGELOG[0];var n=ult?ult.mudancas.length:0;
 h+='<div class="chg-banner"><div class="chg-banner-ico">🎉</div><div><div class="chg-banner-title">O sistema foi atualizado!</div><div class="chg-banner-sub">Versao '+esc(ult?ult.v:APP_VERSION)+' &middot; '+n+' novidade'+(n===1?'':'s')+' nesta atualizacao</div></div></div>'}
+var ordem=["novo","melhoria","correcao"];
 for(var i=0;i<CHANGELOG.length;i++){var e=CHANGELOG[i];
-h+='<div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">Versao '+esc(e.v)+'</span>'+(i===0?'<span class="chg-latest">Mais recente</span>':'')+'</div><div class="changelog-date">Atualizado em '+fmtD(e.data)+'</div><ul class="changelog-list">';
-for(var j=0;j<e.mudancas.length;j++){var m=e.mudancas[j];h+='<li><span class="chg-tag chg-'+m.t+'">'+chgTagIcon(m.t)+' '+chgTagLabel(m.t)+'</span><span>'+esc(m.d)+'</span></li>'}
+h+='<div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">Versao '+esc(e.v)+'</span>'+(i===0?'<span class="chg-latest">Mais recente</span>':'')+'</div><div class="changelog-date">Atualizado em '+fmtD(e.data)+'</div>';
+for(var g=0;g<ordem.length;g++){var tipo=ordem[g];var itens=e.mudancas.filter(function(m){return m.t===tipo});
+if(!itens.length)continue;
+h+='<div class="chg-grupo"><div class="chg-grupo-titulo"><span class="chg-tag chg-'+tipo+'">'+chgTagIcon(tipo)+' '+chgTagLabel(tipo)+'</span><span class="chg-grupo-nome">'+chgGrupoTitulo(tipo)+' <span class="chg-count">'+itens.length+'</span></span></div><ul class="changelog-list">';
+for(var j=0;j<itens.length;j++){h+='<li>'+esc(itens[j].d)+'</li>'}
 h+='</ul></div>'}
+h+='</div>'}
 return h}
 function showChangelog(auto){var nova=auto===true&&temNovidade();sm("Novidades do Sistema",renderChangelogHTML(nova),'<button class="btn btn-primary" onclick="marcarVersaoVista();atualizarBadgeNovidade();closeModal()">Entendi, obrigado</button>');marcarVersaoVista();atualizarBadgeNovidade()}
 function atualizarBadgeNovidade(){var d=document.getElementById("newsDot");if(d)d.style.display=temNovidade()?"block":"none"}
