@@ -184,7 +184,7 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 <h1>Hotel Manager <span class="version-badge">BETA</span></h1>
 <p class="sub">Sistema de Gestao Hoteleira</p>
 <div id="loginContent"></div>
-<p style="text-align:center;color:#bbb;font-size:11px;margin-top:20px">Versao 0.9.0-beta</p>
+<p id="loginVersion" style="text-align:center;color:#bbb;font-size:11px;margin-top:20px"></p>
 </div>
 </div>
 <script>
@@ -214,17 +214,27 @@ function closeModal(){cm()}
 function openModal(t,b,f){sm(t,b,f)}
 document.getElementById("modalOverlay").addEventListener("click",function(e){if(e.target===this)cm()});
 
-var APP_VERSION="0.9.0-beta";
+var APP_VERSION="0.9.4-beta";
 var CHANGELOG=[
-{v:"0.9.0-beta",data:"2026-08-30",mudancas:[
-{t:"novo",d:"Painel de Novidades: historico de todas as atualizacoes do sistema."},
-{t:"novo",d:"Versao beta identificada com selo visivel na tela de login e no menu."},
-{t:"correcao",d:"Botoes X e Cancelar agora fecham corretamente todas as janelas (modais)."},
-{t:"melhoria",d:"Fechar janelas tocando na area escura fora da caixa."},
+{v:"0.9.4-beta",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Painel de Novidades: historico organizado de todas as atualizacoes do sistema."},
+{t:"novo",d:"Selo de versao visivel na tela de login e no menu lateral."},
+{t:"melhoria",d:"Novidades agrupadas por tipo para facilitar a leitura."}
+]},
+{v:"0.9.3-beta",data:"2026-08-30",mudancas:[
+{t:"correcao",d:"Botoes X e Cancelar agora fecham corretamente todas as janelas."},
+{t:"melhoria",d:"Fechar janelas tocando na area escura fora da caixa."}
+]},
+{v:"0.9.2-beta",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Sistema ja inicia com dados de exemplo para facilitar a experiencia."},
-{t:"melhoria",d:"Acesso ao sistema simplificado."},
+{t:"melhoria",d:"Acesso ao sistema simplificado."}
+]},
+{v:"0.9.1-beta",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Layout responsivo para celular com menu lateral deslizante."},
 {t:"correcao",d:"Correcao do menu mobile que bloqueava o toque nos itens."}
+]},
+{v:"0.9.0-beta",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Primeira versao do sistema publicada online."}
 ]}
 ];
 function getUltimaVersaoVista(){try{return localStorage.getItem("hms_lastseen_ver")}catch(e){return null}}
@@ -248,6 +258,8 @@ h+='</div>'}
 return h}
 function showChangelog(auto){var nova=auto===true&&temNovidade();sm("Novidades do Sistema",renderChangelogHTML(nova),'<button class="btn btn-primary" onclick="marcarVersaoVista();atualizarBadgeNovidade();closeModal()">Entendi, obrigado</button>');marcarVersaoVista();atualizarBadgeNovidade()}
 function atualizarBadgeNovidade(){var d=document.getElementById("newsDot");if(d)d.style.display=temNovidade()?"block":"none"}
+function aplicarVersaoUI(){var t=document.getElementById("versionTag");if(t)t.textContent="v"+APP_VERSION;var l=document.getElementById("loginVersion");if(l)l.textContent="Versao "+APP_VERSION}
+aplicarVersaoUI();
 
 function showLogin(){var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";var usuarios=St.ga("u");if(!usuarios.length){document.getElementById("loginContent").innerHTML='<h3 style="text-align:center;margin-bottom:16px;color:var(--navy)">Primeiro Acesso</h3><p style="text-align:center;color:#888;font-size:14px;margin-bottom:20px">Cadastre o usuario administrador do sistema</p><div class="form-group"><label>Nome</label><input type="text" id="sAdmNome" placeholder="Admin"></div><div class="form-group"><label>Login</label><input type="text" id="sAdmLogin" placeholder="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="sAdmSenha" placeholder="1234"></div><div class="form-group"><label>Confirmar Senha</label><input type="password" id="sAdmConf" placeholder="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="setupAdmin()">Criar Administrador</button>';return}
 document.getElementById("loginContent").innerHTML='<div class="form-group"><label>Usuario</label><input type="text" id="loginUser" value="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="loginPass" value="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>';}

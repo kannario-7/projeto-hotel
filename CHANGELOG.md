@@ -15,13 +15,27 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ---
 
-## Versão 0.9.0-beta — 30/08/2026
+## Versão 0.9.4-beta — 30/08/2026
 
-- **Novo**: Painel de Novidades com histórico de todas as atualizações do sistema.
-- **Novo**: Versão beta identificada com selo visível na tela de login e no menu.
-- **Correção**: Botões X e Cancelar agora fecham corretamente todas as janelas (modais).
-- **Correção**: Correção do menu mobile que bloqueava o toque nos itens.
+- **Novo**: Painel de Novidades com histórico organizado de todas as atualizações do sistema.
+- **Novo**: Selo de versão visível na tela de login e no menu lateral.
+- **Melhoria**: Novidades agrupadas por tipo para facilitar a leitura.
+
+## Versão 0.9.3-beta — 30/08/2026
+
+- **Correção**: Botões X e Cancelar agora fecham corretamente todas as janelas.
 - **Melhoria**: Fechar janelas tocando na área escura fora da caixa.
+
+## Versão 0.9.2-beta — 30/08/2026
+
 - **Melhoria**: Sistema já inicia com dados de exemplo para facilitar a experiência.
 - **Melhoria**: Acesso ao sistema simplificado.
+
+## Versão 0.9.1-beta — 30/08/2026
+
 - **Melhoria**: Layout responsivo para celular com menu lateral deslizante.
+- **Correção**: Correção do menu mobile que bloqueava o toque nos itens.
+
+## Versão 0.9.0-beta — 30/08/2026
+
+- **Novo**: Primeira versão do sistema publicada online.
