@@ -12,12 +12,16 @@ import { renderServicos } from "./modules/servicos.js";
 import { renderFuncionarios } from "./modules/funcionarios.js";
 import { renderRelatorios } from "./modules/relatorios.js";
 import { renderConfig } from "./modules/config.js";
+import { renderAdmin } from "./modules/admin.js";
+import { getCurrentUser } from "./auth.js";
 
 export function navTo(h){window.location.hash=h}
 
 export function renderPage(){var p=window.location.hash.slice(1)||"d";
+if(p.indexOf("convite=")===0)return; // convites tratados no boot
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+p)});
 document.querySelectorAll(".bn-item[data-nav]").forEach(function(a){a.classList.toggle("active",a.getAttribute("data-nav")===p)});
+if(p==="admin"){var u=getCurrentUser();if(u&&u.isOwner){renderAdmin();return}else{window.location.hash="d";return}}
 var acesso=hasAccess(p);if(acesso===false){st("Acesso negado a este modulo.","error");window.location.hash="d";return}
 filtrarSidebar();
 switch(p){

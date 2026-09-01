@@ -3,6 +3,7 @@ import { esc, fmtC } from "../utils.js";
 import { St } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
+import { renderUsuariosHotel } from "./usuarios.js";
 
 export function renderConfig(){var el=document.getElementById("pageContent");
 var config=St.gc();
@@ -16,10 +17,10 @@ el.innerHTML='<div class="page-header"><div><h2>Configuracoes</h2><p>Configurar 
 
 export function mudarConfigTab(tab,aba){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");
 var config=St.gc(),tq=St.ga("tq"),html="";
+if(aba==="us"){document.getElementById("configContent").innerHTML="";renderUsuariosHotel();return;}
 if(aba==="hotel")html=formConfigHotel(config);
 else if(aba==="tp")html=formConfigTipoQuarto(tq);
 else if(aba==="pg")html=formConfigPagamento(config);
-else if(aba==="us")html=formConfigUsuarios();
 document.getElementById("configContent").innerHTML=html;}
 
 function formConfigHotel(c){return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Dados do Hotel</h3><div class="form-grid">'+
@@ -75,14 +76,4 @@ document.querySelectorAll("#configContent input[type=checkbox]").forEach(functio
 if(!cfg.pm.length)return st("Selecione ao menos uma forma.","error"),false;
 St.sc(cfg);st("Formas de pagamento salvas!","success");}
 
-function formConfigUsuarios(){var meu=getCurrentUser();
-return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Seu Acesso</h3>'+
-'<div class="qmodal-info"><div class="qmodal-row"><span>Nome</span><b>'+esc(meu?meu.nome:"-")+'</b></div>'+
-'<div class="qmodal-row"><span>Papel</span><b>'+esc(meu?meu.papel:"-")+'</b></div></div>'+
-'<p style="color:var(--text-mute);font-size:13px;margin-top:14px">O convite de novos usuarios para a equipe do hotel sera disponibilizado em breve.</p></div>';}
-export function showNovoUsuario(){st("O convite de usuarios sera disponibilizado em breve.","info")}
-export function editarUsuario(){st("Em breve.","info")}
-export function salvarUsuario(){st("Em breve.","info")}
-export function excluirUsuario(){st("Em breve.","info")}
-export function ativarUsuario(){st("Em breve.","info")}
 export function restaurarDados(){st("Esta acao nao esta disponivel na versao em nuvem.","info")}

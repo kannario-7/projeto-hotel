@@ -74,7 +74,7 @@ export async function fazerCadastro(){
 async function aposAutenticar(user){
   var { data: perfil, error } = await supabase.from("perfis").select("*").eq("id", user.id).single();
   if(error||!perfil){ st("Perfil nao encontrado. Contate o suporte.","error"); await supabase.auth.signOut(); return; }
-  usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id };
+  usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
   setHotelId(perfil.hotel_id);
   await carregarTudo(perfil.hotel_id);
   hideLogin();
@@ -97,13 +97,49 @@ export async function restaurarSessao(){
     var user = data.session.user;
     var { data: perfil } = await supabase.from("perfis").select("*").eq("id", user.id).single();
     if(perfil){
-      usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id };
+      usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
       setHotelId(perfil.hotel_id);
       await carregarTudo(perfil.hotel_id);
       return true;
     }
   }
   return false;
+}
+
+// --- ACEITAR CONVITE (multi-usuário por link) ---
+var conviteToken = null;
+export async function iniciarAceiteConvite(token){
+  conviteToken = token;
+  var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";
+  var { data } = await supabase.rpc("buscar_convite", { p_token: token });
+  var info = data && data[0];
+  if(!info || !info.valido){
+    document.getElementById("loginContent").innerHTML='<h3 style="text-align:center;color:var(--text)">Convite invalido</h3><p style="text-align:center;color:var(--text-mute);font-size:14px;margin-top:8px">Este convite nao existe ou ja foi utilizado.</p><div class="login-links" style="margin-top:16px"><a onclick="showLogin()">Ir para o login</a></div>';
+    return;
+  }
+  document.getElementById("loginContent").innerHTML=
+    '<h3 style="text-align:center;margin-bottom:6px;color:var(--text)">Voce foi convidado</h3>'+
+    '<p style="text-align:center;color:var(--text-mute);font-size:14px;margin-bottom:18px">Para trabalhar no <b>'+esc(info.hotel_nome)+'</b> como '+esc(info.papel)+'</p>'+
+    '<div class="form-group"><label>Seu e-mail</label><input type="email" id="cvEmail" placeholder="seu@email.com"></div>'+
+    '<div class="form-group"><label>Crie uma senha</label><input type="password" id="cvSenha" placeholder="Minimo 6 caracteres"></div>'+
+    '<div class="login-error" id="loginError"></div>'+
+    '<button class="btn btn-primary" onclick="finalizarConvite()">Aceitar convite e entrar</button>';
+}
+export async function finalizarConvite(){
+  var em=document.getElementById("cvEmail"),pw=document.getElementById("cvSenha");
+  if(!em.value.trim()||!pw.value)return erroLogin("Preencha e-mail e senha.");
+  if(pw.value.length<6)return erroLogin("A senha deve ter ao menos 6 caracteres.");
+  var { data, error } = await supabase.auth.signUp({ email: em.value.trim(), password: pw.value });
+  if(error)return erroLogin(error.message||"Nao foi possivel criar a conta.");
+  if(!data.session){
+    var log = await supabase.auth.signInWithPassword({ email: em.value.trim(), password: pw.value });
+    if(log.error)return erroLogin("Conta criada. Confirme o e-mail e acesse o link novamente.");
+    data.user = log.data.user;
+  }
+  var rpc = await supabase.rpc("aceitar_convite", { p_token: conviteToken });
+  if(rpc.error)return erroLogin("Erro ao aceitar convite: "+rpc.error.message);
+  window.location.hash = "";
+  await aposAutenticar(data.user);
 }
 
 export function getTurnoAtual(){var h=new Date().getHours();if(h>=6&&h<14)return"Manha";if(h>=14&&h<22)return"Tarde";return"Noite"}
@@ -117,5 +153,6 @@ export function filtrarSidebar(){var u=getCurrentUser();if(!u)return;
 var ta=getTurnoAtual(),foraTurno=u.turno&&u.turno!==""&&u.turno!==ta;
 var acessos={admin:true,operador:{d:true,r:true,h:true,q:true,ci:true,co:true,f:true,s:true,fu:false,rl:"view",cg:false},recepcao:{d:true,r:true,h:true,q:"view",ci:true,co:true,f:false,s:true,fu:false,rl:false,cg:false}};
 var perm=foraTurno?{d:true}:acessos[u.papel];
-document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAttribute("href").slice(1);if(perm===true||perm[mod])a.style.display="flex";else a.style.display="none"});
+document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAttribute("href").slice(1);if(mod==="admin")return;if(perm===true||perm[mod])a.style.display="flex";else a.style.display="none"});
+var ol=document.getElementById("ownerLink");if(ol)ol.style.display=u.isOwner?"flex":"none";
 if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:#f39c12;font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}

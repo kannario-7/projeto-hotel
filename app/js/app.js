@@ -16,10 +16,12 @@ import * as servicos from "./modules/servicos.js";
 import * as funcionarios from "./modules/funcionarios.js";
 import * as relatorios from "./modules/relatorios.js";
 import * as config from "./modules/config.js";
+import * as admin from "./modules/admin.js";
+import * as usuarios from "./modules/usuarios.js";
 
 // Expõe funções no escopo global para os onclick inline do HTML
 function expose(mod){Object.keys(mod).forEach(function(k){if(typeof mod[k]==="function")window[k]=mod[k]})}
-[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,relatorios,config].forEach(expose);
+[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,relatorios,config,admin,usuarios].forEach(expose);
 window.St=St;
 
 // Boot assíncrono
@@ -32,8 +34,13 @@ document.addEventListener("click",function(e){var m=document.getElementById("mai
 document.querySelectorAll("#maisMenu a.mais-item").forEach(function(a){a.addEventListener("click",nav.fecharMaisMenu)});
 window.addEventListener("hashchange",function(){nav.renderPage();nav.closeSidebar()});
 
-// Tenta restaurar sessão; se logado, entra; senão, mostra login
-auth.restaurarSessao().then(function(logado){
-  if(logado){ auth.hideLogin(); nav.renderPage(); }
-  else { auth.showLogin(); }
-});
+// Boot: trata convite -> senão restaura sessão
+var hash = window.location.hash || "";
+if(hash.indexOf("#convite=")===0){
+  auth.iniciarAceiteConvite(hash.slice("#convite=".length));
+} else {
+  auth.restaurarSessao().then(function(logado){
+    if(logado){ auth.hideLogin(); nav.renderPage(); }
+    else { auth.showLogin(); }
+  });
+}
