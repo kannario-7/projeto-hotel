@@ -2,8 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="0.9.8-beta";
+export var APP_VERSION="0.9.9-beta";
 export var CHANGELOG=[
+{v:"0.9.9-beta",data:"2026-09-03",mudancas:[
+{t:"novo",d:"Login com e-mail e senha e cadastro do seu hotel."},
+{t:"novo",d:"Dados agora ficam salvos na nuvem, acessiveis de qualquer dispositivo."},
+{t:"melhoria",d:"Cada hotel tem seus dados totalmente separados e seguros."}
+]},
 {v:"0.9.8-beta",data:"2026-09-02",mudancas:[
 {t:"melhoria",d:"O sistema agora se chama HospedaPrime."},
 {t:"melhoria",d:"Codigo reorganizado internamente para evoluir com mais seguranca."}

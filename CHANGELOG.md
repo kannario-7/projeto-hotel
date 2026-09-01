@@ -18,6 +18,12 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ---
 
+## Versão 0.9.9-beta — 03/09/2026
+
+- **Novo**: Login com e-mail e senha e cadastro do seu hotel.
+- **Novo**: Dados agora ficam salvos na nuvem, acessíveis de qualquer dispositivo.
+- **Melhoria**: Cada hotel tem seus dados totalmente separados e seguros.
+
 ## Versão 0.9.8-beta — 02/09/2026
 
 - **Melhoria**: O sistema agora se chama HospedaPrime.

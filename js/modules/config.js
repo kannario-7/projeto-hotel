@@ -75,47 +75,14 @@ document.querySelectorAll("#configContent input[type=checkbox]").forEach(functio
 if(!cfg.pm.length)return st("Selecione ao menos uma forma.","error"),false;
 St.sc(cfg);st("Formas de pagamento salvas!","success");}
 
-function formConfigUsuarios(){var users=St.ga("u"),meu=getCurrentUser();
-var html='<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Usuarios do Sistema</h3>'+
-'<button class="btn btn-primary" onclick="showNovoUsuario()" style="margin-bottom:16px">+ Novo Usuario</button>';
-if(!users.length)html+='<p style="color:var(--text-mute)">Nenhum usuario cadastrado.</p>';
-else{html+='<table><tr><th>Nome</th><th>Login</th><th>Tipo</th><th>Ativo</th><th>Acoes</th></tr>'+
-users.map(function(u){return'<tr><td>'+esc(u.nome)+'</td><td>'+esc(u.login)+'</td><td>'+esc(u.tipo)+'</td><td>'+(u.ativo!==false?'<span class="badge badge-success">Sim</span>':'<span class="badge badge-danger">Nao</span>')+'</td><td>'+
-(meu&&meu.tipo==="admin"?''+
-'<button class="btn btn-sm btn-secondary" onclick="editarUsuario(\''+u.id+'\')">Editar</button> '+
-(u.id!==meu.id?'<button class="btn btn-sm btn-danger" onclick="excluirUsuario(\''+u.id+'\')">Excluir</button>':'')+
-(u.ativo===false?' <button class="btn btn-sm btn-success" onclick="ativarUsuario(\''+u.id+'\')">Ativar</button>':''):'')+
-'</td></tr>'}).join('')+'</table>';}
-html+='</div>';return html;}
-
-export function showNovoUsuario(){var user=getCurrentUser();if(!user||user.tipo!=="admin")return st("Apenas administradores podem criar usuarios.","error"),false;
-sm("Novo Usuario",'<div class="form-group"><label>Nome *</label><input type="text" id="ufNome"></div>'+
-'<div class="form-group"><label>Login *</label><input type="text" id="ufLogin"></div>'+
-'<div class="form-group"><label>Senha *</label><input type="password" id="ufSenha"></div>'+
-'<div class="form-group"><label>Tipo</label><select id="ufTipo"><option value="admin">Administrador</option><option value="operador" selected>Operador</option><option value="recepcao">Recepcao</option></select></div>'+
-'<div class="form-group"><label>Turno</label><select id="ufTurno"><option value="">Sem restricao</option><option value="Manha">Manha (06-14h)</option><option value="Tarde">Tarde (14-22h)</option><option value="Noite">Noite (22-06h)</option><option value="Administrativo">Administrativo</option></select></div>'+
-'<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarUsuario()">Salvar</button></div>',"")}
-
-export function editarUsuario(id){var u=St.fi("u",id);if(!u)return;
-sm("Editar Usuario",'<div class="form-group"><label>Nome *</label><input type="text" id="ufNome" value="'+esc(u.nome)+'"></div>'+
-'<div class="form-group"><label>Login *</label><input type="text" id="ufLogin" value="'+esc(u.login)+'"></div>'+
-'<div class="form-group"><label>Nova Senha (deixe em branco para manter)</label><input type="password" id="ufSenha"></div>'+
-'<div class="form-group"><label>Tipo</label><select id="ufTipo"><option value="admin"'+(u.tipo==="admin"?' selected':'')+'>Administrador</option><option value="operador"'+(u.tipo==="operador"?' selected':'')+'>Operador</option><option value="recepcao"'+(u.tipo==="recepcao"?' selected':'')+'>Recepcao</option></select></div>'+
-'<div class="form-group"><label>Turno</label><select id="ufTurno"><option value="">Sem restricao</option><option value="Manha"'+(u.turno==='Manha'?' selected':'')+'>Manha (06-14h)</option><option value="Tarde"'+(u.turno==='Tarde'?' selected':'')+'>Tarde (14-22h)</option><option value="Noite"'+(u.turno==='Noite'?' selected':'')+'>Noite (22-06h)</option><option value="Administrativo"'+(u.turno==='Administrativo'?' selected':'')+'>Administrativo</option></select></div>'+
-'<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarUsuario(\''+id+'\')">Salvar</button></div>',"")}
-
-export function salvarUsuario(id){var n=document.getElementById("ufNome"),l=document.getElementById("ufLogin"),s=document.getElementById("ufSenha"),t=document.getElementById("ufTipo"),tu=document.getElementById("ufTurno");
-if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
-if(!l||!l.value.trim())return st("Login obrigatorio.","error"),false;
-if(!id&&(!s||!s.value.trim()))return st("Senha obrigatoria.","error"),false;
-if(!id&&St.ga("u").some(function(u){return u.login===l.value.trim()}))return st("Este login ja existe.","error"),false;
-var dados={nome:n.value.trim(),login:l.value.trim(),tipo:t?t.value:"operador",turno:tu?tu.value:"",ativo:true};
-if(s&&s.value.trim())dados.senha=s.value.trim();
-if(id){St.up("u",id,dados);st("Usuario atualizado!","success")}
-else{if(!dados.senha)return st("Senha obrigatoria.","error"),false;St.in("u",dados);st("Usuario cadastrado!","success")}
-cm();renderConfig()}
-
-export function excluirUsuario(id){var user=getCurrentUser();if(!user||user.tipo!=="admin")return;if(user.id===id)return st("Voce nao pode excluir a si mesmo.","error"),false;
-confirmar({titulo:"Excluir usuario?",msg:"O acesso deste usuario sera removido.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("u",id);st("Usuario excluido.","warning");renderConfig()})}
-export function ativarUsuario(id){St.up("u",id,{ativo:true});st("Usuario ativado!","success");renderConfig()}
-export function restaurarDados(){confirmar({titulo:"Restaurar dados padrao?",msg:"Todos os dados atuais serao apagados e substituidos pelos dados de exemplo.",okLabel:"Sim, restaurar",tipo:"danger"},function(){localStorage.clear();location.reload()})}
+function formConfigUsuarios(){var meu=getCurrentUser();
+return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Seu Acesso</h3>'+
+'<div class="qmodal-info"><div class="qmodal-row"><span>Nome</span><b>'+esc(meu?meu.nome:"-")+'</b></div>'+
+'<div class="qmodal-row"><span>Papel</span><b>'+esc(meu?meu.papel:"-")+'</b></div></div>'+
+'<p style="color:var(--text-mute);font-size:13px;margin-top:14px">O convite de novos usuarios para a equipe do hotel sera disponibilizado em breve.</p></div>';}
+export function showNovoUsuario(){st("O convite de usuarios sera disponibilizado em breve.","info")}
+export function editarUsuario(){st("Em breve.","info")}
+export function salvarUsuario(){st("Em breve.","info")}
+export function excluirUsuario(){st("Em breve.","info")}
+export function ativarUsuario(){st("Em breve.","info")}
+export function restaurarDados(){st("Esta acao nao esta disponivel na versao em nuvem.","info")}
