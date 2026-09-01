@@ -21,6 +21,7 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 ## Versão 0.9.7-beta — 01/09/2026
 
 - **Novo**: Barra de navegação inferior no celular, estilo app, com destaque no item ativo.
+- **Correção**: No celular, Novidades e Sair agora ficam visíveis no menu, acima da barra inferior.
 - **Novo**: Suporte Online: botão de ajuda flutuante com WhatsApp, e-mail e mensagem, disponível até na tela de login.
 - **Melhoria**: Novo visual escuro e moderno em todo o sistema, com destaque em roxo.
 - **Melhoria**: Cartões, tabelas, formulários e janelas repaginados no novo tema.

@@ -239,8 +239,9 @@ select option{background:var(--surface-2);color:var(--text)}
 @media(max-width:768px){
 .menu-toggle{display:none}
 .bottom-nav{display:flex}
-.sidebar{width:min(280px,82vw);transform:translateX(-100%);transition:transform 0.28s ease;box-shadow:2px 0 16px rgba(0,0,0,0.2);z-index:1500}
+.sidebar{width:min(280px,82vw);transform:translateX(-100%);transition:transform 0.28s ease;box-shadow:2px 0 16px rgba(0,0,0,0.2);z-index:1500;overflow-y:auto;padding-bottom:96px}
 .sidebar.show{transform:translateX(0)}
+.sidebar-nav{overflow-y:visible}
 .sidebar-logo h1,.sidebar-nav a span,.sidebar-logo p{display:block}
 .sidebar-nav a{justify-content:flex-start;padding:14px 20px}
 .main-content{margin-left:0;padding:20px 14px 104px}
@@ -394,6 +395,7 @@ var APP_VERSION="0.9.7-beta";
 var CHANGELOG=[
 {v:"0.9.7-beta",data:"2026-09-01",mudancas:[
 {t:"novo",d:"Barra de navegacao inferior no celular, estilo app, com destaque no item ativo."},
+{t:"correcao",d:"No celular, Novidades e Sair agora ficam visiveis no menu, acima da barra inferior."},
 {t:"novo",d:"Suporte Online: botao de ajuda flutuante com WhatsApp, e-mail e mensagem, disponivel ate na tela de login."},
 {t:"melhoria",d:"Novo visual escuro e moderno em todo o sistema, com destaque em roxo."},
 {t:"melhoria",d:"Cartoes, tabelas, formularios e janelas repaginados no novo tema."},
