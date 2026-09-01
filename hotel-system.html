@@ -231,11 +231,29 @@ select option{background:var(--surface-2);color:var(--text)}
 .bn-item.active{color:var(--accent-2)}
 .bn-item.active svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(139,92,246,.9))}
 .bn-item.active:before{content:"";position:absolute;top:2px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.35),transparent 70%)}
+.bn-desktop{display:none}
+.mais-menu{display:none;position:fixed;z-index:1560;background:rgba(28,28,38,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:8px;box-shadow:0 16px 40px rgba(0,0,0,.55);min-width:200px;flex-direction:column;gap:2px}
+.mais-menu.show{display:flex;animation:pageIn .2s ease}
+.mais-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;color:var(--text-dim);text-decoration:none;text-align:left;width:100%;transition:background .15s,color .15s}
+.mais-item svg{width:18px;height:18px;flex-shrink:0}
+.mais-item:hover{background:var(--surface-3);color:#fff}
+.mais-sep{height:1px;background:var(--border);margin:6px 4px}
 .menu-toggle{display:none;position:fixed;top:12px;left:12px;z-index:1600;width:44px;height:44px;border:none;border-radius:10px;background:var(--accent);color:#fff;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(139,92,246,.5)}
 .menu-toggle svg{width:22px;height:22px}
 .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:900}
 .sidebar-backdrop.show{display:block}
-@media(max-width:1024px) and (min-width:769px){.sidebar{width:72px}.sidebar-logo h1,.sidebar-nav a span,.sidebar-logo p{display:none}.sidebar-nav a{justify-content:center;padding:12px}.main-content{margin-left:72px}}
+@media(min-width:769px){
+.sidebar{display:none}
+.bottom-nav{display:flex}
+.bn-desktop{display:flex}
+.main-content{margin-left:0;padding:32px 32px 110px}
+.bn-item{min-width:74px;flex-direction:row;gap:8px;padding:10px 16px;border-radius:14px}
+.bn-item svg{width:20px;height:20px}
+.bn-item span{font-size:13px}
+.bn-item.active:before{display:none}
+.bn-item.active{background:var(--accent-soft)}
+.support-widget{bottom:92px}
+}
 @media(max-width:768px){
 .menu-toggle{display:none}
 .bottom-nav{display:flex}
@@ -303,8 +321,20 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 <a href="#r" data-nav="r" class="bn-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Reservas</span></a>
 <a href="#h" data-nav="h" class="bn-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg><span>Hospedes</span></a>
 <a href="#q" data-nav="q" class="bn-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg><span>Quartos</span></a>
-<button class="bn-item" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Mais</span></button>
+<a href="#f" data-nav="f" class="bn-item bn-desktop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Financeiro</span></a>
+<button class="bn-item" onclick="toggleMaisMenu(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg><span>Mais</span></button>
 </nav>
+<div class="mais-menu" id="maisMenu">
+<a href="#ci" class="mais-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Check-in</a>
+<a href="#co" class="mais-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Check-out</a>
+<a href="#s" class="mais-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Servicos</a>
+<a href="#fu" class="mais-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Funcionarios</a>
+<a href="#rl" class="mais-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Relatorios</a>
+<a href="#cg" class="mais-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Configuracoes</a>
+<div class="mais-sep"></div>
+<button class="mais-item" onclick="showChangelog();fecharMaisMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Novidades</button>
+<button class="mais-item" onclick="logout();fecharMaisMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</button>
+</div>
 <div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-header"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">&times;</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
 <div class="modal-overlay" id="confirmOverlay"><div class="modal confirm-modal"><div class="confirm-ico" id="confirmIco">?</div><div class="confirm-title" id="confirmTitle">Confirmar</div><p class="confirm-msg" id="confirmMsg"></p><div class="confirm-actions"><button class="btn btn-secondary" id="confirmCancel">Cancelar</button><button class="btn btn-danger" id="confirmOk">Confirmar</button></div></div></div>
 <div class="toast-container" id="toastContainer"></div>
@@ -394,6 +424,7 @@ function enviarSuporte(){var t=document.getElementById("supportMsg");if(!t||!t.v
 var APP_VERSION="0.9.7-beta";
 var CHANGELOG=[
 {v:"0.9.7-beta",data:"2026-09-01",mudancas:[
+{t:"melhoria",d:"Barra de navegacao inferior estilo app tambem no computador, com menu Mais para os demais modulos."},
 {t:"novo",d:"Barra de navegacao inferior no celular, estilo app, com destaque no item ativo."},
 {t:"correcao",d:"No celular, Novidades e Sair agora ficam visiveis no menu, acima da barra inferior."},
 {t:"novo",d:"Suporte Online: botao de ajuda flutuante com WhatsApp, e-mail e mensagem, disponivel ate na tela de login."},
@@ -1141,6 +1172,17 @@ default:renderDashboard();}}
 function toggleSidebar(){document.querySelector(".sidebar").classList.toggle("show");document.getElementById("sidebarBackdrop").classList.toggle("show")}
 function closeSidebar(){document.querySelector(".sidebar").classList.remove("show");document.getElementById("sidebarBackdrop").classList.remove("show")}
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){a.addEventListener("click",function(){setTimeout(closeSidebar,50)})});
+function fecharMaisMenu(){var m=document.getElementById("maisMenu");if(m)m.classList.remove("show")}
+function toggleMaisMenu(ev){if(ev)ev.stopPropagation();
+// no mobile (<=768) o botao Mais abre a sidebar-drawer; no desktop abre o popover
+if(window.matchMedia("(max-width:768px)").matches){toggleSidebar();return}
+var m=document.getElementById("maisMenu");if(!m)return;
+if(m.classList.contains("show")){m.classList.remove("show");return}
+var nav=document.getElementById("bottomNav");var r=nav.getBoundingClientRect();
+m.style.left="auto";m.style.right=(window.innerWidth-r.right)+"px";m.style.bottom=(window.innerHeight-r.top+10)+"px";
+m.classList.add("show")}
+document.addEventListener("click",function(e){var m=document.getElementById("maisMenu");if(m&&m.classList.contains("show")&&!m.contains(e.target)&&!e.target.closest(".bn-item")){m.classList.remove("show")}});
+document.querySelectorAll("#maisMenu a.mais-item").forEach(function(a){a.addEventListener("click",fecharMaisMenu)});
 
 window.addEventListener("hashchange",function(){renderPage();closeSidebar()});
 renderPage();
