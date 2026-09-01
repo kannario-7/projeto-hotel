@@ -18,6 +18,10 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ---
 
+## Versão 0.9.8-beta — 02/09/2026
+
+- **Melhoria**: O sistema agora se chama HospedaPrime.
+
 ## Versão 0.9.7-beta — 01/09/2026
 
 - **Melhoria**: Navegação unificada: no celular e no computador o botão "Mais" abre o mesmo menu moderno.
