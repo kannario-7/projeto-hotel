@@ -78,11 +78,15 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .modal-header{padding:20px 24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
 .modal-body{padding:24px}
 .modal-footer{padding:16px 24px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:12px}
+.chg-banner{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#fdf6e3,#faf0d0);border:1px solid var(--gold);border-radius:12px;padding:16px 18px;margin-bottom:20px}
+.chg-banner-ico{font-size:28px;line-height:1}
+.chg-banner-title{font-family:Sora,sans-serif;font-weight:700;color:var(--navy);font-size:16px}
+.chg-banner-sub{color:#8a6d1f;font-size:13px;margin-top:2px}
 .changelog-entry{padding:16px 0;border-bottom:1px solid #eee}
 .changelog-entry:last-child{border-bottom:none}
 .changelog-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .changelog-ver{font-family:Sora,sans-serif;font-weight:700;color:var(--navy);font-size:16px}
-.changelog-date{color:#999;font-size:12px}
+.changelog-date{color:#999;font-size:12px;margin-bottom:10px}
 .changelog-list{list-style:none;margin:0;padding:0}
 .changelog-list li{display:flex;align-items:flex-start;gap:8px;padding:5px 0;font-size:14px;color:#444;line-height:1.4}
 .chg-tag{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:0.3px;margin-top:1px}
@@ -221,17 +225,21 @@ function getUltimaVersaoVista(){try{return localStorage.getItem("hms_lastseen_ve
 function marcarVersaoVista(){try{localStorage.setItem("hms_lastseen_ver",APP_VERSION)}catch(e){}}
 function temNovidade(){return getUltimaVersaoVista()!==APP_VERSION}
 function chgTagLabel(t){return t==="novo"?"Novo":t==="correcao"?"Correcao":"Melhoria"}
-function renderChangelogHTML(){var h="";for(var i=0;i<CHANGELOG.length;i++){var e=CHANGELOG[i];
-h+='<div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">v'+esc(e.v)+'</span>'+(i===0?'<span class="chg-latest">Mais recente</span>':'')+'<span class="changelog-date">'+fmtD(e.data)+'</span></div><ul class="changelog-list">';
-for(var j=0;j<e.mudancas.length;j++){var m=e.mudancas[j];h+='<li><span class="chg-tag chg-'+m.t+'">'+chgTagLabel(m.t)+'</span><span>'+esc(m.d)+'</span></li>'}
+function chgTagIcon(t){return t==="novo"?"✨":t==="correcao"?"🔧":"⬆"}
+function renderChangelogHTML(nova){var h="";
+if(nova){var ult=CHANGELOG[0];var n=ult?ult.mudancas.length:0;
+h+='<div class="chg-banner"><div class="chg-banner-ico">🎉</div><div><div class="chg-banner-title">O sistema foi atualizado!</div><div class="chg-banner-sub">Versao '+esc(ult?ult.v:APP_VERSION)+' &middot; '+n+' novidade'+(n===1?'':'s')+' nesta atualizacao</div></div></div>'}
+for(var i=0;i<CHANGELOG.length;i++){var e=CHANGELOG[i];
+h+='<div class="changelog-entry"><div class="changelog-head"><span class="changelog-ver">Versao '+esc(e.v)+'</span>'+(i===0?'<span class="chg-latest">Mais recente</span>':'')+'</div><div class="changelog-date">Atualizado em '+fmtD(e.data)+'</div><ul class="changelog-list">';
+for(var j=0;j<e.mudancas.length;j++){var m=e.mudancas[j];h+='<li><span class="chg-tag chg-'+m.t+'">'+chgTagIcon(m.t)+' '+chgTagLabel(m.t)+'</span><span>'+esc(m.d)+'</span></li>'}
 h+='</ul></div>'}
 return h}
-function showChangelog(){sm("Novidades do Sistema",renderChangelogHTML(),'<button class="btn btn-primary" onclick="marcarVersaoVista();atualizarBadgeNovidade();closeModal()">Entendi</button>');marcarVersaoVista();atualizarBadgeNovidade()}
+function showChangelog(auto){var nova=auto===true&&temNovidade();sm("Novidades do Sistema",renderChangelogHTML(nova),'<button class="btn btn-primary" onclick="marcarVersaoVista();atualizarBadgeNovidade();closeModal()">Entendi, obrigado</button>');marcarVersaoVista();atualizarBadgeNovidade()}
 function atualizarBadgeNovidade(){var d=document.getElementById("newsDot");if(d)d.style.display=temNovidade()?"block":"none"}
 
 function showLogin(){var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";var usuarios=St.ga("u");if(!usuarios.length){document.getElementById("loginContent").innerHTML='<h3 style="text-align:center;margin-bottom:16px;color:var(--navy)">Primeiro Acesso</h3><p style="text-align:center;color:#888;font-size:14px;margin-bottom:20px">Cadastre o usuario administrador do sistema</p><div class="form-group"><label>Nome</label><input type="text" id="sAdmNome" placeholder="Admin"></div><div class="form-group"><label>Login</label><input type="text" id="sAdmLogin" placeholder="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="sAdmSenha" placeholder="1234"></div><div class="form-group"><label>Confirmar Senha</label><input type="password" id="sAdmConf" placeholder="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="setupAdmin()">Criar Administrador</button>';return}
 document.getElementById("loginContent").innerHTML='<div class="form-group"><label>Usuario</label><input type="text" id="loginUser" value="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="loginPass" value="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>';}
-function hideLogin(){document.getElementById("loginOverlay").style.display="none";var u=getCurrentUser();if(u){document.getElementById("userInfo").innerHTML=esc(u.nome)+' &nbsp; Sair';filtrarSidebar();atualizarBadgeNovidade();if(temNovidade()){setTimeout(showChangelog,400)}}}
+function hideLogin(){document.getElementById("loginOverlay").style.display="none";var u=getCurrentUser();if(u){document.getElementById("userInfo").innerHTML=esc(u.nome)+' &nbsp; Sair';filtrarSidebar();atualizarBadgeNovidade();if(temNovidade()){setTimeout(function(){showChangelog(true)},400)}}}
 function setupAdmin(){var n=document.getElementById("sAdmNome"),l=document.getElementById("sAdmLogin"),s=document.getElementById("sAdmSenha"),c=document.getElementById("sAdmConf");if(!n||!l||!s||!c)return;if(!n.value.trim()||!l.value.trim()||!s.value.trim())return document.getElementById("loginError").textContent="Preencha todos os campos.",document.getElementById("loginError").style.display="block";if(s.value!==c.value)return document.getElementById("loginError").textContent="Senhas nao conferem.",document.getElementById("loginError").style.display="block";St.in("u",{nome:n.value.trim(),login:l.value.trim(),senha:s.value,tipo:"admin",ativo:true});st("Administrador criado! Faca o login.","success");showLogin()}
 function showSetupAdminForce(){document.getElementById("loginContent").innerHTML='<h3 style="text-align:center;margin-bottom:16px;color:var(--navy)">Novo Administrador</h3><div class="form-group"><label>Nome</label><input type="text" id="sAdmNome" placeholder="Admin"></div><div class="form-group"><label>Login</label><input type="text" id="sAdmLogin" placeholder="admin"></div><div class="form-group"><label>Senha</label><input type="password" id="sAdmSenha" placeholder="1234"></div><div class="form-group"><label>Confirmar Senha</label><input type="password" id="sAdmConf" placeholder="1234"></div><div class="login-error" id="loginError"></div><button class="btn btn-primary" onclick="setupAdmin()">Criar Administrador</button><div class="login-links"><a onclick="showLogin()">Voltar ao login</a></div>';}
 function fazerLogin(){var l=document.getElementById("loginUser"),s=document.getElementById("loginPass"),e=document.getElementById("loginError");if(!l||!s)return;var user=St.ga("u").find(function(u){return u.login===l.value&&u.senha===s.value&&u.ativo!==false});if(user){sessionStorage.setItem("hms_user",JSON.stringify(user));hideLogin();renderPage()}else{e.textContent="Usuario ou senha incorretos.";e.style.display="block"}}
