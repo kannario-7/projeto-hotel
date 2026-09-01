@@ -20,8 +20,10 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ## Versão 0.9.6-beta — 30/08/2026
 
+- **Novo**: Janelas de confirmação modernas substituindo os avisos do navegador.
 - **Novo**: Sistema já vem com hóspedes e reservas de exemplo para explorar.
 - **Correção**: Filtro "Todas" das reservas volta a mostrar a lista completa.
+- **Melhoria**: Visual das janelas atualizado com efeito de desfoque e animação.
 - **Melhoria**: Filtro de reservas selecionado fica destacado para melhor visualização.
 
 ## Versão 0.9.5-beta — 29/08/2026

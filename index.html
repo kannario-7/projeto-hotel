@@ -87,12 +87,23 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .toast.error{background:#e74c3c}
 .toast.info{background:#3498db}
 @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:0.3s}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(11,29,58,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.show{opacity:1;pointer-events:all}
-.modal{background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-width:500px;width:90%;max-height:85vh;overflow-y:auto}
-.modal-header{padding:20px 24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+.modal{background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(11,29,58,0.28);max-width:500px;width:90%;max-height:85vh;overflow-y:auto;transform:translateY(16px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s}
+.modal-overlay.show .modal{transform:translateY(0) scale(1);opacity:1}
+.modal-header{padding:20px 24px;border-bottom:1px solid #eef1f5;display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-family:Sora,sans-serif;color:var(--navy)}
 .modal-body{padding:24px}
-.modal-footer{padding:16px 24px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:12px}
+.modal-footer{padding:16px 24px;border-top:1px solid #eef1f5;display:flex;justify-content:flex-end;gap:12px}
+.confirm-modal{max-width:420px;text-align:center}
+.confirm-ico{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:28px auto 0;font-size:30px}
+.confirm-ico.danger{background:#fdedec}
+.confirm-ico.warning{background:#fef5e7}
+.confirm-ico.info{background:#ebf5fb}
+.confirm-title{font-family:Sora,sans-serif;font-size:19px;font-weight:700;color:var(--navy);margin:16px 24px 6px}
+.confirm-msg{color:#7a8698;font-size:14px;margin:0 28px;line-height:1.5}
+.confirm-actions{display:flex;gap:10px;padding:24px;justify-content:center}
+.confirm-actions .btn{flex:1;justify-content:center;max-width:160px}
 .chg-banner{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#fdf6e3,#faf0d0);border:1px solid var(--gold);border-radius:12px;padding:16px 18px;margin-bottom:20px}
 .chg-banner-ico{font-size:28px;line-height:1}
 .chg-banner-title{font-family:Sora,sans-serif;font-weight:700;color:var(--navy);font-size:16px}
@@ -193,6 +204,7 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 </aside>
 <main class="main-content" id="mainContent"><div id="pageContent"></div></main>
 <div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-header"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">&times;</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
+<div class="modal-overlay" id="confirmOverlay"><div class="modal confirm-modal"><div class="confirm-ico" id="confirmIco">?</div><div class="confirm-title" id="confirmTitle">Confirmar</div><p class="confirm-msg" id="confirmMsg"></p><div class="confirm-actions"><button class="btn btn-secondary" id="confirmCancel">Cancelar</button><button class="btn btn-danger" id="confirmOk">Confirmar</button></div></div></div>
 <div class="toast-container" id="toastContainer"></div>
 <div class="login-overlay" id="loginOverlay">
 <div class="login-box" id="loginBox">
@@ -229,11 +241,27 @@ function closeModal(){cm()}
 function openModal(t,b,f){sm(t,b,f)}
 document.getElementById("modalOverlay").addEventListener("click",function(e){if(e.target===this)cm()});
 
+function confirmar(opts,onOk){opts=opts||{};var tipo=opts.tipo||"danger";
+var ov=document.getElementById("confirmOverlay"),ico=document.getElementById("confirmIco");
+ico.className="confirm-ico "+tipo;ico.textContent=tipo==="danger"?"⚠":tipo==="warning"?"⚠":"?";
+document.getElementById("confirmTitle").textContent=opts.titulo||"Tem certeza?";
+document.getElementById("confirmMsg").textContent=opts.msg||"";
+var ok=document.getElementById("confirmOk"),cancel=document.getElementById("confirmCancel");
+ok.className="btn "+(tipo==="danger"?"btn-danger":tipo==="warning"?"btn-primary":"btn-primary");
+ok.textContent=opts.okLabel||"Confirmar";cancel.textContent=opts.cancelLabel||"Cancelar";
+function fecha(){ov.classList.remove("show");ok.onclick=null;cancel.onclick=null}
+ok.onclick=function(){fecha();if(typeof onOk==="function")onOk()};
+cancel.onclick=fecha;
+ov.onclick=function(e){if(e.target===ov)fecha()};
+ov.classList.add("show")}
+
 var APP_VERSION="0.9.6-beta";
 var CHANGELOG=[
 {v:"0.9.6-beta",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Janelas de confirmacao modernas substituindo os avisos do navegador."},
 {t:"novo",d:"Sistema ja vem com hospedes e reservas de exemplo para explorar."},
 {t:"correcao",d:"Filtro Todas das reservas volta a mostrar a lista completa."},
+{t:"melhoria",d:"Visual das janelas atualizado com efeito de desfoque e animacao."},
 {t:"melhoria",d:"Filtro de reservas selecionado fica destacado para melhor visualizacao."}
 ]},
 {v:"0.9.5-beta",data:"2026-08-29",mudancas:[
@@ -410,7 +438,7 @@ reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).
 function showNovaReserva(){sm("Nova Reserva",formReserva(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva()">Salvar</button>')}
 function editarReserva(id){sm("Editar Reserva",formReserva(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva(\''+id+'\')">Salvar</button>')}
 function confirmarReserva(id){St.up("r",id,{status:"confirmada"});st("Reserva confirmada!","success");cm();renderReservas()}
-function cancelarReserva(id){if(!confirm("Cancelar esta reserva?"))return;St.up("r",id,{status:"cancelada"});st("Reserva cancelada.","warning");renderReservas()}
+function cancelarReserva(id){confirmar({titulo:"Cancelar reserva?",msg:"Esta reserva sera marcada como cancelada.",okLabel:"Sim, cancelar",tipo:"danger"},function(){St.up("r",id,{status:"cancelada"});st("Reserva cancelada.","warning");renderReservas()})}
 
 function formReserva(id){var r=id?St.fi("r",id):null;
 var hospedes=St.ga("h").filter(function(h){return h.ativo!==false});
@@ -473,7 +501,7 @@ if(id){St.up("h",id,dados);st("Hospede atualizado!","success")}
 else{St.in("h",dados);st("Hospede cadastrado!","success")}
 cm();renderHospedes()}
 
-function excluirHospede(id){if(!confirm("Excluir este hospede?"))return;St.rm("h",id);st("Hospede excluido.","warning");renderHospedes()}
+function excluirHospede(id){confirmar({titulo:"Excluir hospede?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("h",id);st("Hospede excluido.","warning");renderHospedes()})}
 
 function renderQuartos(){el=document.getElementById("pageContent");
 var quartos=St.ga("q"),tq=St.ga("tq");
@@ -527,12 +555,12 @@ reservas.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);re
 else if(!ocupados.length){el.innerHTML+='<p style="padding:24px;text-align:center;color:#999">Nenhuma reserva pendente para check-in hoje.</p>';}
 }
 
-function realizarCheckin(id){if(!confirm("Confirmar check-in deste hospede?"))return;
+function realizarCheckin(id){confirmar({titulo:"Confirmar check-in?",msg:"O hospede sera registrado e o quarto marcado como ocupado.",okLabel:"Confirmar check-in",tipo:"info"},function(){
 var r=St.fi("r",id);if(!r)return;
 St.up("r",id,{status:"checkin"});
 St.up("q",r.quartoId,{status:"ocupado"});
 st("Check-in realizado com sucesso!","success");
-renderCheckin();}
+renderCheckin();})}
 
 function renderCheckout(){el=document.getElementById("pageContent");
 var hoje=td();
@@ -650,7 +678,7 @@ if(id){St.up("sv",id,dados);st("Servico atualizado!","success")}
 else{St.in("sv",dados);st("Servico cadastrado!","success")}
 cm();renderServicos()}
 
-function excluirServico(id){if(!confirm("Excluir servico?"))return;St.rm("sv",id);st("Servico excluido.","warning");renderServicos()}
+function excluirServico(id){confirmar({titulo:"Excluir servico?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("sv",id);st("Servico excluido.","warning");renderServicos()})}
 
 function showNovoConsumo(){sm("Novo Consumo",formConsumo(),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarConsumo()">Salvar</button>')}
 
@@ -705,7 +733,7 @@ if(id){St.up("fa",id,dados);st("Funcionario atualizado!","success")}
 else{St.in("fa",dados);st("Funcionario cadastrado!","success")}
 cm();renderFuncionarios()}
 
-function excluirFuncionario(id){if(!confirm("Excluir funcionario?"))return;St.rm("fa",id);st("Funcionario excluido.","warning");renderFuncionarios()}
+function excluirFuncionario(id){confirmar({titulo:"Excluir funcionario?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("fa",id);st("Funcionario excluido.","warning");renderFuncionarios()})}
 
 function renderRelatorios(){el=document.getElementById("pageContent");
 var config=St.gc(),hoje=td();
@@ -826,7 +854,7 @@ function formConfigPagamento(c){return'<div class="form-container"><h3 style="ma
 ["dinheiro","cartao","debito","credito","pix","boleto","cheque"].map(function(p){return'<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer"><input type="checkbox" value="'+p+'" '+(c.pm&&c.pm.includes(p)?'checked':'')+' onchange="togglePagamento(this)"> <span>'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</span></label>'}).join('')+
 '<div class="form-actions"><button class="btn btn-primary" onclick="salvarFormasPagamento()">Salvar</button></div></div>'+
 '<div class="form-container"><h3 style="margin-bottom:16px;color:var(--navy)">Dados do Sistema</h3>'+
-'<button class="btn btn-danger" onclick="if(confirm(\'Restaurar dados padrao? Todos os dados serao perdidos!\')){localStorage.clear();location.reload()}">Restaurar Dados Padrao</button>'+
+'<button class="btn btn-danger" onclick="restaurarDados()">Restaurar Dados Padrao</button>'+
 '<p style="color:#999;font-size:12px;margin-top:8px">Isso apagara todos os dados e recriara os dados iniciais.</p></div>'}
 
 function togglePagamento(el){if(el.checked)el.checked=true;else el.checked=false}
@@ -877,8 +905,9 @@ else{if(!dados.senha)return st("Senha obrigatoria.","error"),false;St.in("u",dad
 cm();renderConfig()}
 
 function excluirUsuario(id){var user=getCurrentUser();if(!user||user.tipo!=="admin")return;if(user.id===id)return st("Voce nao pode excluir a si mesmo.","error"),false;
-if(!confirm("Excluir este usuario?"))return;St.rm("u",id);st("Usuario excluido.","warning");renderConfig()}
+confirmar({titulo:"Excluir usuario?",msg:"O acesso deste usuario sera removido.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("u",id);st("Usuario excluido.","warning");renderConfig()})}
 function ativarUsuario(id){St.up("u",id,{ativo:true});st("Usuario ativado!","success");renderConfig()}
+function restaurarDados(){confirmar({titulo:"Restaurar dados padrao?",msg:"Todos os dados atuais serao apagados e substituidos pelos dados de exemplo.",okLabel:"Sim, restaurar",tipo:"danger"},function(){localStorage.clear();location.reload()})}
 
 function renderPage(){var p=window.location.hash.slice(1)||"d";
 el=document.getElementById("pageContent");
