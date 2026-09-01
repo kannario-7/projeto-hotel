@@ -18,8 +18,10 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ---
 
-## Versão 0.9.6-beta — 30/08/2026
+## Versão 0.9.6-beta — 31/08/2026
 
+- **Novo**: Mapa de quartos no painel: veja ocupados, reservados e livres num relance.
+- **Novo**: Quartos ocupados exibem o nome do hóspede; clique para ver os detalhes.
 - **Novo**: Janelas de confirmação modernas substituindo os avisos do navegador.
 - **Novo**: Sistema já vem com hóspedes e reservas de exemplo para explorar.
 - **Correção**: Filtro "Todas" das reservas volta a mostrar a lista completa.

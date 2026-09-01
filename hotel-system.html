@@ -71,6 +71,35 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);bo
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
 .room-card{position:relative;background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(11,29,58,0.05);border:1px solid #edf0f4;transition:transform .2s,box-shadow .2s}
 .room-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(11,29,58,0.12)}
+.mapa-wrap{background:#fff;border-radius:16px;padding:20px 22px;box-shadow:0 2px 10px rgba(11,29,58,0.05);border:1px solid #edf0f4;margin-bottom:24px}
+.mapa-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.mapa-head h3{font-family:Sora,sans-serif;color:var(--navy);font-size:16px}
+.mapa-legenda{display:flex;gap:14px;flex-wrap:wrap}
+.mapa-legenda .lg{display:flex;align-items:center;gap:5px;font-size:12px;color:#7a8698}
+.mapa-legenda .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot-disponivel{background:#2ecc71}.dot-ocupado{background:#3498db}.dot-reservado{background:#f39c12}.dot-limpeza{background:#9b59b6}.dot-manutencao{background:#e74c3c}
+.mapa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.qcard{border-radius:14px;padding:14px;cursor:pointer;border:1px solid #edf0f4;background:#fbfcfe;transition:transform .18s,box-shadow .2s,border-color .2s;position:relative;overflow:hidden}
+.qcard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.qcard:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(11,29,58,0.12)}
+.qcard-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.qcard-num{font-family:Sora,sans-serif;font-weight:700;font-size:20px;color:var(--navy)}
+.qcard-st{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:20px}
+.qcard-tipo{font-size:12px;color:#8a95a5;margin-bottom:12px}
+.qcard-hosp{display:flex;align-items:center;gap:8px}
+.qcard-avatar{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.qcard-nome{font-size:13px;font-weight:600;color:#33404f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qcard-vazio{font-size:12px;color:#b3bcc8;font-style:italic}
+.qcard-disponivel:before{background:#2ecc71}.qcard-disponivel .qcard-st{background:#e8f8ef;color:#27ae60}
+.qcard-ocupado:before{background:#3498db}.qcard-ocupado{background:#f5faff;border-color:#dcebf8}.qcard-ocupado .qcard-st{background:#ebf5fb;color:#2980b9}
+.qcard-reservado:before{background:#f39c12}.qcard-reservado .qcard-st{background:#fef5e7;color:#e08e0b}
+.qcard-limpeza:before{background:#9b59b6}.qcard-limpeza .qcard-st{background:#f5eef8;color:#8e44ad}
+.qcard-manutencao:before{background:#e74c3c}.qcard-manutencao .qcard-st{background:#fdedec;color:#c0392b}
+.qmodal-num{width:52px;height:52px;border-radius:12px;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-weight:700;font-size:20px;flex-shrink:0}
+.qmodal-info{background:#f7f9fc;border-radius:12px;padding:6px 14px}
+.qmodal-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #eef1f5;font-size:14px}
+.qmodal-row:last-child{border-bottom:none}
+.qmodal-row span{color:#8a95a5}
 .stat-card:nth-child(1){animation-delay:.02s}.stat-card:nth-child(2){animation-delay:.06s}.stat-card:nth-child(3){animation-delay:.1s}.stat-card:nth-child(4){animation-delay:.14s}.stat-card:nth-child(5){animation-delay:.18s}.stat-card:nth-child(6){animation-delay:.22s}.stat-card:nth-child(7){animation-delay:.26s}
 .room-number{font-family:Sora,sans-serif;font-size:24px;font-weight:700;color:var(--navy)}
 .room-type{font-size:13px;color:#999;margin:4px 0}
@@ -258,6 +287,8 @@ ov.classList.add("show")}
 var APP_VERSION="0.9.6-beta";
 var CHANGELOG=[
 {v:"0.9.6-beta",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Mapa de quartos no painel: veja ocupados, reservados e livres num relance."},
+{t:"novo",d:"Quartos ocupados exibem o nome do hospede; clique para ver os detalhes."},
 {t:"novo",d:"Janelas de confirmacao modernas substituindo os avisos do navegador."},
 {t:"novo",d:"Sistema ja vem com hospedes e reservas de exemplo para explorar."},
 {t:"correcao",d:"Filtro Todas das reservas volta a mostrar a lista completa."},
@@ -337,7 +368,7 @@ document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAtt
 if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:#f39c12;font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}
 var LOGIN_CHECK=function(){seed();ensureAdmin();var user=getCurrentUser();if(!user){showLogin();return true}hideLogin();return false}();
 
-function seed(){if(localStorage.getItem("hms_s2"))return;
+function seed(){if(localStorage.getItem("hms_s3"))return;
 var tp=[["Standard",2,19900],["Superior",3,29900],["Deluxe",3,44900],["Suite Master",4,69900]].map(function(t){return{id:crypto.randomUUID(),nome:t[0],capacidade:t[1],precoDiaria:t[2],ativo:true}});St.sa("tq",tp);
 var qq=[];for(var a=1;a<=4;a++){for(var q=0;q<(a<=2?3:2);q++){var ti=a<=1?0:a===2?1:a===3?2:3;qq.push({id:crypto.randomUUID(),numero:""+(100*a+q+1).toString().slice(1),andar:a,tipoQuartoId:tp[ti].id,status:"disponivel",ativo:true})}}St.sa("q",qq);
 var sc=[["Cafe da Manha",3500],["Lavanderia",1500],["Estacionamento",2500],["Minibar",800],["Spa Massagem",12000],["Room Service",5000],["Late Checkout",8000],["Early Checkin",6000]].map(function(s){return{id:crypto.randomUUID(),nome:s[0],preco:s[1],categoria:"Servico",unidade:"unidade",ativo:true}});St.sa("sv",sc);
@@ -345,13 +376,18 @@ St.sc({hn:"Hotel Manager",hcnpj:"00.000.000/0001-00",htel:"(11)3000-0000",hemail
 var hosp=[["Joao Silva","123.456.789-09","(11)98888-0001","joao@email.com"],["Maria Souza","987.654.321-00","(11)98888-0002","maria@email.com"],["Carlos Pereira","111.444.777-35","(11)98888-0003","carlos@email.com"],["Ana Costa","529.982.247-25","(11)98888-0004","ana@email.com"],["Pedro Almeida","390.533.447-05","(11)98888-0005","pedro@email.com"]].map(function(x){return{id:crypto.randomUUID(),nome:x[0],documento:x[1],telefone:x[2],email:x[3],ativo:true}});St.sa("h",hosp);
 function dOff(n){var d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 var rr=[
-{hospedeId:hosp[0].id,quartoId:qq[0].id,dataCheckin:dOff(2),dataCheckout:dOff(5),total:tp[0].precoDiaria*3,status:"pendente"},
+{hospedeId:hosp[2].id,quartoId:qq[0].id,dataCheckin:dOff(-1),dataCheckout:dOff(2),total:tp[0].precoDiaria*3,status:"checkin"},
+{hospedeId:hosp[0].id,quartoId:qq[6].id,dataCheckin:dOff(-2),dataCheckout:dOff(1),total:tp[2].precoDiaria*3,status:"checkin"},
+{hospedeId:hosp[4].id,quartoId:qq[8].id,dataCheckin:dOff(0),dataCheckout:dOff(3),total:tp[3].precoDiaria*3,status:"checkin"},
 {hospedeId:hosp[1].id,quartoId:qq[3].id,dataCheckin:dOff(1),dataCheckout:dOff(4),total:tp[1].precoDiaria*3,status:"confirmada"},
-{hospedeId:hosp[2].id,quartoId:qq[6].id,dataCheckin:dOff(-1),dataCheckout:dOff(2),total:tp[2].precoDiaria*3,status:"checkin"},
-{hospedeId:hosp[3].id,quartoId:qq[8].id,dataCheckin:dOff(3),dataCheckout:dOff(6),total:tp[3].precoDiaria*3,status:"pendente"},
-{hospedeId:hosp[4].id,quartoId:qq[1].id,dataCheckin:dOff(-5),dataCheckout:dOff(-2),total:tp[0].precoDiaria*3,status:"cancelada"}
+{hospedeId:hosp[3].id,quartoId:qq[4].id,dataCheckin:dOff(2),dataCheckout:dOff(5),total:tp[1].precoDiaria*3,status:"confirmada"},
+{hospedeId:hosp[0].id,quartoId:qq[9].id,dataCheckin:dOff(3),dataCheckout:dOff(6),total:tp[3].precoDiaria*3,status:"pendente"},
+{hospedeId:hosp[3].id,quartoId:qq[2].id,dataCheckin:dOff(-6),dataCheckout:dOff(-3),total:tp[0].precoDiaria*3,status:"cancelada"}
 ].map(function(r){r.id=crypto.randomUUID();r.servicos=r.servicos||[];return r});St.sa("r",rr);
-localStorage.setItem("hms_s2","1");}
+qq[7].status="limpeza";qq[5].status="manutencao";
+rr.forEach(function(r){var qi=qq.findIndex(function(x){return x.id===r.quartoId});if(qi<0)return;if(r.status==="checkin")qq[qi].status="ocupado";else if(r.status==="confirmada"&&qq[qi].status==="disponivel")qq[qi].status="reservado"});
+St.sa("q",qq);
+localStorage.setItem("hms_s3","1");}
 function ensureAdmin(){var us=St.ga("u");if(!us.some(function(u){return u.login==="admin"})){St.in("u",{nome:"Admin",login:"admin",senha:"1234",tipo:"admin",ativo:true})}}
 seed();ensureAdmin();
 
@@ -402,10 +438,67 @@ if(limpeza>0)alertas+='<div class="alert alert-info"><span>🧹</span><span>'+li
 alertas+='</div>';
 el.innerHTML+=alertas;
 
+el.innerHTML+=renderMapaQuartos(quartos,reservas,tq);
+
 var prox=ativas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).slice(0,5);
 if(prox.length){el.innerHTML+='<h3 style="margin-bottom:12px;color:var(--navy)">Proximas Reservas</h3><table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr>'+
 prox.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td>'+getStatusBadge(r.status)+'</td></tr>'}).join('')+'</table>';}
 }
+
+function reservaAtivaDoQuarto(quartoId,reservas){reservas=reservas||St.ga("r");
+var pri={checkin:0,confirmada:1,pendente:2};
+var cands=reservas.filter(function(r){return r.quartoId===quartoId&&["checkin","confirmada","pendente"].indexOf(r.status)>=0});
+cands.sort(function(a,b){return (pri[a.status]-pri[b.status])||a.dataCheckin.localeCompare(b.dataCheckin)});
+return cands[0]||null}
+
+function renderMapaQuartos(quartos,reservas,tq){quartos=quartos||St.ga("q");reservas=reservas||St.ga("r");tq=tq||St.ga("tq");
+var ativos=quartos.filter(function(q){return q.ativo!==false}).sort(function(a,b){return (""+a.numero).localeCompare(""+b.numero)});
+if(!ativos.length)return"";
+var ocup=ativos.filter(function(q){return q.status==="ocupado"}).length;
+var h='<div class="mapa-head"><h3>Mapa de Quartos</h3><div class="mapa-legenda">'+
+'<span class="lg"><i class="dot dot-disponivel"></i>Disponivel</span>'+
+'<span class="lg"><i class="dot dot-ocupado"></i>Ocupado</span>'+
+'<span class="lg"><i class="dot dot-reservado"></i>Reservado</span>'+
+'<span class="lg"><i class="dot dot-limpeza"></i>Limpeza</span>'+
+'<span class="lg"><i class="dot dot-manutencao"></i>Manutencao</span>'+
+'</div></div>';
+h+='<div class="mapa-grid">';
+h+=ativos.map(function(q){
+var t=tq.filter(function(x){return x.id===q.tipoQuartoId})[0];
+var st=q.status||"disponivel";
+var r=(st==="ocupado"||st==="reservado")?reservaAtivaDoQuarto(q.id,reservas):null;
+if(!r&&st==="ocupado")r=reservaAtivaDoQuarto(q.id,reservas);
+var hosp=r?St.fi("h",r.hospedeId):null;
+var nome=hosp?hosp.nome:"";
+var iniciais=nome?nome.trim().split(/\s+/).slice(0,2).map(function(p){return p[0]}).join("").toUpperCase():"";
+var label=st==="disponivel"?"Livre":st==="ocupado"?"Ocupado":st==="reservado"?"Reservado":st==="limpeza"?"Limpeza":"Manutencao";
+return '<div class="qcard qcard-'+st+'" onclick="detalheQuarto(\''+q.id+'\')" title="Apto '+esc(q.numero)+'">'+
+'<div class="qcard-top"><span class="qcard-num">'+esc(q.numero)+'</span><span class="qcard-st">'+label+'</span></div>'+
+'<div class="qcard-tipo">'+esc(t?t.nome:"Quarto")+'</div>'+
+(nome?'<div class="qcard-hosp"><span class="qcard-avatar">'+esc(iniciais)+'</span><span class="qcard-nome">'+esc(nome)+'</span></div>':'<div class="qcard-vazio">Sem hospede</div>')+
+'</div>'}).join('');
+h+='</div>';
+return '<div class="mapa-wrap">'+h+'</div>'}
+
+function detalheQuarto(id){var q=St.fi("q",id);if(!q)return;var tq=St.ga("tq");var t=tq.filter(function(x){return x.id===q.tipoQuartoId})[0];
+var r=reservaAtivaDoQuarto(q.id);var hosp=r?St.fi("h",r.hospedeId):null;
+var st=q.status||"disponivel";
+var label=st==="disponivel"?"Disponivel":st==="ocupado"?"Ocupado":st==="reservado"?"Reservado":st==="limpeza"?"Em limpeza":"Em manutencao";
+var body='<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">'+
+'<div class="qmodal-num">'+esc(q.numero)+'</div>'+
+'<div><div style="font-family:Sora,sans-serif;font-weight:700;color:var(--navy);font-size:18px">Apto '+esc(q.numero)+'</div>'+
+'<div style="color:#8a95a5;font-size:13px">'+esc(t?t.nome:"Quarto")+' &middot; '+(q.andar?("Andar "+q.andar):"")+'</div></div></div>';
+body+='<p style="margin-bottom:14px"><span class="badge badge-'+(st==="disponivel"?"success":st==="ocupado"?"info":st==="manutencao"?"danger":"warning")+'">'+label+'</span></p>';
+if(hosp){body+='<div class="qmodal-info"><div class="qmodal-row"><span>Hospede</span><b>'+esc(hosp.nome)+'</b></div>'+
+(hosp.documento?'<div class="qmodal-row"><span>Documento</span><b>'+esc(hosp.documento)+'</b></div>':'')+
+(hosp.telefone?'<div class="qmodal-row"><span>Telefone</span><b>'+esc(hosp.telefone)+'</b></div>':'')+
+(r?'<div class="qmodal-row"><span>Check-in</span><b>'+fmtD(r.dataCheckin)+'</b></div><div class="qmodal-row"><span>Check-out</span><b>'+fmtD(r.dataCheckout)+'</b></div>':'')+
+(r&&r.total?'<div class="qmodal-row"><span>Total</span><b>'+fmtC(r.total)+'</b></div>':'')+
+'</div>'}else{body+='<p style="color:#8a95a5;font-size:14px">Este quarto nao possui hospede no momento.</p>'}
+var footer='<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>';
+if(r&&r.status==="confirmada")footer+='<button class="btn btn-success" onclick="closeModal();navTo(\'#ci\')">Ir para Check-in</button>';
+if(r&&r.status==="checkin")footer+='<button class="btn btn-primary" onclick="closeModal();navTo(\'#co\')">Ir para Check-out</button>';
+sm("Detalhes do Quarto",body,footer)}
 
 function renderReservas(){el=document.getElementById("pageContent");
 var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
