@@ -137,7 +137,7 @@ select option{background:var(--surface-2);color:var(--text)}
 .toast.error{background:#e5484d}
 .toast.info{background:var(--accent)}
 @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
-.support-widget{position:fixed;right:24px;bottom:24px;z-index:3500;display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+.support-widget{position:fixed;right:24px;bottom:24px;z-index:5500;display:flex;flex-direction:column;align-items:flex-end;gap:14px}
 .support-fab{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(139,92,246,.5);transition:transform .2s,box-shadow .2s;position:relative}
 .support-fab:hover{transform:scale(1.06);box-shadow:0 12px 30px rgba(139,92,246,.6)}
 .support-fab svg{width:26px;height:26px;position:absolute;transition:opacity .2s,transform .3s}
@@ -376,7 +376,7 @@ function enviarSuporte(){var t=document.getElementById("supportMsg");if(!t||!t.v
 var APP_VERSION="0.9.7-beta";
 var CHANGELOG=[
 {v:"0.9.7-beta",data:"2026-09-01",mudancas:[
-{t:"novo",d:"Suporte Online: botao de ajuda flutuante com WhatsApp, e-mail e mensagem."},
+{t:"novo",d:"Suporte Online: botao de ajuda flutuante com WhatsApp, e-mail e mensagem, disponivel ate na tela de login."},
 {t:"melhoria",d:"Novo visual escuro e moderno em todo o sistema, com destaque em roxo."},
 {t:"melhoria",d:"Cartoes, tabelas, formularios e janelas repaginados no novo tema."},
 {t:"melhoria",d:"Melhor contraste e leitura em telas com pouca luz."}
