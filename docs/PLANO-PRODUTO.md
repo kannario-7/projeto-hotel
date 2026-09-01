@@ -122,7 +122,23 @@ O app deixou de ser um único HTML monolítico. Agora está modularizado:
   checkout, financeiro, servicos, funcionarios, relatorios, config).
 - A camada `store.js` (hoje localStorage) é o ponto único que será trocado por Supabase.
 
-### Etapa 1 — Fundação de dados (PRÓXIMA)
-Pré-requisito: criar conta gratuita no Supabase (https://supabase.com) e um novo projeto.
-Enviar Project URL + anon key. Depois: modelagem das tabelas, RLS, auth e migração
-da persistência (só o `store.js` muda; a interface permanece).
+### Etapa 1 — Fundação de dados (CONCLUÍDA)
+- Supabase configurado (`app/js/supabase.js`), schema criado (`supabase/schema.sql` + `schema-02.sql`).
+- Autenticação real (e-mail/senha) e cadastro de hotel (onboarding do tenant).
+- Persistência na nuvem com isolamento por hotel (RLS) — testado end-to-end.
+- `store.js` agora usa cache em memória sincronizado com o Supabase.
+
+### Etapa 3 — Site de vendas + guias (CONCLUÍDA — parcial)
+- Landing page (`landing.html` + `landing.css`) com hero, recursos, planos e CTA.
+- Página de guias/FAQ (`guias.html`).
+- App movido para `/app`; rotas no `vercel.json` (`/` = landing, `/app` = sistema).
+
+### Etapa 2 — Cobrança (PRÓXIMA)
+Integração de assinatura (teste grátis -> plano pago). Provedor a definir
+(Stripe internacional vs Asaas/Mercado Pago no Brasil).
+
+### Etapa 5 — Painel do dono (admin) — futura
+Gestão de hotéis, assinaturas e métricas.
+
+### Multi-usuário por hotel — futura
+Convidar recepcionistas/gerentes para a equipe do hotel.
