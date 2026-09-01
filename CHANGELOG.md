@@ -18,13 +18,18 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ---
 
-## Versão 0.9.5-beta — 30/08/2026
+## Versão 0.9.6-beta — 30/08/2026
+
+- **Novo**: Sistema já vem com hóspedes e reservas de exemplo para explorar.
+- **Melhoria**: Filtros de reservas (Pendentes, Confirmadas, etc.) com dados para demonstrar.
+
+## Versão 0.9.5-beta — 29/08/2026
 
 - **Melhoria**: Interface modernizada com visual mais elegante e cores refinadas.
 - **Melhoria**: Cartões e tabelas com efeitos suaves ao passar o mouse.
 - **Melhoria**: Animações de transição ao navegar entre as telas.
 
-## Versão 0.9.4-beta — 29/08/2026
+## Versão 0.9.4-beta — 28/08/2026
 
 - **Novo**: Painel de Novidades com histórico organizado de todas as atualizações do sistema.
 - **Novo**: Selo de versão visível na tela de login e no menu lateral.

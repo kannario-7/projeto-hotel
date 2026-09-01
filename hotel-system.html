@@ -229,31 +229,35 @@ function closeModal(){cm()}
 function openModal(t,b,f){sm(t,b,f)}
 document.getElementById("modalOverlay").addEventListener("click",function(e){if(e.target===this)cm()});
 
-var APP_VERSION="0.9.5-beta";
+var APP_VERSION="0.9.6-beta";
 var CHANGELOG=[
-{v:"0.9.5-beta",data:"2026-08-30",mudancas:[
+{v:"0.9.6-beta",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Sistema ja vem com hospedes e reservas de exemplo para explorar."},
+{t:"melhoria",d:"Filtros de reservas (Pendentes, Confirmadas, etc.) com dados para demonstrar."}
+]},
+{v:"0.9.5-beta",data:"2026-08-29",mudancas:[
 {t:"melhoria",d:"Interface modernizada com visual mais elegante e cores refinadas."},
 {t:"melhoria",d:"Cartoes e tabelas com efeitos suaves ao passar o mouse."},
 {t:"melhoria",d:"Animacoes de transicao ao navegar entre as telas."}
 ]},
-{v:"0.9.4-beta",data:"2026-08-29",mudancas:[
+{v:"0.9.4-beta",data:"2026-08-28",mudancas:[
 {t:"novo",d:"Painel de Novidades: historico organizado de todas as atualizacoes do sistema."},
 {t:"novo",d:"Selo de versao visivel na tela de login e no menu lateral."},
 {t:"melhoria",d:"Novidades agrupadas por tipo para facilitar a leitura."}
 ]},
-{v:"0.9.3-beta",data:"2026-08-28",mudancas:[
+{v:"0.9.3-beta",data:"2026-08-27",mudancas:[
 {t:"correcao",d:"Botoes X e Cancelar agora fecham corretamente todas as janelas."},
 {t:"melhoria",d:"Fechar janelas tocando na area escura fora da caixa."}
 ]},
-{v:"0.9.2-beta",data:"2026-08-27",mudancas:[
+{v:"0.9.2-beta",data:"2026-08-26",mudancas:[
 {t:"melhoria",d:"Sistema ja inicia com dados de exemplo para facilitar a experiencia."},
 {t:"melhoria",d:"Acesso ao sistema simplificado."}
 ]},
-{v:"0.9.1-beta",data:"2026-08-26",mudancas:[
+{v:"0.9.1-beta",data:"2026-08-25",mudancas:[
 {t:"melhoria",d:"Layout responsivo para celular com menu lateral deslizante."},
 {t:"correcao",d:"Correcao do menu mobile que bloqueava o toque nos itens."}
 ]},
-{v:"0.9.0-beta",data:"2026-08-25",mudancas:[
+{v:"0.9.0-beta",data:"2026-08-24",mudancas:[
 {t:"novo",d:"Primeira versao do sistema publicada online."}
 ]}
 ];
@@ -304,12 +308,21 @@ document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAtt
 if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:#f39c12;font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}
 var LOGIN_CHECK=function(){seed();ensureAdmin();var user=getCurrentUser();if(!user){showLogin();return true}hideLogin();return false}();
 
-function seed(){if(localStorage.getItem("hms_s"))return;
+function seed(){if(localStorage.getItem("hms_s2"))return;
 var tp=[["Standard",2,19900],["Superior",3,29900],["Deluxe",3,44900],["Suite Master",4,69900]].map(function(t){return{id:crypto.randomUUID(),nome:t[0],capacidade:t[1],precoDiaria:t[2],ativo:true}});St.sa("tq",tp);
 var qq=[];for(var a=1;a<=4;a++){for(var q=0;q<(a<=2?3:2);q++){var ti=a<=1?0:a===2?1:a===3?2:3;qq.push({id:crypto.randomUUID(),numero:""+(100*a+q+1).toString().slice(1),andar:a,tipoQuartoId:tp[ti].id,status:"disponivel",ativo:true})}}St.sa("q",qq);
 var sc=[["Cafe da Manha",3500],["Lavanderia",1500],["Estacionamento",2500],["Minibar",800],["Spa Massagem",12000],["Room Service",5000],["Late Checkout",8000],["Early Checkin",6000]].map(function(s){return{id:crypto.randomUUID(),nome:s[0],preco:s[1],categoria:"Servico",unidade:"unidade",ativo:true}});St.sa("sv",sc);
 St.sc({hn:"Hotel Manager",hcnpj:"00.000.000/0001-00",htel:"(11)3000-0000",hemail:"contato@hotel.com",tax:10,hci:"14:00",hco:"12:00",pm:["dinheiro","cartao","debito","credito","pix"]});
-localStorage.setItem("hms_s","1");}
+var hosp=[["Joao Silva","123.456.789-09","(11)98888-0001","joao@email.com"],["Maria Souza","987.654.321-00","(11)98888-0002","maria@email.com"],["Carlos Pereira","111.444.777-35","(11)98888-0003","carlos@email.com"],["Ana Costa","529.982.247-25","(11)98888-0004","ana@email.com"],["Pedro Almeida","390.533.447-05","(11)98888-0005","pedro@email.com"]].map(function(x){return{id:crypto.randomUUID(),nome:x[0],documento:x[1],telefone:x[2],email:x[3],ativo:true}});St.sa("h",hosp);
+function dOff(n){var d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+var rr=[
+{hospedeId:hosp[0].id,quartoId:qq[0].id,dataCheckin:dOff(2),dataCheckout:dOff(5),total:tp[0].precoDiaria*3,status:"pendente"},
+{hospedeId:hosp[1].id,quartoId:qq[3].id,dataCheckin:dOff(1),dataCheckout:dOff(4),total:tp[1].precoDiaria*3,status:"confirmada"},
+{hospedeId:hosp[2].id,quartoId:qq[6].id,dataCheckin:dOff(-1),dataCheckout:dOff(2),total:tp[2].precoDiaria*3,status:"checkin"},
+{hospedeId:hosp[3].id,quartoId:qq[8].id,dataCheckin:dOff(3),dataCheckout:dOff(6),total:tp[3].precoDiaria*3,status:"pendente"},
+{hospedeId:hosp[4].id,quartoId:qq[1].id,dataCheckin:dOff(-5),dataCheckout:dOff(-2),total:tp[0].precoDiaria*3,status:"cancelada"}
+].map(function(r){r.id=crypto.randomUUID();r.servicos=r.servicos||[];return r});St.sa("r",rr);
+localStorage.setItem("hms_s2","1");}
 function ensureAdmin(){var us=St.ga("u");if(!us.some(function(u){return u.login==="admin"})){St.in("u",{nome:"Admin",login:"admin",senha:"1234",tipo:"admin",ativo:true})}}
 seed();ensureAdmin();
 
