@@ -232,7 +232,7 @@ select option{background:var(--surface-2);color:var(--text)}
 .bn-item.active svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(139,92,246,.9))}
 .bn-item.active:before{content:"";position:absolute;top:2px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.35),transparent 70%)}
 .bn-desktop{display:none}
-.mais-menu{display:none;position:fixed;z-index:1560;background:rgba(28,28,38,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:8px;box-shadow:0 16px 40px rgba(0,0,0,.55);min-width:200px;flex-direction:column;gap:2px}
+.mais-menu{display:none;position:fixed;z-index:1560;background:rgba(28,28,38,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:8px;box-shadow:0 16px 40px rgba(0,0,0,.55);min-width:200px;flex-direction:column;gap:2px;max-height:60vh;overflow-y:auto}
 .mais-menu.show{display:flex;animation:pageIn .2s ease}
 .mais-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;color:var(--text-dim);text-decoration:none;text-align:left;width:100%;transition:background .15s,color .15s}
 .mais-item svg{width:18px;height:18px;flex-shrink:0}
@@ -424,6 +424,7 @@ function enviarSuporte(){var t=document.getElementById("supportMsg");if(!t||!t.v
 var APP_VERSION="0.9.7-beta";
 var CHANGELOG=[
 {v:"0.9.7-beta",data:"2026-09-01",mudancas:[
+{t:"melhoria",d:"Navegacao unificada: no celular e no computador o botao Mais abre o mesmo menu moderno."},
 {t:"melhoria",d:"Barra de navegacao inferior estilo app tambem no computador, com menu Mais para os demais modulos."},
 {t:"novo",d:"Barra de navegacao inferior no celular, estilo app, com destaque no item ativo."},
 {t:"correcao",d:"No celular, Novidades e Sair agora ficam visiveis no menu, acima da barra inferior."},
@@ -1174,12 +1175,12 @@ function closeSidebar(){document.querySelector(".sidebar").classList.remove("sho
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){a.addEventListener("click",function(){setTimeout(closeSidebar,50)})});
 function fecharMaisMenu(){var m=document.getElementById("maisMenu");if(m)m.classList.remove("show")}
 function toggleMaisMenu(ev){if(ev)ev.stopPropagation();
-// no mobile (<=768) o botao Mais abre a sidebar-drawer; no desktop abre o popover
-if(window.matchMedia("(max-width:768px)").matches){toggleSidebar();return}
 var m=document.getElementById("maisMenu");if(!m)return;
 if(m.classList.contains("show")){m.classList.remove("show");return}
 var nav=document.getElementById("bottomNav");var r=nav.getBoundingClientRect();
-m.style.left="auto";m.style.right=(window.innerWidth-r.right)+"px";m.style.bottom=(window.innerHeight-r.top+10)+"px";
+var mob=window.matchMedia("(max-width:768px)").matches;
+if(mob){m.style.left="12px";m.style.right="12px";m.style.bottom=(window.innerHeight-r.top+10)+"px"}
+else{m.style.left="auto";m.style.right=(window.innerWidth-r.right)+"px";m.style.bottom=(window.innerHeight-r.top+10)+"px"}
 m.classList.add("show")}
 document.addEventListener("click",function(e){var m=document.getElementById("maisMenu");if(m&&m.classList.contains("show")&&!m.contains(e.target)&&!e.target.closest(".bn-item")){m.classList.remove("show")}});
 document.querySelectorAll("#maisMenu a.mais-item").forEach(function(a){a.addEventListener("click",fecharMaisMenu)});

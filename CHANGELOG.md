@@ -20,6 +20,7 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ## Versão 0.9.7-beta — 01/09/2026
 
+- **Melhoria**: Navegação unificada: no celular e no computador o botão "Mais" abre o mesmo menu moderno.
 - **Melhoria**: Barra de navegação inferior estilo app também no computador, com menu "Mais" para os demais módulos.
 - **Novo**: Barra de navegação inferior no celular, estilo app, com destaque no item ativo.
 - **Correção**: No celular, Novidades e Sair agora ficam visíveis no menu, acima da barra inferior.
