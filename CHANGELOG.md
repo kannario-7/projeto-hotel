@@ -20,6 +20,7 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ## Versão 0.9.7-beta — 01/09/2026
 
+- **Novo**: Suporte Online: botão de ajuda flutuante com WhatsApp, e-mail e mensagem.
 - **Melhoria**: Novo visual escuro e moderno em todo o sistema, com destaque em roxo.
 - **Melhoria**: Cartões, tabelas, formulários e janelas repaginados no novo tema.
 - **Melhoria**: Melhor contraste e leitura em telas com pouca luz.

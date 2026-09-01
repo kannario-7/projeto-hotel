@@ -130,13 +130,38 @@ select option{background:var(--surface-2);color:var(--text)}
 .room-status.reservado{background:rgba(243,156,18,.18);color:#f5b53d}
 .room-status.manutencao{background:rgba(229,72,77,.18);color:#f16a6e}
 .room-status.limpeza{background:rgba(58,160,209,.18);color:#5cb8e0}
-.toast-container{position:fixed;bottom:20px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast-container{position:fixed;bottom:20px;right:96px;z-index:3000;display:flex;flex-direction:column;gap:8px}
 .toast{padding:14px 20px;border-radius:12px;color:#fff;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,0.45);animation:slideIn 0.3s;display:flex;align-items:center;gap:10px;min-width:280px}
 .toast.success{background:#30a46c}
 .toast.warning{background:#e8992a}
 .toast.error{background:#e5484d}
 .toast.info{background:var(--accent)}
 @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+.support-widget{position:fixed;right:24px;bottom:24px;z-index:3500;display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+.support-fab{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(139,92,246,.5);transition:transform .2s,box-shadow .2s;position:relative}
+.support-fab:hover{transform:scale(1.06);box-shadow:0 12px 30px rgba(139,92,246,.6)}
+.support-fab svg{width:26px;height:26px;position:absolute;transition:opacity .2s,transform .3s}
+.support-fab-close{opacity:0;transform:rotate(-90deg)}
+.support-widget.open .support-fab-open{opacity:0;transform:rotate(90deg)}
+.support-widget.open .support-fab-close{opacity:1;transform:rotate(0)}
+.support-panel{width:340px;max-width:calc(100vw - 40px);background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55);overflow:hidden;transform-origin:bottom right;transform:translateY(16px) scale(.92);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .22s}
+.support-widget.open .support-panel{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
+.support-head{background:linear-gradient(135deg,var(--accent),#6d3ff0);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;color:#fff}
+.support-title{font-family:Sora,sans-serif;font-weight:700;font-size:16px}
+.support-sub{font-size:12px;opacity:.9;margin-top:3px;display:flex;align-items:center;gap:6px}
+.support-online{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;box-shadow:0 0 0 3px rgba(74,222,128,.3)}
+.support-x{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;opacity:.85;line-height:1}
+.support-x:hover{opacity:1}
+.support-body{padding:18px 18px 20px}
+.support-hello{font-size:14px;color:var(--text-dim);margin-bottom:14px}
+.support-opt{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text);margin-bottom:10px;transition:border-color .2s,background .2s,transform .15s}
+.support-opt:hover{border-color:var(--accent);background:var(--surface-2);transform:translateX(2px)}
+.support-opt-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.support-opt b{display:block;font-size:14px}
+.support-opt small{color:var(--text-mute);font-size:12px}
+.support-form{margin-top:6px}
+.support-form textarea{margin-bottom:10px;resize:vertical}
+@media(max-width:768px){.support-widget{right:16px;bottom:16px}.support-panel{width:300px}}
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(11,29,58,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.show{opacity:1;pointer-events:all}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 70px rgba(0,0,0,0.6);max-width:500px;width:90%;max-height:85vh;overflow-y:auto;transform:translateY(16px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s;color:var(--text)}
@@ -265,6 +290,37 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 <div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-header"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999">&times;</button></div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
 <div class="modal-overlay" id="confirmOverlay"><div class="modal confirm-modal"><div class="confirm-ico" id="confirmIco">?</div><div class="confirm-title" id="confirmTitle">Confirmar</div><p class="confirm-msg" id="confirmMsg"></p><div class="confirm-actions"><button class="btn btn-secondary" id="confirmCancel">Cancelar</button><button class="btn btn-danger" id="confirmOk">Confirmar</button></div></div></div>
 <div class="toast-container" id="toastContainer"></div>
+<div class="support-widget" id="supportWidget">
+<div class="support-panel" id="supportPanel">
+<div class="support-head">
+<div><div class="support-title">Suporte Online</div><div class="support-sub"><span class="support-online"></span>Normalmente respondemos na hora</div></div>
+<button class="support-x" onclick="toggleSuporte()" aria-label="Fechar">&times;</button>
+</div>
+<div class="support-body">
+<p class="support-hello">Ola! Como podemos ajudar voce hoje?</p>
+<a class="support-opt" href="https://wa.me/5511930000000?text=Ola,%20preciso%20de%20ajuda%20com%20o%20Hotel%20Manager" target="_blank" rel="noopener">
+<span class="support-opt-ico" style="background:rgba(48,164,108,.18);color:#43d18c">
+<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.5A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.9.9-2.7-.2-.3A8 8 0 1 1 12 20zm4.4-5.6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.7.7-.9 1.7-.6 2.7.5 1.7 1.7 3.1 3.3 4 .5.3 1.6.7 2.4.7.6 0 1.2-.2 1.6-.6.3-.3.5-.8.4-1.1 0-.1-.2-.2-.5-.3z"/></svg>
+</span>
+<span><b>WhatsApp</b><small>Fale com um atendente</small></span>
+</a>
+<a class="support-opt" href="mailto:suporte@hotelmanager.com?subject=Suporte%20Hotel%20Manager" target="_blank" rel="noopener">
+<span class="support-opt-ico" style="background:var(--accent-soft);color:var(--accent-2)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+</span>
+<span><b>E-mail</b><small>suporte@hotelmanager.com</small></span>
+</a>
+<div class="support-form">
+<textarea id="supportMsg" rows="3" placeholder="Escreva sua mensagem..."></textarea>
+<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="enviarSuporte()">Enviar mensagem</button>
+</div>
+</div>
+</div>
+<button class="support-fab" id="supportFab" onclick="toggleSuporte()" aria-label="Abrir suporte">
+<svg class="support-fab-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+<svg class="support-fab-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+</button>
+</div>
 <div class="login-overlay" id="loginOverlay">
 <div class="login-box" id="loginBox">
 <h1>Hotel Manager <span class="version-badge">BETA</span></h1>
@@ -314,9 +370,13 @@ cancel.onclick=fecha;
 ov.onclick=function(e){if(e.target===ov)fecha()};
 ov.classList.add("show")}
 
+function toggleSuporte(){document.getElementById("supportWidget").classList.toggle("open")}
+function enviarSuporte(){var t=document.getElementById("supportMsg");if(!t||!t.value.trim())return st("Escreva uma mensagem antes de enviar.","warning");st("Mensagem enviada! Nossa equipe respondera em breve.","success");t.value="";document.getElementById("supportWidget").classList.remove("open")}
+
 var APP_VERSION="0.9.7-beta";
 var CHANGELOG=[
 {v:"0.9.7-beta",data:"2026-09-01",mudancas:[
+{t:"novo",d:"Suporte Online: botao de ajuda flutuante com WhatsApp, e-mail e mensagem."},
 {t:"melhoria",d:"Novo visual escuro e moderno em todo o sistema, com destaque em roxo."},
 {t:"melhoria",d:"Cartoes, tabelas, formularios e janelas repaginados no novo tema."},
 {t:"melhoria",d:"Melhor contraste e leitura em telas com pouca luz."}
