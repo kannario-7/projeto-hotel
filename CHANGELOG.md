@@ -21,7 +21,8 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 ## Versão 0.9.6-beta — 30/08/2026
 
 - **Novo**: Sistema já vem com hóspedes e reservas de exemplo para explorar.
-- **Melhoria**: Filtros de reservas (Pendentes, Confirmadas, etc.) com dados para demonstrar.
+- **Correção**: Filtro "Todas" das reservas volta a mostrar a lista completa.
+- **Melhoria**: Filtro de reservas selecionado fica destacado para melhor visualização.
 
 ## Versão 0.9.5-beta — 29/08/2026
 

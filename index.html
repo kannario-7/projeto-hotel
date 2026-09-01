@@ -233,7 +233,8 @@ var APP_VERSION="0.9.6-beta";
 var CHANGELOG=[
 {v:"0.9.6-beta",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Sistema ja vem com hospedes e reservas de exemplo para explorar."},
-{t:"melhoria",d:"Filtros de reservas (Pendentes, Confirmadas, etc.) com dados para demonstrar."}
+{t:"correcao",d:"Filtro Todas das reservas volta a mostrar a lista completa."},
+{t:"melhoria",d:"Filtro de reservas selecionado fica destacado para melhor visualizacao."}
 ]},
 {v:"0.9.5-beta",data:"2026-08-29",mudancas:[
 {t:"melhoria",d:"Interface modernizada com visual mais elegante e cores refinadas."},
@@ -382,18 +383,20 @@ function renderReservas(){el=document.getElementById("pageContent");
 var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
 el.innerHTML='<div class="page-header"><div><h2>Reservas</h2><p>Gerenciar reservas do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button></div></div>';
 
-var filtro='<div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">'+
-'<button class="btn btn-sm '+(location.hash==="#r"||!location.hash?"btn-primary":"btn-secondary")+'" onclick="window.location.hash=\'#r\'">Todas</button>'+
-'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'pendente\')">Pendentes</button>'+
-'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'confirmada\')">Confirmadas</button>'+
-'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'checkin\')">Em Andamento</button>'+
-'<button class="btn btn-sm btn-secondary" onclick="filtrarReservas(\'cancelada\')">Canceladas</button>'+
+var filtro='<div id="reservaFiltros" style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">'+
+'<button class="btn btn-sm btn-primary" data-filtro="" onclick="filtrarReservas(\'\')">Todas</button>'+
+'<button class="btn btn-sm btn-secondary" data-filtro="pendente" onclick="filtrarReservas(\'pendente\')">Pendentes</button>'+
+'<button class="btn btn-sm btn-secondary" data-filtro="confirmada" onclick="filtrarReservas(\'confirmada\')">Confirmadas</button>'+
+'<button class="btn btn-sm btn-secondary" data-filtro="checkin" onclick="filtrarReservas(\'checkin\')">Em Andamento</button>'+
+'<button class="btn btn-sm btn-secondary" data-filtro="cancelada" onclick="filtrarReservas(\'cancelada\')">Canceladas</button>'+
 '</div>';
 el.innerHTML+=filtro;
 
 el.innerHTML+='<div id="reservasTable">'+buildReservasTable(reservas,quartos,hospedes,servicos,tq)+'</div>';}
 
-function filtrarReservas(s){var reservas=St.ga("r").filter(function(r){return r.status===s});document.getElementById("reservasTable").innerHTML=buildReservasTable(reservas,St.ga("q"),St.ga("h"),St.ga("sv"),St.ga("tq"))}
+function filtrarReservas(s){var todas=St.ga("r");var reservas=s?todas.filter(function(r){return r.status===s}):todas;
+document.getElementById("reservasTable").innerHTML=buildReservasTable(reservas,St.ga("q"),St.ga("h"),St.ga("sv"),St.ga("tq"));
+var btns=document.querySelectorAll("#reservaFiltros button");for(var i=0;i<btns.length;i++){var ativo=btns[i].getAttribute("data-filtro")===s;btns[i].className="btn btn-sm "+(ativo?"btn-primary":"btn-secondary")}}
 
 function buildReservasTable(reservas,quartos,hospedes,servicos,tq){if(!reservas.length)return'<p style="padding:24px;text-align:center;color:#999">Nenhuma reserva encontrada.</p>';
 return'<table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Total</th><th>Status</th><th>Acoes</th></tr>'+
