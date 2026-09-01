@@ -20,6 +20,7 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ## Versão 0.9.6-beta — 31/08/2026
 
+- **Melhoria**: Avisos do painel com visual moderno, ícones destacados e melhor leitura.
 - **Novo**: Mapa de quartos no painel: veja ocupados, reservados e livres num relance.
 - **Novo**: Quartos ocupados exibem o nome do hóspede; clique para ver os detalhes.
 - **Novo**: Janelas de confirmação modernas substituindo os avisos do navegador.
