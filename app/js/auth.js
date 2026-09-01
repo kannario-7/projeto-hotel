@@ -166,4 +166,5 @@ var acessos={admin:true,operador:{d:true,r:true,h:true,q:true,ci:true,co:true,f:
 var perm=foraTurno?{d:true}:acessos[u.papel];
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAttribute("href").slice(1);if(mod==="admin")return;if(perm===true||perm[mod])a.style.display="flex";else a.style.display="none"});
 var ol=document.getElementById("ownerLink");if(ol)ol.style.display=u.isOwner?"flex":"none";
+var olm=document.getElementById("ownerLinkMais");if(olm)olm.style.display=u.isOwner?"flex":"none";
 if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:#f39c12;font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}
