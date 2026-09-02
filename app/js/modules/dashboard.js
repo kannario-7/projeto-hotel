@@ -1,9 +1,20 @@
 // Módulo: Painel de Controle + Mapa de Quartos
 import { esc, fmtC, fmtD, td } from "../utils.js";
-import { St, getStatusBadge } from "../store.js";
+import { St, getStatusBadge, getPlanoStatus } from "../store.js";
 import { sm, closeModal } from "../ui.js";
 import { getCurrentUser, getTurnoAtual } from "../auth.js";
 import { navTo } from "../nav.js";
+
+function avisoPlanoHTML(){
+  var p = getPlanoStatus();
+  if(!p || p.dias_restantes==null) return "";
+  var d = p.dias_restantes;
+  if(d > 5) return ""; // so avisa a partir de 5 dias
+  var wa='https://wa.me/5511992144143?text=Ola,%20quero%20renovar%20o%20plano%20do%20HospedaPrime';
+  if(d < 0) return '<div class="alert alert-danger"><span>⛔</span><span>Seu plano venceu. Renove para nao perder o acesso. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
+  if(d === 0) return '<div class="alert alert-warning"><span>⏰</span><span>Seu plano vence <b>hoje</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar agora</a></span></div>';
+  return '<div class="alert alert-warning"><span>⏰</span><span>Seu plano vence em <b>'+d+' dia'+(d===1?'':'s')+'</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
+}
 
 export function renderDashboard(){var el=document.getElementById("pageContent");
 var config=St.gc(),hoje=td(),mesAtual=hoje.slice(0,7),anoAtual=hoje.slice(0,4);
@@ -34,6 +45,7 @@ el.innerHTML='<div class="page-header"><div><h2>Painel de Controle</h2><p>Visao 
 '</div>';
 
 var alertas='<div class="alerts">';
+alertas+=avisoPlanoHTML();
 if(checkoutsHoje.length>0)alertas+='<div class="alert alert-warning"><span>⚠️</span><span>'+checkoutsHoje.length+' hospede(s) precisam fazer check-out hoje.</span></div>';
 if(pendentes.length>0)alertas+='<div class="alert alert-info"><span>ℹ️</span><span>'+pendentes.length+' reserva(s) pendente(s) aguardando confirmacao.</span></div>';
 if(ocupados/totalQuartos>0.8)alertas+='<div class="alert alert-warning"><span>⚠️</span><span>Ocupacao acima de 80%! Considere verificar disponibilidade.</span></div>';

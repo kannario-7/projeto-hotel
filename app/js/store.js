@@ -12,12 +12,17 @@ var hotelIdAtual = null;
 export function setHotelId(id){ hotelIdAtual = id; }
 export function getHotelId(){ return hotelIdAtual; }
 
+var planoStatus = null;
+export function getPlanoStatus(){ return planoStatus; }
+
 // Carrega tudo do hotel para o cache (chamado após login)
 export async function carregarTudo(hotelId){
   hotelIdAtual = hotelId;
   cache = await db.carregarHotel(hotelId);
   var c = await db.carregarConfig(hotelId);
   if(c) config = c;
+  try{ var { data } = await db.supabaseRpcPlano(); planoStatus = data && data[0] ? data[0] : null; }
+  catch(e){ planoStatus = null; }
 }
 
 export var St = {

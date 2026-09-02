@@ -89,3 +89,4 @@ export async function carregarConfig(hotelId){
 export async function salvarConfig(hotelId, c){
   await supabase.from("hoteis").update({ nome:c.hn, cnpj:c.hcnpj, telefone:c.htel, email:c.hemail, taxa_servico:c.tax, checkin_horario:c.hci, checkout_horario:c.hco }).eq("id", hotelId);
 }
+export async function supabaseRpcPlano(){ return await supabase.rpc("meu_plano_status"); }
