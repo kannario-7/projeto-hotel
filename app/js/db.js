@@ -22,7 +22,7 @@ function paraBanco(k, o, hotelId){
   switch(k){
     case "tq": b.nome=o.nome; b.capacidade=o.capacidade; b.preco_diaria=o.precoDiaria; b.ativo=o.ativo!==false; break;
     case "q": b.numero=o.numero; b.andar=o.andar; b.tipo_quarto_id=o.tipoQuartoId||null; b.status=o.status; b.ativo=o.ativo!==false; break;
-    case "h": b.nome=o.nome; b.documento=o.documento; b.telefone=o.telefone; b.email=o.email; b.endereco=o.endereco; b.observacoes=o.observacoes; b.ativo=o.ativo!==false; break;
+    case "h": b.nome=o.nome; b.documento=o.documento; b.telefone=o.telefone; b.email=o.email; b.endereco=o.endereco; b.observacoes=o.observacoes; b.ativo=o.ativo!==false; if(o.consentimentoEm!==undefined)b.consentimento_em=o.consentimentoEm; break;
     case "sv": b.nome=o.nome; b.preco=o.preco; b.categoria=o.categoria; b.unidade=o.unidade; b.ativo=o.ativo!==false; break;
     case "r": b.hospede_id=o.hospedeId||null; b.quarto_id=o.quartoId||null; b.tipo_quarto_id=o.tipoQuartoId||null; b.data_checkin=o.dataCheckin; b.data_checkout=o.dataCheckout; b.noites=o.noites; b.total=o.total; b.status=o.status; break;
     case "os": b.reserva_id=o.reservaId||null; b.servico_id=o.servicoId||null; b.quantidade=o.quantidade; b.preco_unit=o.precoUnit; b.total=o.total; b.data=o.data; break;
@@ -38,7 +38,7 @@ function paraApp(k, b){
   switch(k){
     case "tq": o.nome=b.nome; o.capacidade=b.capacidade; o.precoDiaria=b.preco_diaria; o.ativo=b.ativo; break;
     case "q": o.numero=b.numero; o.andar=b.andar; o.tipoQuartoId=b.tipo_quarto_id; o.status=b.status; o.ativo=b.ativo; break;
-    case "h": o.nome=b.nome; o.documento=b.documento; o.telefone=b.telefone; o.email=b.email; o.endereco=b.endereco; o.observacoes=b.observacoes; o.ativo=b.ativo; break;
+    case "h": o.nome=b.nome; o.documento=b.documento; o.telefone=b.telefone; o.email=b.email; o.endereco=b.endereco; o.observacoes=b.observacoes; o.ativo=b.ativo; o.consentimentoEm=b.consentimento_em; break;
     case "sv": o.nome=b.nome; o.preco=b.preco; o.categoria=b.categoria; o.unidade=b.unidade; o.ativo=b.ativo; break;
     case "r": o.hospedeId=b.hospede_id; o.quartoId=b.quarto_id; o.tipoQuartoId=b.tipo_quarto_id; o.dataCheckin=b.data_checkin; o.dataCheckout=b.data_checkout; o.noites=b.noites; o.total=b.total; o.status=b.status; break;
     case "os": o.reservaId=b.reserva_id; o.servicoId=b.servico_id; o.quantidade=b.quantidade; o.precoUnit=b.preco_unit; o.total=b.total; o.data=b.data; break;

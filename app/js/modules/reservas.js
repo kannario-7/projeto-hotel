@@ -105,7 +105,7 @@ export async function salvarHospedeNaReserva(){
     if(dig.length===11&&!isValidCPF(dig))return st("CPF invalido.","error"),false;}
   var btn=document.querySelector("#rfNovoHospedeBox .btn-primary");if(btn){btn.disabled=true;btn.textContent="Salvando...";}
   // inAsync aguarda o banco e retorna o id REAL (nao o temporario), evitando reserva com hospede fantasma
-  var novo=await St.inAsync("h",{nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:"",endereco:"",observacoes:"",ativo:true});
+  var novo=await St.inAsync("h",{nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:"",endereco:"",observacoes:"",consentimentoEm:new Date().toISOString(),ativo:true});
   if(!novo||!novo.id){if(btn){btn.disabled=false;btn.textContent="Salvar hospede";}return st("Nao foi possivel salvar o hospede.","error"),false;}
   var sel=document.getElementById("rfHospede");
   if(sel){

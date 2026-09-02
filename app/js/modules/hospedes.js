@@ -24,6 +24,8 @@ return'<div class="form-grid">'+
 '<div class="form-group"><label>CEP</label><div style="display:flex;gap:8px"><input type="text" id="hfCep" oninput="mascHospedeCep(this)" placeholder="00000-000" style="flex:1"><button type="button" class="btn btn-secondary" onclick="buscarCepHospede()">Buscar</button></div><small id="hfCepMsg" style="color:var(--text-mute);font-size:12px"></small></div>'+
 '<div class="form-group"><label>Endereco</label><input type="text" id="hfEnd" value="'+(h?esc(h.endereco||""):'')+'" placeholder="Rua, bairro, cidade/UF"></div>'+
 '<div class="form-group" style="grid-column:1/-1"><label>Observacoes</label><textarea id="hfObs" rows="2">'+(h?esc(h.observacoes||""):'')+'</textarea></div>'+
+'<div class="form-group" style="grid-column:1/-1"><label class="pay-opt" style="border:none;padding:6px 0"><input type="checkbox" id="hfConsent"'+((h&&h.consentimentoEm)?' checked':'')+'><span class="pay-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="pay-label">O hospede autoriza o tratamento dos seus dados para fins da hospedagem (LGPD).</span></label>'+
+(h&&h.consentimentoEm?'<small style="color:var(--text-mute);font-size:12px">Consentimento registrado em '+esc(new Date(h.consentimentoEm).toLocaleString("pt-BR"))+'</small>':'')+'</div>'+
 '</div>';}
 
 // Handlers de mascara/busca (expostos globalmente pelo app.js)
@@ -45,12 +47,16 @@ export async function buscarCepHospede(){
   end.value=e;msg.textContent="Endereco preenchido pelo CEP.";
 }
 
-export function salvarHospede(id){var n=document.getElementById("hfNome"),d=document.getElementById("hfDoc"),t=document.getElementById("hfTel"),e=document.getElementById("hfEmail"),en=document.getElementById("hfEnd"),o=document.getElementById("hfObs");
+export function salvarHospede(id){var n=document.getElementById("hfNome"),d=document.getElementById("hfDoc"),t=document.getElementById("hfTel"),e=document.getElementById("hfEmail"),en=document.getElementById("hfEnd"),o=document.getElementById("hfObs"),cons=document.getElementById("hfConsent");
 if(!n||!n.value.trim())return st("Nome e obrigatorio.","error"),false;
 if(d&&d.value.trim()){var dig=d.value.replace(/\D/g,"");
   if(dig.length!==11&&dig.length!==14)return st("Documento deve ser CPF (11) ou CNPJ (14 digitos).","error"),false;
   if(dig.length===11&&!isValidCPF(dig))return st("CPF invalido.","error"),false;}
-var dados={nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:(e?e.value.trim():""),endereco:(en?en.value.trim():""),observacoes:(o?o.value.trim():""),ativo:true};
+if(!cons||!cons.checked)return st("E necessario o consentimento do hospede (LGPD) para cadastrar.","error"),false;
+// registra data/hora do consentimento: preserva a data anterior na edicao se ja existia
+var hAtual=id?St.fi("h",id):null;
+var consentimentoEm=(hAtual&&hAtual.consentimentoEm)?hAtual.consentimentoEm:new Date().toISOString();
+var dados={nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:(e?e.value.trim():""),endereco:(en?en.value.trim():""),observacoes:(o?o.value.trim():""),consentimentoEm:consentimentoEm,ativo:true};
 if(id){St.up("h",id,dados);st("Hospede atualizado!","success")}
 else{St.in("h",dados);st("Hospede cadastrado!","success")}
 cm();renderHospedes()}
