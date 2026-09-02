@@ -1,7 +1,7 @@
 // Autenticação real via Supabase + onboarding de hotel (multi-tenant)
 import { esc } from "./utils.js";
 import { supabase } from "./supabase.js";
-import { St, carregarTudo, seedHotel, setHotelId } from "./store.js";
+import { St, carregarTudo, setHotelId } from "./store.js";
 import { st } from "./ui.js";
 import { showChangelog, atualizarBadgeNovidade, temNovidade } from "./changelog.js";
 import { renderPage } from "./nav.js";
@@ -77,7 +77,7 @@ export async function fazerCadastro(){
   var rpc = await supabase.rpc("criar_hotel_e_perfil", { p_hotel_nome: hn.value.trim(), p_admin_nome: nm.value.trim() });
   if(rpc.error)return erroLogin("Erro ao criar hotel: "+rpc.error.message);
   var hotelId = rpc.data;
-  await seedHotel(hotelId); // dados de exemplo
+  // Hotel novo comeca limpo: cliente cadastra seus proprios quartos, tipos e servicos.
   await aposAutenticar(data.user);
 }
 

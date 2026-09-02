@@ -2,8 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="0.9.9-beta";
+export var APP_VERSION="1.0.0";
 export var CHANGELOG=[
+{v:"1.0.0",data:"2026-09-02",mudancas:[
+{t:"novo",d:"Lancamento oficial do HospedaPrime! Sistema pronto para o dia a dia do seu hotel."},
+{t:"melhoria",d:"Estabilidade e seguranca reforcadas para uso em producao."},
+{t:"melhoria",d:"Seus dados protegidos e isolados na nuvem, com acesso de qualquer dispositivo."}
+]},
 {v:"0.9.9-beta",data:"2026-09-03",mudancas:[
 {t:"novo",d:"Login com e-mail e senha e cadastro do seu hotel."},
 {t:"novo",d:"Dados agora ficam salvos na nuvem, acessiveis de qualquer dispositivo."},

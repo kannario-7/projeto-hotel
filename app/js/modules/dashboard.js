@@ -33,6 +33,18 @@ var faturamentoHoje=pg.filter(function(p){return p.data===hoje}).reduce(function
 var faturamentoMes=pg.filter(function(p){return p.data&&p.data.slice(0,7)===mesAtual}).reduce(function(s,p){return s+(p.valor||0)},0);
 var faturamentoAno=pg.filter(function(p){return p.data&&p.data.slice(0,4)===anoAtual}).reduce(function(s,p){return s+(p.valor||0)},0);
 
+// Hotel recem-criado (sem quartos e sem reservas): mostra guia de primeiros passos
+if(quartos.length===0 && reservas.length===0 && hospedes.length===0){
+  el.innerHTML='<div class="page-header"><div><h2>Bem-vindo ao HospedaPrime!</h2><p>Vamos preparar seu hotel em 3 passos rapidos'+infoTurno+'</p></div></div>'+
+  '<div class="welcome-steps">'+
+  '<div class="wstep"><div class="wstep-num">1</div><div class="wstep-body"><b>Cadastre os tipos de quarto</b><p>Standard, Suite, etc. com capacidade e diaria.</p><button class="btn btn-primary btn-sm" onclick="navTo(\'#cg\')">Ir para Configuracoes</button></div></div>'+
+  '<div class="wstep"><div class="wstep-num">2</div><div class="wstep-body"><b>Cadastre seus quartos</b><p>Numero, andar e tipo de cada quarto do hotel.</p><button class="btn btn-primary btn-sm" onclick="navTo(\'#q\')">Ir para Quartos</button></div></div>'+
+  '<div class="wstep"><div class="wstep-num">3</div><div class="wstep-body"><b>Crie sua primeira reserva</b><p>Com os quartos prontos, ja pode receber hospedes.</p><button class="btn btn-primary btn-sm" onclick="navTo(\'#r\')">Ir para Reservas</button></div></div>'+
+  '</div>'+
+  '<div class="alerts">'+avisoPlanoHTML()+'</div>';
+  return;
+}
+
 el.innerHTML='<div class="page-header"><div><h2>Painel de Controle</h2><p>Visao geral do hotel'+infoTurno+'</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="navTo(\'#r\')">Nova Reserva</button><button class="btn btn-secondary" onclick="navTo(\'#ci\')">Check-in Rapido</button></div></div>'+
 '<div class="cards-row">'+
 '<div class="stat-card"><h3>Ocupacao</h3><div class="value">'+ocPercent+'%</div><div class="sub">'+ocupados+'/'+totalQuartos+' quartos</div></div>'+
