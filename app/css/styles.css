@@ -331,3 +331,6 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .chg-tag{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
 .chg-ico{width:13px;height:13px;flex:none}
 .chg-banner-ico svg{display:block}
+
+/* Copyright na tela de login */
+.login-copy{text-align:center;color:var(--text-mute);font-size:11px;margin-top:6px;letter-spacing:.3px}
