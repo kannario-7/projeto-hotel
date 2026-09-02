@@ -83,6 +83,8 @@ select option{background:var(--surface-2);color:var(--text)}
 .grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}
 .room-card{position:relative;background:var(--surface);border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.25);border:1px solid var(--border);transition:transform .2s,box-shadow .2s,border-color .2s;color:var(--text)}
 .room-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,0.4);border-color:var(--accent)}
+.room-actions{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.room-actions .btn{flex:1 1 auto;min-width:0;justify-content:center}
 .mapa-wrap{background:var(--surface);border-radius:16px;padding:20px 22px;box-shadow:0 4px 20px rgba(0,0,0,0.25);border:1px solid var(--border);margin-bottom:24px}
 .mapa-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
 .mapa-head h3{font-family:Sora,sans-serif;color:var(--text);font-size:16px}

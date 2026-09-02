@@ -141,7 +141,7 @@ export async function buscarDocumento(){
 
 function formConfigTipoQuarto(tq){var html='<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Tipos de Quarto</h3>';
 if(tq.length){html+='<table><tr><th>Nome</th><th>Capacidade</th><th>Preco Diaria</th><th>Acoes</th></tr>'+
-tq.map(function(t){return'<tr><td>'+esc(t.nome)+'</td><td>'+t.capacidade+' pessoa(s)</td><td>'+fmtC(t.precoDiaria)+'</td><td><button class="btn btn-sm btn-primary" onclick="editarTipoQuarto(\''+t.id+'\')">Editar</button></td></tr>'}).join('')+'</table>';}
+tq.map(function(t){return'<tr><td>'+esc(t.nome)+'</td><td>'+t.capacidade+' pessoa(s)</td><td>'+fmtC(t.precoDiaria)+'</td><td><button class="btn btn-sm btn-primary" onclick="editarTipoQuarto(\''+t.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirTipoQuarto(\''+t.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
 html+='<div class="form-actions"><button class="btn btn-primary" onclick="showNovoTipoQuarto()">+ Novo Tipo</button></div></div>';return html;}
 
 export function showNovoTipoQuarto(){sm("Novo Tipo de Quarto",'<div class="form-group"><label>Nome</label><input type="text" id="tqfNome"></div>'+
@@ -161,6 +161,18 @@ var dados={nome:n.value.trim(),capacidade:parseInt(c?c.value:2),precoDiaria:Math
 if(id){St.up("tq",id,dados);st("Tipo atualizado!","success")}
 else{St.in("tq",dados);st("Tipo cadastrado!","success")}
 cm();renderConfig()}
+
+export function excluirTipoQuarto(id){
+  var t=St.fi("tq",id);if(!t)return;
+  // Impede excluir tipo com quartos ativos usando ele
+  var usando=St.ga("q").filter(function(q){return q.tipoQuartoId===id&&q.ativo!==false});
+  if(usando.length){st("Nao e possivel excluir: "+usando.length+" quarto(s) usam o tipo \""+t.nome+"\". Altere ou exclua esses quartos antes.","error");return;}
+  confirmar({titulo:"Excluir o tipo \""+t.nome+"\"?",msg:"O tipo de quarto sera removido. Reservas antigas que o referenciam sao mantidas.",okLabel:"Sim, excluir",tipo:"danger"},function(){
+    St.up("tq",id,{ativo:false});
+    st("Tipo de quarto excluido.","warning");
+    renderConfig();
+  });
+}
 
 function formConfigPagamento(c){return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Formas de Pagamento</h3>'+
 '<p style="color:var(--text-mute);margin-bottom:16px">Selecione as formas de pagamento aceitas pelo hotel:</p>'+

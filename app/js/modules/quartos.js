@@ -11,7 +11,7 @@ var porAndar={};quartos.filter(function(q){return q.ativo!==false}).forEach(func
 var html='';
 Object.keys(porAndar).sort().forEach(function(a){html+='<h3 style="margin:16px 0 8px;color:var(--text)">Andar '+a+'</h3><div class="grid-cards">';
 porAndar[a].forEach(function(q){var t=tq.find(function(x){return x.id===q.tipoQuartoId});html+='<div class="room-card"><div class="room-number">Apto '+q.numero+'</div><div class="room-type">'+(t?esc(t.nome):"")+' - '+(t?fmtC(t.precoDiaria):"")+'/noite</div><div><span class="room-status '+q.status+'">'+esc(q.status.charAt(0).toUpperCase()+q.status.slice(1))+'</span></div>'+
-'<div style="margin-top:12px;display:flex;gap:4px">'+
+'<div class="room-actions">'+
 (q.status==="disponivel"?('<button class="btn btn-sm btn-primary" onclick="showManutencaoQuarto(\''+q.id+'\')">Manutencao</button>'):'')+
 (q.status==="manutencao"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Liberar</button>'):'')+
 (q.status==="limpeza"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Limpo</button>'):'')+
