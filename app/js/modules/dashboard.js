@@ -10,7 +10,7 @@ function avisoPlanoHTML(){
   if(!p || p.dias_restantes==null) return "";
   var d = p.dias_restantes;
   if(d > 5) return ""; // so avisa a partir de 5 dias
-  var wa='https://wa.me/5511992144143?text=Ola,%20quero%20renovar%20o%20plano%20do%20HospedaPrime';
+  var wa='https://wa.me/5511922144143?text=Ola,%20quero%20renovar%20o%20plano%20do%20HospedaPrime';
   if(d < 0) return '<div class="alert alert-danger"><span>⛔</span><span>Seu plano venceu. Renove para nao perder o acesso. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
   if(d === 0) return '<div class="alert alert-warning"><span>⏰</span><span>Seu plano vence <b>hoje</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar agora</a></span></div>';
   return '<div class="alert alert-warning"><span>⏰</span><span>Seu plano vence em <b>'+d+' dia'+(d===1?'':'s')+'</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';

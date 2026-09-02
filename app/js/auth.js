@@ -109,7 +109,7 @@ function mostrarBloqueio(){
     '<div class="confirm-ico warning" style="margin:8px auto 16px">🔒</div>'+
     '<h3 style="text-align:center;color:var(--text);margin-bottom:8px">Acesso temporariamente bloqueado</h3>'+
     '<p style="text-align:center;color:var(--text-dim);font-size:14px;line-height:1.5;margin-bottom:18px">Sua assinatura esta vencida ou o acesso foi suspenso. Regularize para voltar a usar o HospedaPrime.</p>'+
-    '<a class="btn btn-primary" style="width:100%;justify-content:center" href="https://wa.me/5511992144143?text=Ola,%20quero%20regularizar%20a%20assinatura%20do%20HospedaPrime" target="_blank" rel="noopener">Falar no WhatsApp</a>'+
+    '<a class="btn btn-primary" style="width:100%;justify-content:center" href="https://wa.me/5511922144143?text=Ola,%20quero%20regularizar%20a%20assinatura%20do%20HospedaPrime" target="_blank" rel="noopener">Falar no WhatsApp</a>'+
     '<div class="login-links" style="margin-top:14px"><a onclick="logout()">Sair</a></div>';
 }
 
