@@ -1,7 +1,7 @@
 // Módulo: Quartos
 import { esc, fmtC } from "../utils.js";
 import { St } from "../store.js";
-import { st, sm, cm, closeModal } from "../ui.js";
+import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 
 export function renderQuartos(){var el=document.getElementById("pageContent");
 var quartos=St.ga("q"),tq=St.ga("tq");
@@ -15,12 +15,27 @@ porAndar[a].forEach(function(q){var t=tq.find(function(x){return x.id===q.tipoQu
 (q.status==="disponivel"?('<button class="btn btn-sm btn-primary" onclick="showManutencaoQuarto(\''+q.id+'\')">Manutencao</button>'):'')+
 (q.status==="manutencao"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Liberar</button>'):'')+
 (q.status==="limpeza"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Limpo</button>'):'')+
-'<button class="btn btn-sm btn-secondary" onclick="editarQuarto(\''+q.id+'\')">Editar</button></div></div>'});
+'<button class="btn btn-sm btn-secondary" onclick="editarQuarto(\''+q.id+'\')">Editar</button>'+
+'<button class="btn btn-sm btn-danger" onclick="excluirQuarto(\''+q.id+'\')">Excluir</button></div></div>'});
 html+='</div>'});
 el.innerHTML+=html;}
 
 export function showManutencaoQuarto(id){St.up("q",id,{status:"manutencao"});st("Quarto em manutencao.","warning");renderQuartos()}
 export function liberarQuarto(id){St.up("q",id,{status:"disponivel"});st("Quarto disponivel.","success");renderQuartos()}
+
+export function excluirQuarto(id){
+  var q=St.fi("q",id);if(!q)return;
+  // Impede excluir quarto com reserva ativa (pendente/confirmada/checkin)
+  var ativas=St.ga("r").filter(function(r){return r.quartoId===id&&["pendente","confirmada","checkin"].indexOf(r.status)>=0});
+  if(ativas.length){st("Nao e possivel excluir: o Apto "+q.numero+" tem "+ativas.length+" reserva(s) ativa(s). Cancele ou finalize antes.","error");return;}
+  if(q.status==="ocupado"){st("Nao e possivel excluir: o Apto "+q.numero+" esta ocupado.","error");return;}
+  confirmar({titulo:"Excluir o Apto "+q.numero+"?",msg:"O quarto sera removido da lista. O historico de reservas antigas e mantido.",okLabel:"Sim, excluir",tipo:"danger"},function(){
+    // Exclusao logica: marca inativo (preserva historico de reservas que referenciam o quarto)
+    St.up("q",id,{ativo:false});
+    st("Quarto excluido.","warning");
+    renderQuartos();
+  });
+}
 
 export function showNovoQuarto(){sm("Novo Quarto",formQuarto(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarQuarto()">Salvar</button>')}
 export function editarQuarto(id){sm("Editar Quarto",formQuarto(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarQuarto(\''+id+'\')">Salvar</button>')}
