@@ -2,23 +2,35 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.0.0";
+export var APP_VERSION="1.1.0";
 export var CHANGELOG=[
-{v:"1.0.0",data:"2026-09-02",mudancas:[
+{v:"1.1.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Cadastro completo do hotel: endereco com busca por CEP e selecao de cidade/estado, e preenchimento automatico de dados pelo CNPJ."},
+{t:"novo",d:"Cadastro de hospedes com CPF/CNPJ e busca de endereco por CEP."},
+{t:"novo",d:"Busca de hospede por nome ou documento na hora de criar a reserva, e cadastro rapido de hospede sem sair da tela."},
+{t:"novo",d:"Consentimento LGPD no cadastro do hospede, com opcao de exportar ou anonimizar os dados dele."},
+{t:"novo",d:"Guia de boas-vindas no painel para novos hoteis e aviso quando faltam dados do cadastro."},
+{t:"novo",d:"Exclusao de quartos, tipos de quarto e servicos, com protecoes contra perda de historico."},
+{t:"novo",d:"Protecao por senha do dono para apagar os dados do hotel."},
+{t:"melhoria",d:"Alertas do painel com icones animados; barra de navegacao mais legivel."},
+{t:"melhoria",d:"As janelas nao fecham mais por clique acidental; ESC fecha e Enter faz login."},
+{t:"melhoria",d:"Formas de pagamento com visual novo."}
+]},
+{v:"1.0.0",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Lancamento oficial do HospedaPrime! Sistema pronto para o dia a dia do seu hotel."},
 {t:"melhoria",d:"Estabilidade e seguranca reforcadas para uso em producao."},
 {t:"melhoria",d:"Seus dados protegidos e isolados na nuvem, com acesso de qualquer dispositivo."}
 ]},
-{v:"0.9.9-beta",data:"2026-09-03",mudancas:[
+{v:"0.9.9-beta",data:"2026-08-29",mudancas:[
 {t:"novo",d:"Login com e-mail e senha e cadastro do seu hotel."},
 {t:"novo",d:"Dados agora ficam salvos na nuvem, acessiveis de qualquer dispositivo."},
 {t:"melhoria",d:"Cada hotel tem seus dados totalmente separados e seguros."}
 ]},
-{v:"0.9.8-beta",data:"2026-09-02",mudancas:[
+{v:"0.9.8-beta",data:"2026-08-28",mudancas:[
 {t:"melhoria",d:"O sistema agora se chama HospedaPrime."},
 {t:"melhoria",d:"Codigo reorganizado internamente para evoluir com mais seguranca."}
 ]},
-{v:"0.9.7-beta",data:"2026-09-01",mudancas:[
+{v:"0.9.7-beta",data:"2026-08-27",mudancas:[
 {t:"melhoria",d:"Navegacao unificada: no celular e no computador o botao Mais abre o mesmo menu moderno."},
 {t:"melhoria",d:"Barra de navegacao inferior estilo app tambem no computador, com menu Mais para os demais modulos."},
 {t:"novo",d:"Barra de navegacao inferior no celular, estilo app, com destaque no item ativo."},
@@ -28,7 +40,7 @@ export var CHANGELOG=[
 {t:"melhoria",d:"Cartoes, tabelas, formularios e janelas repaginados no novo tema."},
 {t:"melhoria",d:"Melhor contraste e leitura em telas com pouca luz."}
 ]},
-{v:"0.9.6-beta",data:"2026-08-31",mudancas:[
+{v:"0.9.6-beta",data:"2026-08-26",mudancas:[
 {t:"melhoria",d:"Avisos do painel com visual moderno, icones destacados e melhor leitura."},
 {t:"novo",d:"Mapa de quartos no painel: veja ocupados, reservados e livres num relance."},
 {t:"novo",d:"Quartos ocupados exibem o nome do hospede; clique para ver os detalhes."},
@@ -38,29 +50,29 @@ export var CHANGELOG=[
 {t:"melhoria",d:"Visual das janelas atualizado com efeito de desfoque e animacao."},
 {t:"melhoria",d:"Filtro de reservas selecionado fica destacado para melhor visualizacao."}
 ]},
-{v:"0.9.5-beta",data:"2026-08-29",mudancas:[
+{v:"0.9.5-beta",data:"2026-08-25",mudancas:[
 {t:"melhoria",d:"Interface modernizada com visual mais elegante e cores refinadas."},
 {t:"melhoria",d:"Cartoes e tabelas com efeitos suaves ao passar o mouse."},
 {t:"melhoria",d:"Animacoes de transicao ao navegar entre as telas."}
 ]},
-{v:"0.9.4-beta",data:"2026-08-28",mudancas:[
+{v:"0.9.4-beta",data:"2026-08-24",mudancas:[
 {t:"novo",d:"Painel de Novidades: historico organizado de todas as atualizacoes do sistema."},
 {t:"novo",d:"Selo de versao visivel na tela de login e no menu lateral."},
 {t:"melhoria",d:"Novidades agrupadas por tipo para facilitar a leitura."}
 ]},
-{v:"0.9.3-beta",data:"2026-08-27",mudancas:[
+{v:"0.9.3-beta",data:"2026-08-23",mudancas:[
 {t:"correcao",d:"Botoes X e Cancelar agora fecham corretamente todas as janelas."},
 {t:"melhoria",d:"Fechar janelas tocando na area escura fora da caixa."}
 ]},
-{v:"0.9.2-beta",data:"2026-08-26",mudancas:[
+{v:"0.9.2-beta",data:"2026-08-22",mudancas:[
 {t:"melhoria",d:"Sistema ja inicia com dados de exemplo para facilitar a experiencia."},
 {t:"melhoria",d:"Acesso ao sistema simplificado."}
 ]},
-{v:"0.9.1-beta",data:"2026-08-25",mudancas:[
+{v:"0.9.1-beta",data:"2026-08-21",mudancas:[
 {t:"melhoria",d:"Layout responsivo para celular com menu lateral deslizante."},
 {t:"correcao",d:"Correcao do menu mobile que bloqueava o toque nos itens."}
 ]},
-{v:"0.9.0-beta",data:"2026-08-24",mudancas:[
+{v:"0.9.0-beta",data:"2026-08-20",mudancas:[
 {t:"novo",d:"Primeira versao do sistema publicada online."}
 ]}
 ];
