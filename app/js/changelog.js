@@ -2,8 +2,17 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.1.0";
+export var APP_VERSION="1.2.0";
 export var CHANGELOG=[
+{v:"1.2.0",data:"2026-09-02",mudancas:[
+{t:"novo",d:"Financeiro completo: resumo com lucro liquido, ticket medio e contas a receber."},
+{t:"novo",d:"Controle de despesas por categoria e comparativo mensal."},
+{t:"novo",d:"Fechamento de caixa por turno: abra e feche o caixa com conferencia de dinheiro, cartao e PIX, com calculo automatico de sobra ou falta."},
+{t:"novo",d:"Contas a pagar e a receber, com alertas de vencimento."},
+{t:"novo",d:"Relatorios profissionais: ocupacao com diaria media e RevPAR, receita por tipo de quarto, fluxo de caixa, DRE e extrato por hospede."},
+{t:"novo",d:"Impressao de relatorios em documento profissional, com os dados do seu hotel."},
+{t:"melhoria",d:"Exportacao de relatorios e financeiro em CSV (Excel)."}
+]},
 {v:"1.1.0",data:"2026-09-02",mudancas:[
 {t:"novo",d:"Cadastro completo do hotel: endereco com busca por CEP e selecao de cidade/estado, e preenchimento automatico de dados pelo CNPJ."},
 {t:"novo",d:"Cadastro de hospedes com CPF/CNPJ e busca de endereco por CEP."},
