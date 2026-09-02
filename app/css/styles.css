@@ -156,7 +156,14 @@ select option{background:var(--surface-2);color:var(--text)}
 .support-opt small{color:var(--text-mute);font-size:12px}
 .support-form{margin-top:6px}
 .support-form textarea{margin-bottom:10px;resize:vertical}
-@media(max-width:768px){.support-widget{right:12px;bottom:12px}.support-panel{width:min(300px,calc(100vw - 24px))}.support-fab{width:50px;height:50px}.support-fab svg{width:22px;height:22px}}
+@media(max-width:768px){
+.support-widget{right:16px;bottom:20px}
+.support-panel{width:min(320px,calc(100vw - 32px))}
+.support-fab{width:52px;height:52px}
+.support-fab svg{width:22px;height:22px}
+/* quando a barra inferior existe (usuario logado), sobe o FAB para nao colar nela */
+body.logged .support-widget{bottom:88px}
+}
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(11,29,58,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.show{opacity:1;pointer-events:all}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 70px rgba(0,0,0,0.6);max-width:500px;width:90%;max-height:85vh;overflow-y:auto;transform:translateY(16px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s;color:var(--text)}
@@ -258,7 +265,6 @@ select option{background:var(--surface-2);color:var(--text)}
 .sidebar-logo h1,.sidebar-nav a span,.sidebar-logo p{display:block}
 .sidebar-nav a{justify-content:flex-start;padding:14px 20px}
 .main-content{margin-left:0;padding:20px 14px 104px}
-.support-widget{bottom:92px}
 .page-header{align-items:flex-start}
 .page-header h2{font-size:19px}
 .form-grid{grid-template-columns:1fr}

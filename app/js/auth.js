@@ -13,6 +13,7 @@ export function getCurrentUser(){ return usuarioAtual; }
 // --- TELAS DE LOGIN / CADASTRO ---
 export function showLogin(){
   var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";
+  document.body.classList.remove("logged");
   document.getElementById("loginContent").innerHTML=
     '<div class="form-group"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com" onkeydown="if(event.key===\'Enter\')fazerLogin()"></div>'+
     '<div class="form-group"><label>Senha</label><input type="password" id="loginPass" placeholder="Sua senha" onkeydown="if(event.key===\'Enter\')fazerLogin()"></div>'+
@@ -36,6 +37,7 @@ export function showCadastro(){
 
 export function hideLogin(){
   document.getElementById("loginOverlay").style.display="none";
+  document.body.classList.add("logged");
   if(usuarioAtual){document.getElementById("userInfo").innerHTML=esc(usuarioAtual.nome)+' &nbsp; Sair';filtrarSidebar();atualizarBadgeNovidade();if(temNovidade()){setTimeout(function(){showChangelog(true)},400)}}
 }
 
@@ -106,6 +108,7 @@ async function hotelLiberado(){
 
 function mostrarBloqueio(){
   var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";
+  document.body.classList.remove("logged");
   document.getElementById("loginContent").innerHTML=
     '<div class="confirm-ico warning" style="margin:8px auto 16px">🔒</div>'+
     '<h3 style="text-align:center;color:var(--text);margin-bottom:8px">Acesso temporariamente bloqueado</h3>'+

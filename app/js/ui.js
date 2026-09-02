@@ -22,7 +22,17 @@ cancel.onclick=fecha;
 ov.classList.add("show")}
 
 export function toggleSuporte(){document.getElementById("supportWidget").classList.toggle("open")}
-export function enviarSuporte(){var t=document.getElementById("supportMsg");if(!t||!t.value.trim())return st("Escreva uma mensagem antes de enviar.","warning");st("Mensagem enviada! Nossa equipe respondera em breve.","success");t.value="";document.getElementById("supportWidget").classList.remove("open")}
+export function enviarSuporte(){
+  var t=document.getElementById("supportMsg");
+  if(!t||!t.value.trim())return st("Escreva uma mensagem antes de enviar.","warning");
+  // Abre o WhatsApp do suporte com a mensagem ja preenchida (atendimento ao vivo)
+  var msg=encodeURIComponent("Ola! Preciso de ajuda com o HospedaPrime:\n\n"+t.value.trim());
+  var url="https://wa.me/5511922144143?text="+msg;
+  window.open(url,"_blank","noopener");
+  st("Abrindo o WhatsApp para falar com o suporte...","success");
+  t.value="";
+  document.getElementById("supportWidget").classList.remove("open");
+}
 
 // Os modais NAO fecham ao clicar fora (evita perder dados por clique acidental).
 // Fecham pelo botao X, Cancelar, acao concluida ou tecla ESC.
