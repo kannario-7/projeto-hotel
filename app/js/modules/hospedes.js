@@ -1,5 +1,5 @@
 // Módulo: Hóspedes
-import { esc } from "../utils.js";
+import { esc, mascDocAuto, mascTel, mascCep, enderecoPorCep, isValidCPF } from "../utils.js";
 import { St } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 
@@ -18,16 +18,38 @@ export function editarHospede(id){sm("Editar Hospede",formHospede(id),'<button c
 function formHospede(id){var h=id?St.fi("h",id):null;
 return'<div class="form-grid">'+
 '<div class="form-group"><label>Nome Completo *</label><input type="text" id="hfNome" value="'+(h?esc(h.nome):'')+'" placeholder="Nome do hospede"></div>'+
-'<div class="form-group"><label>CPF/ Documento</label><input type="text" id="hfDoc" value="'+(h?esc(h.documento||""):'')+'" placeholder="000.000.000-00"></div>'+
-'<div class="form-group"><label>Telefone *</label><input type="text" id="hfTel" value="'+(h?esc(h.telefone||""):'')+'" placeholder="(11)99999-9999"></div>'+
+'<div class="form-group"><label>CPF ou CNPJ</label><input type="text" id="hfDoc" value="'+(h?esc(h.documento||""):'')+'" oninput="mascHospedeDoc(this)" placeholder="000.000.000-00"><small id="hfDocMsg" style="color:var(--text-mute);font-size:12px"></small></div>'+
+'<div class="form-group"><label>Telefone *</label><input type="text" id="hfTel" value="'+(h?esc(h.telefone||""):'')+'" oninput="mascHospedeTel(this)" placeholder="(11) 99999-9999"></div>'+
 '<div class="form-group"><label>Email</label><input type="email" id="hfEmail" value="'+(h?esc(h.email||""):'')+'" placeholder="email@exemplo.com"></div>'+
-'<div class="form-group"><label>Endereco</label><input type="text" id="hfEnd" value="'+(h?esc(h.endereco||""):'')+'" placeholder="Endereco completo"></div>'+
-'<div class="form-group"><label>Observacoes</label><textarea id="hfObs" rows="2">'+(h?esc(h.observacoes||""):'')+'</textarea></div>'+
+'<div class="form-group"><label>CEP</label><div style="display:flex;gap:8px"><input type="text" id="hfCep" oninput="mascHospedeCep(this)" placeholder="00000-000" style="flex:1"><button type="button" class="btn btn-secondary" onclick="buscarCepHospede()">Buscar</button></div><small id="hfCepMsg" style="color:var(--text-mute);font-size:12px"></small></div>'+
+'<div class="form-group"><label>Endereco</label><input type="text" id="hfEnd" value="'+(h?esc(h.endereco||""):'')+'" placeholder="Rua, bairro, cidade/UF"></div>'+
+'<div class="form-group" style="grid-column:1/-1"><label>Observacoes</label><textarea id="hfObs" rows="2">'+(h?esc(h.observacoes||""):'')+'</textarea></div>'+
 '</div>';}
+
+// Handlers de mascara/busca (expostos globalmente pelo app.js)
+export function mascHospedeDoc(el){
+  mascDocAuto(el);
+  var msg=document.getElementById("hfDocMsg");if(!msg)return;
+  var dig=el.value.replace(/\D/g,"");
+  if(dig.length===11){msg.textContent=isValidCPF(dig)?"CPF valido.":"CPF invalido.";msg.style.color=isValidCPF(dig)?"#43d18c":"#f16a6e";}
+  else if(dig.length===14){msg.textContent="CNPJ.";msg.style.color="var(--text-mute)";}
+  else{msg.textContent="";}
+}
+export function mascHospedeTel(el){mascTel(el);}
+export function mascHospedeCep(el){mascCep(el);}
+export async function buscarCepHospede(){
+  var cep=document.getElementById("hfCep"),msg=document.getElementById("hfCepMsg"),end=document.getElementById("hfEnd");
+  msg.textContent="Buscando...";
+  var e=await enderecoPorCep(cep.value);
+  if(!e){msg.textContent="CEP nao encontrado.";return;}
+  end.value=e;msg.textContent="Endereco preenchido pelo CEP.";
+}
 
 export function salvarHospede(id){var n=document.getElementById("hfNome"),d=document.getElementById("hfDoc"),t=document.getElementById("hfTel"),e=document.getElementById("hfEmail"),en=document.getElementById("hfEnd"),o=document.getElementById("hfObs");
 if(!n||!n.value.trim())return st("Nome e obrigatorio.","error"),false;
-if(d&&d.value.trim()&&d.value.replace(/\D/g,"").length!==11)return st("CPF deve ter 11 digitos.","error"),false;
+if(d&&d.value.trim()){var dig=d.value.replace(/\D/g,"");
+  if(dig.length!==11&&dig.length!==14)return st("Documento deve ser CPF (11) ou CNPJ (14 digitos).","error"),false;
+  if(dig.length===11&&!isValidCPF(dig))return st("CPF invalido.","error"),false;}
 var dados={nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:(e?e.value.trim():""),endereco:(en?en.value.trim():""),observacoes:(o?o.value.trim():""),ativo:true};
 if(id){St.up("h",id,dados);st("Hospede atualizado!","success")}
 else{St.in("h",dados);st("Hospede cadastrado!","success")}
