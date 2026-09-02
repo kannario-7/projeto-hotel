@@ -14,20 +14,21 @@ export function getCurrentUser(){ return usuarioAtual; }
 export function showLogin(){
   var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";
   document.getElementById("loginContent").innerHTML=
-    '<div class="form-group"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>'+
-    '<div class="form-group"><label>Senha</label><input type="password" id="loginPass" placeholder="Sua senha"></div>'+
+    '<div class="form-group"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com" onkeydown="if(event.key===\'Enter\')fazerLogin()"></div>'+
+    '<div class="form-group"><label>Senha</label><input type="password" id="loginPass" placeholder="Sua senha" onkeydown="if(event.key===\'Enter\')fazerLogin()"></div>'+
     '<div class="login-error" id="loginError"></div>'+
     '<button class="btn btn-primary" onclick="fazerLogin()">Entrar</button>'+
     '<div class="login-links">Ainda nao tem conta? <a onclick="showCadastro()">Cadastrar meu hotel</a></div>';
+  setTimeout(function(){var e=document.getElementById("loginEmail");if(e)e.focus();},50);
 }
 
 export function showCadastro(){
   document.getElementById("loginContent").innerHTML=
     '<h3 style="text-align:center;margin-bottom:16px;color:var(--text)">Cadastrar Hotel</h3>'+
-    '<div class="form-group"><label>Nome do Hotel</label><input type="text" id="cadHotel" placeholder="Hotel Beira-Mar"></div>'+
-    '<div class="form-group"><label>Seu Nome</label><input type="text" id="cadNome" placeholder="Seu nome"></div>'+
-    '<div class="form-group"><label>E-mail</label><input type="email" id="cadEmail" placeholder="seu@email.com"></div>'+
-    '<div class="form-group"><label>Senha</label><input type="password" id="cadSenha" placeholder="Minimo 6 caracteres"></div>'+
+    '<div class="form-group"><label>Nome do Hotel</label><input type="text" id="cadHotel" placeholder="Hotel Beira-Mar" onkeydown="if(event.key===\'Enter\')fazerCadastro()"></div>'+
+    '<div class="form-group"><label>Seu Nome</label><input type="text" id="cadNome" placeholder="Seu nome" onkeydown="if(event.key===\'Enter\')fazerCadastro()"></div>'+
+    '<div class="form-group"><label>E-mail</label><input type="email" id="cadEmail" placeholder="seu@email.com" onkeydown="if(event.key===\'Enter\')fazerCadastro()"></div>'+
+    '<div class="form-group"><label>Senha</label><input type="password" id="cadSenha" placeholder="Minimo 6 caracteres" onkeydown="if(event.key===\'Enter\')fazerCadastro()"></div>'+
     '<div class="login-error" id="loginError"></div>'+
     '<button class="btn btn-primary" onclick="fazerCadastro()">Criar conta e comecar</button>'+
     '<div class="login-links">Ja tem conta? <a onclick="showLogin()">Fazer login</a></div>';
@@ -155,8 +156,8 @@ export async function iniciarAceiteConvite(token){
   document.getElementById("loginContent").innerHTML=
     '<h3 style="text-align:center;margin-bottom:6px;color:var(--text)">Voce foi convidado</h3>'+
     '<p style="text-align:center;color:var(--text-mute);font-size:14px;margin-bottom:18px">Para trabalhar no <b>'+esc(info.hotel_nome)+'</b> como '+esc(info.papel)+'</p>'+
-    '<div class="form-group"><label>Seu e-mail</label><input type="email" id="cvEmail" placeholder="seu@email.com"></div>'+
-    '<div class="form-group"><label>Crie uma senha</label><input type="password" id="cvSenha" placeholder="Minimo 6 caracteres"></div>'+
+    '<div class="form-group"><label>Seu e-mail</label><input type="email" id="cvEmail" placeholder="seu@email.com" onkeydown="if(event.key===\'Enter\')finalizarConvite()"></div>'+
+    '<div class="form-group"><label>Crie uma senha</label><input type="password" id="cvSenha" placeholder="Minimo 6 caracteres" onkeydown="if(event.key===\'Enter\')finalizarConvite()"></div>'+
     '<div class="login-error" id="loginError"></div>'+
     '<button class="btn btn-primary" onclick="finalizarConvite()">Aceitar convite e entrar</button>';
 }

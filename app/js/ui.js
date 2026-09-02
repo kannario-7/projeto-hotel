@@ -25,6 +25,13 @@ export function toggleSuporte(){document.getElementById("supportWidget").classLi
 export function enviarSuporte(){var t=document.getElementById("supportMsg");if(!t||!t.value.trim())return st("Escreva uma mensagem antes de enviar.","warning");st("Mensagem enviada! Nossa equipe respondera em breve.","success");t.value="";document.getElementById("supportWidget").classList.remove("open")}
 
 // Os modais NAO fecham ao clicar fora (evita perder dados por clique acidental).
-// Fecham apenas pelo botao X, Cancelar ou acao concluida. initModalOverlay mantido
-// para compatibilidade, mas sem registrar o fechamento por clique no fundo.
-export function initModalOverlay(){ /* fechamento por clique no overlay desativado de proposito */ }
+// Fecham pelo botao X, Cancelar, acao concluida ou tecla ESC.
+export function initModalOverlay(){
+  document.addEventListener("keydown",function(e){
+    if(e.key!=="Escape")return;
+    var conf=document.getElementById("confirmOverlay");
+    if(conf&&conf.classList.contains("show")){var c=document.getElementById("confirmCancel");if(c)c.click();return;}
+    var ov=document.getElementById("modalOverlay");
+    if(ov&&ov.classList.contains("show"))cm();
+  });
+}
