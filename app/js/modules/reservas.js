@@ -40,7 +40,10 @@ function formReserva(id){var r=id?St.fi("r",id):null;
 var hospedes=St.ga("h").filter(function(h){return h.ativo!==false});
 var tq=St.ga("tq").filter(function(t){return t.ativo!==false});
 return'<div class="form-grid">'+
-'<div class="form-group" style="grid-column:1/-1"><label>Hospede *</label><div style="display:flex;gap:8px"><select id="rfHospede" style="flex:1">'+(hospedes.length?(r?'':'<option value="">Selecione...</option>'):'<option value="">Nenhum hospede - cadastre um</option>')+hospedes.map(function(h){return'<option value="'+h.id+'"'+(r&&r.hospedeId===h.id?' selected':'')+'>'+esc(h.nome)+(h.documento?' - '+esc(h.documento):'')+'</option>'}).join('')+'</select><button type="button" class="btn btn-secondary" onclick="toggleNovoHospedeReserva()" id="rfBtnNovoHosp">+ Novo hospede</button></div></div>'+
+'<div class="form-group" style="grid-column:1/-1"><label>Hospede *</label>'+
+(hospedes.length?'<input type="text" id="rfBuscaHosp" oninput="filtrarHospedesReserva(this.value)" placeholder="Buscar hospede por nome ou documento..." style="margin-bottom:8px">':'')+
+'<div style="display:flex;gap:8px"><select id="rfHospede" style="flex:1" size="1">'+(hospedes.length?(r?'':'<option value="">Selecione...</option>'):'<option value="">Nenhum hospede - cadastre um</option>')+hospedes.map(function(h){return'<option value="'+h.id+'" data-busca="'+esc((h.nome+" "+(h.documento||"")).toLowerCase())+'"'+(r&&r.hospedeId===h.id?' selected':'')+'>'+esc(h.nome)+(h.documento?' - '+esc(h.documento):'')+'</option>'}).join('')+'</select><button type="button" class="btn btn-secondary" onclick="toggleNovoHospedeReserva()" id="rfBtnNovoHosp">+ Novo hospede</button></div>'+
+'<small id="rfBuscaMsg" style="color:var(--text-mute);font-size:12px"></small></div>'+
 '<div class="form-group" id="rfNovoHospedeBox" style="grid-column:1/-1;display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px">'+
   '<div style="font-family:Sora,sans-serif;font-weight:600;color:var(--text);margin-bottom:10px">Cadastro rapido de hospede</div>'+
   '<div class="form-grid">'+
@@ -62,6 +65,27 @@ var tipo=document.getElementById("rfTipo"),ci=document.getElementById("rfCheckin
 if(!tipo||!ci||!co||!tipo.value)return;
 var qs=quartosDisponiveis(tipo.value,ci.value,co.value,null);
 sel.innerHTML=qs.length?'<option value="">Selecione...</option>'+qs.map(function(q){return'<option value="'+q.id+'">Apto '+q.numero+'</option>'}).join(''):'<option value="">Nenhum quarto disponivel</option>';}
+
+export function filtrarHospedesReserva(termo){
+  var sel=document.getElementById("rfHospede"),msg=document.getElementById("rfBuscaMsg");
+  if(!sel)return;
+  var t=(termo||"").trim().toLowerCase();
+  var visiveis=0,primeiraOpt=null;
+  Array.prototype.forEach.call(sel.options,function(opt){
+    if(!opt.value){opt.hidden=t.length>0;return;} // esconde o "Selecione..." durante a busca
+    var busca=opt.getAttribute("data-busca")||opt.textContent.toLowerCase();
+    var bate=!t||busca.indexOf(t)>=0;
+    opt.hidden=!bate;
+    if(bate){visiveis++;if(!primeiraOpt)primeiraOpt=opt;}
+  });
+  // abre a lista e ja aponta pro primeiro resultado
+  if(t&&primeiraOpt)sel.value=primeiraOpt.value;
+  if(msg){
+    if(!t)msg.textContent="";
+    else if(visiveis===0)msg.textContent="Nenhum hospede encontrado. Use \"+ Novo hospede\" para cadastrar.";
+    else msg.textContent=visiveis+" hospede(s) encontrado(s).";
+  }
+}
 
 export function toggleNovoHospedeReserva(){
   var box=document.getElementById("rfNovoHospedeBox"),btn=document.getElementById("rfBtnNovoHosp");
@@ -87,8 +111,10 @@ export async function salvarHospedeNaReserva(){
   if(sel){
     var opt=document.createElement("option");
     opt.value=novo.id;opt.textContent=n.value.trim()+(d&&d.value.trim()?" - "+d.value.trim():"");
+    opt.setAttribute("data-busca",(n.value.trim()+" "+(d?d.value.trim():"")).toLowerCase());
     sel.appendChild(opt);sel.value=novo.id;
   }
+  var busca=document.getElementById("rfBuscaHosp");if(busca)busca.value="";
   st("Hospede cadastrado e selecionado!","success");
   toggleNovoHospedeReserva();
 }
