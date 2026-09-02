@@ -10,7 +10,7 @@ el.innerHTML+='<div id="hospedesList">'+buildHospedesTable(hospedes,reservas)+'<
 
 function buildHospedesTable(hospedes,reservas){if(!hospedes.length)return'<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhum hospede cadastrado.</p>';
 return'<table><tr><th>Nome</th><th>Documento</th><th>Telefone</th><th>Email</th><th>Total Reservas</th><th>Acoes</th></tr>'+
-hospedes.map(function(h){var total=reservas.filter(function(r){return r.hospedeId===h.id}).length;return'<tr><td>'+esc(h.nome)+'</td><td>'+esc(h.documento||"-")+'</td><td>'+esc(h.telefone||"-")+'</td><td>'+esc(h.email||"-")+'</td><td>'+total+'</td><td><button class="btn btn-sm btn-primary" onclick="editarHospede(\''+h.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirHospede(\''+h.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>'}
+hospedes.map(function(h){var total=reservas.filter(function(r){return r.hospedeId===h.id}).length;return'<tr><td>'+esc(h.nome)+'</td><td>'+esc(h.documento||"-")+'</td><td>'+esc(h.telefone||"-")+'</td><td>'+esc(h.email||"-")+'</td><td>'+total+'</td><td style="white-space:nowrap"><button class="btn btn-sm btn-primary" onclick="editarHospede(\''+h.id+'\')">Editar</button> <button class="btn btn-sm btn-secondary" onclick="exportarHospede(\''+h.id+'\')" title="Baixar os dados deste hospede (LGPD)">Dados</button> <button class="btn btn-sm btn-secondary" onclick="anonimizarHospede(\''+h.id+'\')" title="Remover dados pessoais preservando o historico (LGPD)">Anonimizar</button> <button class="btn btn-sm btn-danger" onclick="excluirHospede(\''+h.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>'}
 
 export function showNovoHospede(){sm("Novo Hospede",formHospede(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarHospede()">Salvar</button>')}
 export function editarHospede(id){sm("Editar Hospede",formHospede(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarHospede(\''+id+'\')">Salvar</button>')}
@@ -62,3 +62,38 @@ else{St.in("h",dados);st("Hospede cadastrado!","success")}
 cm();renderHospedes()}
 
 export function excluirHospede(id){confirmar({titulo:"Excluir hospede?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("h",id);st("Hospede excluido.","warning");renderHospedes()})}
+
+// LGPD: exportar os dados que o sistema guarda sobre o hospede (direito de acesso/portabilidade)
+export function exportarHospede(id){
+  var h=St.fi("h",id);if(!h)return;
+  var reservas=St.ga("r").filter(function(r){return r.hospedeId===id}).map(function(r){
+    var q=St.fi("q",r.quartoId);
+    return {checkin:r.dataCheckin,checkout:r.dataCheckout,noites:r.noites,quarto:q?("Apto "+q.numero):null,total_centavos:r.total,status:r.status};
+  });
+  var dados={
+    exportado_em:new Date().toISOString(),
+    titular:{
+      nome:h.nome||null,documento:h.documento||null,telefone:h.telefone||null,
+      email:h.email||null,endereco:h.endereco||null,observacoes:h.observacoes||null,
+      consentimento_em:h.consentimentoEm||null
+    },
+    reservas:reservas
+  };
+  var conteudo=JSON.stringify(dados,null,2);
+  var nomeArq="dados-hospede-"+(h.nome||"titular").replace(/[^a-z0-9]+/gi,"_").toLowerCase()+".json";
+  var blob=new Blob([conteudo],{type:"application/json"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");a.href=url;a.download=nomeArq;document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+  st("Dados do hospede exportados.","success");
+}
+
+// LGPD: anonimizar (remove dados pessoais preservando o registro/estatistica de reservas)
+export function anonimizarHospede(id){
+  var h=St.fi("h",id);if(!h)return;
+  confirmar({titulo:"Anonimizar este hospede?",msg:"Nome, documento, telefone, e-mail e endereco serao apagados permanentemente. O historico de reservas e mantido, mas sem identificar a pessoa. Nao pode ser desfeito.",okLabel:"Sim, anonimizar",tipo:"danger"},function(){
+    St.up("h",id,{nome:"[Anonimizado]",documento:"",telefone:"",email:"",endereco:"",observacoes:""});
+    st("Dados pessoais do hospede anonimizados.","success");
+    renderHospedes();
+  });
+}
