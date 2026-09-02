@@ -5,15 +5,32 @@ import { sm, closeModal } from "../ui.js";
 import { getCurrentUser, getTurnoAtual } from "../auth.js";
 import { navTo } from "../nav.js";
 
+// Icones SVG animados dos alertas (substituem emojis). Cada um traz sua propria animacao via classe CSS.
+var ALERT_ICONS = {
+  // Bloqueio/vencido: circulo com barra, pulsando
+  danger:'<svg class="aico aico-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="6.3" y1="6.3" x2="17.7" y2="17.7"/></svg>',
+  // Relogio com ponteiro que gira
+  clock:'<svg class="aico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line class="aico-hand" x1="12" y1="12" x2="12" y2="7"/><line class="aico-hand2" x1="12" y1="12" x2="15.5" y2="12"/></svg>',
+  // Aviso: triangulo com balanco
+  warning:'<svg class="aico aico-swing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  // Info: circulo com "i", pulsando suave
+  info:'<svg class="aico aico-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  // Ferramenta (manutencao): chave que balanca
+  tool:'<svg class="aico aico-swing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3 18l3 3 6.5-6.5a4 4 0 0 0 5.2-5.2l-2.8 2.8-2.2-.6-.6-2.2 2.9-2.8z"/></svg>',
+  // Limpeza: vassoura que balanca
+  clean:'<svg class="aico aico-swing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 4 9 14"/><path d="M11 6 5 20"/><path d="M5 20l-2-1 2-5 4 2z"/></svg>'
+};
+function aIco(tipo){ return '<span class="aico-wrap">'+(ALERT_ICONS[tipo]||"")+'</span>'; }
+
 function avisoPlanoHTML(){
   var p = getPlanoStatus();
   if(!p || p.dias_restantes==null) return "";
   var d = p.dias_restantes;
   if(d > 5) return ""; // so avisa a partir de 5 dias
   var wa='https://wa.me/5511922144143?text=Ola,%20quero%20renovar%20o%20plano%20do%20HospedaPrime';
-  if(d < 0) return '<div class="alert alert-danger"><span>⛔</span><span>Seu plano venceu. Renove para nao perder o acesso. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
-  if(d === 0) return '<div class="alert alert-warning"><span>⏰</span><span>Seu plano vence <b>hoje</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar agora</a></span></div>';
-  return '<div class="alert alert-warning"><span>⏰</span><span>Seu plano vence em <b>'+d+' dia'+(d===1?'':'s')+'</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
+  if(d < 0) return '<div class="alert alert-danger">'+aIco("danger")+'<span>Seu plano venceu. Renove para nao perder o acesso. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
+  if(d === 0) return '<div class="alert alert-warning">'+aIco("clock")+'<span>Seu plano vence <b>hoje</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar agora</a></span></div>';
+  return '<div class="alert alert-warning">'+aIco("clock")+'<span>Seu plano vence em <b>'+d+' dia'+(d===1?'':'s')+'</b>. <a href="'+wa+'" target="_blank" rel="noopener" style="color:var(--accent-2);text-decoration:underline">Renovar</a></span></div>';
 }
 
 export function renderDashboard(){var el=document.getElementById("pageContent");
@@ -58,12 +75,12 @@ el.innerHTML='<div class="page-header"><div><h2>Painel de Controle</h2><p>Visao 
 
 var alertas='<div class="alerts">';
 alertas+=avisoPlanoHTML();
-if(checkoutsHoje.length>0)alertas+='<div class="alert alert-warning"><span>⚠️</span><span>'+checkoutsHoje.length+' hospede(s) precisam fazer check-out hoje.</span></div>';
-if(pendentes.length>0)alertas+='<div class="alert alert-info"><span>ℹ️</span><span>'+pendentes.length+' reserva(s) pendente(s) aguardando confirmacao.</span></div>';
-if(ocupados/totalQuartos>0.8)alertas+='<div class="alert alert-warning"><span>⚠️</span><span>Ocupacao acima de 80%! Considere verificar disponibilidade.</span></div>';
-if(ocupados/totalQuartos<0.3)alertas+='<div class="alert alert-info"><span>ℹ️</span><span>Ocupacao abaixo de 30%. Considere promover o hotel.</span></div>';
-if(manutencao>0)alertas+='<div class="alert alert-warning"><span>🔧</span><span>'+manutencao+' quarto(s) em manutencao.</span></div>';
-if(limpeza>0)alertas+='<div class="alert alert-info"><span>🧹</span><span>'+limpeza+' quarto(s) aguardando limpeza.</span></div>';
+if(checkoutsHoje.length>0)alertas+='<div class="alert alert-warning">'+aIco("warning")+'<span>'+checkoutsHoje.length+' hospede(s) precisam fazer check-out hoje.</span></div>';
+if(pendentes.length>0)alertas+='<div class="alert alert-info">'+aIco("info")+'<span>'+pendentes.length+' reserva(s) pendente(s) aguardando confirmacao.</span></div>';
+if(ocupados/totalQuartos>0.8)alertas+='<div class="alert alert-warning">'+aIco("warning")+'<span>Ocupacao acima de 80%! Considere verificar disponibilidade.</span></div>';
+if(ocupados/totalQuartos<0.3)alertas+='<div class="alert alert-info">'+aIco("info")+'<span>Ocupacao abaixo de 30%. Considere promover o hotel.</span></div>';
+if(manutencao>0)alertas+='<div class="alert alert-warning">'+aIco("tool")+'<span>'+manutencao+' quarto(s) em manutencao.</span></div>';
+if(limpeza>0)alertas+='<div class="alert alert-info">'+aIco("clean")+'<span>'+limpeza+' quarto(s) aguardando limpeza.</span></div>';
 alertas+='</div>';
 el.innerHTML+=alertas;
 

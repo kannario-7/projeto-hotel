@@ -294,3 +294,21 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .wstep-body b{display:block;color:var(--text);font-family:Sora,sans-serif;font-size:16px;margin-bottom:4px}
 .wstep-body p{color:var(--text-mute);font-size:14px;margin-bottom:12px}
 .btn.btn-sm{padding:8px 14px;font-size:13px}
+
+/* Icones SVG animados dos alertas (substituem emojis) */
+/* .aico-wrap e o primeiro filho do .alert -> herda a caixinha colorida de .alert>span:first-child */
+.aico{width:20px;height:20px;display:block;transform-origin:center}
+.alert-danger .aico{color:#f16a6e}
+.alert-warning .aico{color:#f0a83c}
+.alert-info .aico{color:var(--accent-2)}
+/* pulsar (info / perigo) */
+.aico-pulse{animation:aicoPulse 1.8s ease-in-out infinite}
+@keyframes aicoPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:.72}}
+/* balanco (aviso / ferramenta / limpeza) */
+.aico-swing{animation:aicoSwing 2.2s ease-in-out infinite}
+@keyframes aicoSwing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+/* ponteiros do relogio girando */
+.aico-hand{transform-origin:12px 12px;animation:aicoSpin 3s linear infinite}
+.aico-hand2{transform-origin:12px 12px;animation:aicoSpin 9s linear infinite}
+@keyframes aicoSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.aico-pulse,.aico-swing,.aico-hand,.aico-hand2{animation:none}}
