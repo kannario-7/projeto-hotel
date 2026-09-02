@@ -314,3 +314,15 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .aico-hand2{transform-origin:12px 12px;animation:aicoSpin 9s linear infinite}
 @keyframes aicoSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion: reduce){.aico-pulse,.aico-swing,.aico-hand,.aico-hand2{animation:none}}
+
+/* Checkbox custom (formas de pagamento e afins) no tema roxo/escuro */
+.pay-list{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--border-soft);cursor:pointer;transition:background .15s;border-radius:8px}
+.pay-opt:hover{background:var(--surface-2)}
+.pay-opt input{position:absolute;opacity:0;width:0;height:0}
+.pay-box{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--border);background:var(--surface-2);display:flex;align-items:center;justify-content:center;transition:all .18s}
+.pay-box svg{width:14px;height:14px;stroke:#fff;stroke-width:3;opacity:0;transform:scale(.5);transition:all .18s}
+.pay-opt input:checked+.pay-box{background:var(--accent);border-color:var(--accent)}
+.pay-opt input:checked+.pay-box svg{opacity:1;transform:scale(1)}
+.pay-opt input:focus-visible+.pay-box{box-shadow:0 0 0 3px var(--accent-soft)}
+.pay-opt .pay-label{color:var(--text);font-size:15px}

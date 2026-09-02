@@ -1,9 +1,10 @@
 // Módulo: Configurações
 import { esc, fmtC } from "../utils.js";
-import { St } from "../store.js";
+import { St, carregarTudo, getHotelId } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { renderUsuariosHotel } from "./usuarios.js";
+import { supabase } from "../supabase.js";
 
 export function renderConfig(){var el=document.getElementById("pageContent");
 var config=St.gc();
@@ -174,17 +175,50 @@ export function excluirTipoQuarto(id){
   });
 }
 
-function formConfigPagamento(c){return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Formas de Pagamento</h3>'+
+function formConfigPagamento(c){var check='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Formas de Pagamento</h3>'+
 '<p style="color:var(--text-mute);margin-bottom:16px">Selecione as formas de pagamento aceitas pelo hotel:</p>'+
-["dinheiro","cartao","debito","credito","pix","boleto","cheque"].map(function(p){return'<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-soft);cursor:pointer"><input type="checkbox" value="'+p+'" '+(c.pm&&c.pm.includes(p)?'checked':'')+' style="width:auto"> <span>'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</span></label>'}).join('')+
+'<div class="pay-list">'+
+["dinheiro","cartao","debito","credito","pix","boleto","cheque"].map(function(p){return'<label class="pay-opt"><input type="checkbox" value="'+p+'" '+(c.pm&&c.pm.includes(p)?'checked':'')+'><span class="pay-box">'+check+'</span><span class="pay-label">'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</span></label>'}).join('')+
+'</div>'+
 '<div class="form-actions"><button class="btn btn-primary" onclick="salvarFormasPagamento()">Salvar</button></div></div>'+
 '<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Dados do Sistema</h3>'+
-'<button class="btn btn-danger" onclick="restaurarDados()">Restaurar Dados Padrao</button>'+
-'<p style="color:var(--text-mute);font-size:12px;margin-top:8px">Isso apagara todos os dados e recriara os dados iniciais.</p></div>'}
+'<button class="btn btn-danger" onclick="restaurarDados()">Apagar dados do hotel</button>'+
+'<p style="color:var(--text-mute);font-size:12px;margin-top:8px">Apaga todos os dados operacionais deste hotel (reservas, hospedes, quartos, etc.). Protegido por senha-mestra do dono.</p></div>'}
 
 export function salvarFormasPagamento(){var cfg=St.gc();cfg.pm=[];
 document.querySelectorAll("#configContent input[type=checkbox]").forEach(function(cb){if(cb.checked)cfg.pm.push(cb.value)});
 if(!cfg.pm.length)return st("Selecione ao menos uma forma.","error"),false;
 St.sc(cfg);st("Formas de pagamento salvas!","success");}
 
-export function restaurarDados(){st("Esta acao nao esta disponivel na versao em nuvem.","info")}
+export function restaurarDados(){
+  sm("Restaurar Dados do Hotel",
+    '<div class="alert alert-warning" style="margin-bottom:14px"><span class="aico-wrap">⚠️</span><span>Esta acao <b>apaga todos os dados operacionais</b> deste hotel: reservas, hospedes, quartos, tipos, servicos, consumos e pagamentos. Nao pode ser desfeita.</span></div>'+
+    '<div class="form-group"><label>Senha-mestra do dono *</label><input type="password" id="cfgSenhaMestra" placeholder="Digite a senha-mestra" onkeydown="if(event.key===\'Enter\')confirmarRestauracao()"></div>'+
+    '<small style="color:var(--text-mute);font-size:12px">Apenas quem tem a senha-mestra definida pelo dono pode executar.</small>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-danger" onclick="confirmarRestauracao()">Apagar dados do hotel</button>');
+  setTimeout(function(){var s=document.getElementById("cfgSenhaMestra");if(s)s.focus();},60);
+}
+
+export async function confirmarRestauracao(){
+  var s=document.getElementById("cfgSenhaMestra");
+  var senha=s?s.value:"";
+  if(!senha)return st("Digite a senha-mestra.","error");
+  var btn=document.querySelector("#modalFooter .btn-danger");if(btn){btn.disabled=true;btn.textContent="Apagando...";}
+  try{
+    var { data, error } = await supabase.rpc("restaurar_dados_hotel", { p_senha: senha });
+    if(error){
+      if(btn){btn.disabled=false;btn.textContent="Apagar dados do hotel";}
+      if((error.message||"").toLowerCase().indexOf("senha")>=0)return st("Senha-mestra incorreta.","error");
+      return st("Nao foi possivel restaurar: "+error.message,"error");
+    }
+    // recarrega o cache do hotel (agora vazio)
+    await carregarTudo(getHotelId());
+    cm();
+    st("Dados do hotel restaurados (apagados).","success");
+    renderConfig();
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent="Apagar dados do hotel";}
+    st("Erro ao restaurar dados.","error");
+  }
+}
