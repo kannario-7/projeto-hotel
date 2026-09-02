@@ -326,3 +326,8 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .pay-opt input:checked+.pay-box svg{opacity:1;transform:scale(1)}
 .pay-opt input:focus-visible+.pay-box{box-shadow:0 0 0 3px var(--accent-soft)}
 .pay-opt .pay-label{color:var(--text);font-size:15px}
+
+/* Icones SVG do changelog (substituem emojis nas tags e banner) */
+.chg-tag{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
+.chg-ico{width:13px;height:13px;flex:none}
+.chg-banner-ico svg{display:block}
