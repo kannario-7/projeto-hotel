@@ -13,7 +13,8 @@ export const TABELAS = {
   os: "consumos",
   pg: "pagamentos",
   fa: "funcionarios",
-  ds: "despesas"
+  ds: "despesas",
+  sc: "sessoes_caixa"
 };
 
 // Conversão de campos app -> banco por tabela
@@ -29,7 +30,8 @@ function paraBanco(k, o, hotelId){
     case "os": b.reserva_id=o.reservaId||null; b.servico_id=o.servicoId||null; b.quantidade=o.quantidade; b.preco_unit=o.precoUnit; b.total=o.total; b.data=o.data; break;
     case "pg": b.reserva_id=o.reservaId||null; b.hospede_id=o.hospedeId||null; b.valor=o.valor; b.forma=o.forma; b.data=o.data; b.observacoes=o.observacoes; break;
     case "fa": b.nome=o.nome; b.cargo=o.cargo; b.telefone=o.telefone; b.email=o.email; b.turno=o.turno; b.salario=o.salario; b.ativo=o.ativo!==false; break;
-    case "ds": b.descricao=o.descricao; b.categoria=o.categoria; b.valor=o.valor; b.forma=o.forma; b.data=o.data; b.observacoes=o.observacoes; break;
+    case "ds": b.descricao=o.descricao; b.categoria=o.categoria; b.valor=o.valor; b.forma=o.forma; b.data=o.data; b.observacoes=o.observacoes; if(o.vencimento!==undefined)b.vencimento=o.vencimento||null; if(o.pago!==undefined)b.pago=o.pago; if(o.pagoEm!==undefined)b.pago_em=o.pagoEm||null; break;
+    case "sc": b.usuario_abertura=o.usuarioAbertura; b.usuario_fechamento=o.usuarioFechamento; b.aberto_em=o.abertoEm; b.fechado_em=o.fechadoEm; b.valor_abertura=o.valorAbertura; b.contado_dinheiro=o.contadoDinheiro; b.contado_cartao=o.contadoCartao; b.contado_pix=o.contadoPix; b.contado_outros=o.contadoOutros; b.valor_sistema=o.valorSistema; b.diferenca=o.diferenca; b.observacoes=o.observacoes; b.status=o.status; break;
   }
   return b;
 }
@@ -46,7 +48,8 @@ function paraApp(k, b){
     case "os": o.reservaId=b.reserva_id; o.servicoId=b.servico_id; o.quantidade=b.quantidade; o.precoUnit=b.preco_unit; o.total=b.total; o.data=b.data; break;
     case "pg": o.reservaId=b.reserva_id; o.hospedeId=b.hospede_id; o.valor=b.valor; o.forma=b.forma; o.data=b.data; o.observacoes=b.observacoes; break;
     case "fa": o.nome=b.nome; o.cargo=b.cargo; o.telefone=b.telefone; o.email=b.email; o.turno=b.turno; o.salario=b.salario; o.ativo=b.ativo; break;
-    case "ds": o.descricao=b.descricao; o.categoria=b.categoria; o.valor=b.valor; o.forma=b.forma; o.data=b.data; o.observacoes=b.observacoes; break;
+    case "ds": o.descricao=b.descricao; o.categoria=b.categoria; o.valor=b.valor; o.forma=b.forma; o.data=b.data; o.observacoes=b.observacoes; o.vencimento=b.vencimento; o.pago=b.pago; o.pagoEm=b.pago_em; break;
+    case "sc": o.usuarioAbertura=b.usuario_abertura; o.usuarioFechamento=b.usuario_fechamento; o.abertoEm=b.aberto_em; o.fechadoEm=b.fechado_em; o.valorAbertura=b.valor_abertura; o.contadoDinheiro=b.contado_dinheiro; o.contadoCartao=b.contado_cartao; o.contadoPix=b.contado_pix; o.contadoOutros=b.contado_outros; o.valorSistema=b.valor_sistema; o.diferenca=b.diferenca; o.observacoes=b.observacoes; o.status=b.status; break;
   }
   return o;
 }
