@@ -86,11 +86,31 @@ async function aposAutenticar(user){
   var { data: perfil, error } = await supabase.from("perfis").select("*").eq("id", user.id).single();
   if(error||!perfil){ st("Perfil nao encontrado. Contate o suporte.","error"); await supabase.auth.signOut(); return; }
   usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
+  // Bloqueio automatico: hotel suspenso ou plano vencido (dono sempre entra)
+  if(!usuarioAtual.isOwner){
+    var liberado = await hotelLiberado();
+    if(!liberado){ mostrarBloqueio(); return; }
+  }
   setHotelId(perfil.hotel_id);
   await carregarTudo(perfil.hotel_id);
   hideLogin();
   window.location.hash = "#d";
   renderPage();
+}
+
+async function hotelLiberado(){
+  try{ var { data } = await supabase.rpc("meu_hotel_liberado"); return data!==false; }
+  catch(e){ return true; }
+}
+
+function mostrarBloqueio(){
+  var overlay=document.getElementById("loginOverlay");overlay.style.display="flex";
+  document.getElementById("loginContent").innerHTML=
+    '<div class="confirm-ico warning" style="margin:8px auto 16px">🔒</div>'+
+    '<h3 style="text-align:center;color:var(--text);margin-bottom:8px">Acesso temporariamente bloqueado</h3>'+
+    '<p style="text-align:center;color:var(--text-dim);font-size:14px;line-height:1.5;margin-bottom:18px">Sua assinatura esta vencida ou o acesso foi suspenso. Regularize para voltar a usar o HospedaPrime.</p>'+
+    '<a class="btn btn-primary" style="width:100%;justify-content:center" href="https://wa.me/5511992144143?text=Ola,%20quero%20regularizar%20a%20assinatura%20do%20HospedaPrime" target="_blank" rel="noopener">Falar no WhatsApp</a>'+
+    '<div class="login-links" style="margin-top:14px"><a onclick="logout()">Sair</a></div>';
 }
 
 export async function logout(){
@@ -109,6 +129,10 @@ export async function restaurarSessao(){
     var { data: perfil } = await supabase.from("perfis").select("*").eq("id", user.id).single();
     if(perfil){
       usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
+      if(!usuarioAtual.isOwner){
+        var liberado = await hotelLiberado();
+        if(!liberado){ mostrarBloqueio(); return false; }
+      }
       setHotelId(perfil.hotel_id);
       await carregarTudo(perfil.hotel_id);
       return true;

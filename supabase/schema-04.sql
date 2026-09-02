@@ -4,8 +4,11 @@
 -- Data de expiração do plano/assinatura do hotel
 alter table public.hoteis add column if not exists plano_expira date;
 
--- Atualiza a função de listagem para incluir plano_expira e contatos
-create or replace function public.listar_hoteis_admin()
+-- IMPORTANTE: como o retorno da função muda, e preciso remover a versao antiga antes.
+drop function if exists public.listar_hoteis_admin();
+
+-- Recria a função de listagem incluindo plano_expira e contatos
+create function public.listar_hoteis_admin()
 returns table(id uuid, nome text, cnpj text, telefone text, email text, plano text, status text, plano_expira date, criado_em timestamptz, qtd_usuarios bigint)
 language sql stable security definer
 as $$
