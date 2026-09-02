@@ -12,7 +12,8 @@ export const TABELAS = {
   r: "reservas",
   os: "consumos",
   pg: "pagamentos",
-  fa: "funcionarios"
+  fa: "funcionarios",
+  ds: "despesas"
 };
 
 // Conversão de campos app -> banco por tabela
@@ -28,6 +29,7 @@ function paraBanco(k, o, hotelId){
     case "os": b.reserva_id=o.reservaId||null; b.servico_id=o.servicoId||null; b.quantidade=o.quantidade; b.preco_unit=o.precoUnit; b.total=o.total; b.data=o.data; break;
     case "pg": b.reserva_id=o.reservaId||null; b.hospede_id=o.hospedeId||null; b.valor=o.valor; b.forma=o.forma; b.data=o.data; b.observacoes=o.observacoes; break;
     case "fa": b.nome=o.nome; b.cargo=o.cargo; b.telefone=o.telefone; b.email=o.email; b.turno=o.turno; b.salario=o.salario; b.ativo=o.ativo!==false; break;
+    case "ds": b.descricao=o.descricao; b.categoria=o.categoria; b.valor=o.valor; b.forma=o.forma; b.data=o.data; b.observacoes=o.observacoes; break;
   }
   return b;
 }
@@ -44,6 +46,7 @@ function paraApp(k, b){
     case "os": o.reservaId=b.reserva_id; o.servicoId=b.servico_id; o.quantidade=b.quantidade; o.precoUnit=b.preco_unit; o.total=b.total; o.data=b.data; break;
     case "pg": o.reservaId=b.reserva_id; o.hospedeId=b.hospede_id; o.valor=b.valor; o.forma=b.forma; o.data=b.data; o.observacoes=b.observacoes; break;
     case "fa": o.nome=b.nome; o.cargo=b.cargo; o.telefone=b.telefone; o.email=b.email; o.turno=b.turno; o.salario=b.salario; o.ativo=b.ativo; break;
+    case "ds": o.descricao=b.descricao; o.categoria=b.categoria; o.valor=b.valor; o.forma=b.forma; o.data=b.data; o.observacoes=b.observacoes; break;
   }
   return o;
 }

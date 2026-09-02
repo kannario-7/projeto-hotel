@@ -5,7 +5,7 @@ import { esc } from "./utils.js";
 import * as db from "./db.js";
 
 // Cache em memória dos dados do hotel atual
-var cache = { tq:[], q:[], h:[], sv:[], r:[], os:[], pg:[], fa:[] };
+var cache = { tq:[], q:[], h:[], sv:[], r:[], os:[], pg:[], fa:[], ds:[] };
 var config = { pm:["dinheiro","cartao","debito","credito","pix"], hci:"14:00", hco:"12:00", tax:10, hn:"", hcnpj:"", htel:"", hemail:"" };
 var hotelIdAtual = null;
 
