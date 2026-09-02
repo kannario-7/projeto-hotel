@@ -22,6 +22,16 @@ var ALERT_ICONS = {
 };
 function aIco(tipo){ return '<span class="aico-wrap">'+(ALERT_ICONS[tipo]||"")+'</span>'; }
 
+function avisoCadastroHTML(){
+  var c = St.gc();
+  var faltando = [];
+  if(!c.hcnpj || !(""+c.hcnpj).trim()) faltando.push("documento (CNPJ/CPF)");
+  if(!c.hend || !(""+c.hend).trim()) faltando.push("endereco");
+  if(!c.hcidade || !(""+c.hcidade).trim()) faltando.push("cidade");
+  if(!faltando.length) return "";
+  return '<div class="alert alert-warning">'+aIco("warning")+'<span><b>Complete o cadastro do seu hotel.</b> Falta: '+esc(faltando.join(", "))+'. <a onclick="navTo(\'#cg\')" style="color:var(--accent-2);text-decoration:underline;cursor:pointer">Completar agora</a></span></div>';
+}
+
 function avisoPlanoHTML(){
   var p = getPlanoStatus();
   if(!p || p.dias_restantes==null) return "";
@@ -75,6 +85,7 @@ el.innerHTML='<div class="page-header"><div><h2>Painel de Controle</h2><p>Visao 
 
 var alertas='<div class="alerts">';
 alertas+=avisoPlanoHTML();
+alertas+=avisoCadastroHTML();
 if(checkoutsHoje.length>0)alertas+='<div class="alert alert-warning">'+aIco("warning")+'<span>'+checkoutsHoje.length+' hospede(s) precisam fazer check-out hoje.</span></div>';
 if(pendentes.length>0)alertas+='<div class="alert alert-info">'+aIco("info")+'<span>'+pendentes.length+' reserva(s) pendente(s) aguardando confirmacao.</span></div>';
 if(ocupados/totalQuartos>0.8)alertas+='<div class="alert alert-warning">'+aIco("warning")+'<span>Ocupacao acima de 80%! Considere verificar disponibilidade.</span></div>';

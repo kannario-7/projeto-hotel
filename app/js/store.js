@@ -41,6 +41,13 @@ export var St = {
     });
     return temp;
   },
+  // insert assíncrono: aguarda o banco e retorna o objeto com o id REAL (evita id temporário em referências)
+  inAsync:async function(k,v){
+    var saved = await db.inserir(k, v, hotelIdAtual);
+    if(saved){ cache[k] = cache[k] || []; cache[k].push(saved); return saved; }
+    // fallback: se falhar, usa o modo síncrono com id temporário
+    return this.in(k, v);
+  },
   up:function(k,i,u){
     var a = cache[k]||[], p = a.findIndex(function(x){return x.id===i});
     if(p>-1){ Object.assign(a[p], u); db.atualizar(k, i, a[p], hotelIdAtual); return a[p]; }
