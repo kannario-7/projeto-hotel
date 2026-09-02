@@ -216,10 +216,10 @@ select option{background:var(--surface-2);color:var(--text)}
 .tab:hover{color:var(--text)}
 .report-container{background:var(--surface);border-radius:16px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.25);border:1px solid var(--border);margin-bottom:24px;overflow-x:auto;color:var(--text)}
 .bottom-nav{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:1550;background:rgba(28,28,38,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:22px;padding:8px 10px;box-shadow:0 12px 34px rgba(0,0,0,.5);gap:2px;align-items:center;max-width:calc(100vw - 24px)}
-.bn-item{flex:1;min-width:58px;background:none;border:none;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:16px;color:var(--text-mute);text-decoration:none;transition:color .2s,background .2s;position:relative}
-.bn-item svg{width:24px;height:24px;transition:transform .2s}
+.bn-item{flex:1;min-width:58px;background:none;border:none;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:16px;color:var(--text-dim);text-decoration:none;transition:color .2s,background .2s;position:relative}
+.bn-item svg{width:26px;height:26px;transition:transform .2s;stroke-width:2.2}
 .bn-item span{font-size:10px;font-weight:600;white-space:nowrap}
-.bn-item:hover{color:var(--text-dim)}
+.bn-item:hover{color:var(--text)}
 .bn-item.active{color:var(--accent-2)}
 .bn-item.active svg{transform:translateY(-1px);filter:drop-shadow(0 0 8px rgba(139,92,246,.9))}
 .bn-item.active:before{content:"";position:absolute;top:2px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.35),transparent 70%)}
@@ -240,7 +240,7 @@ select option{background:var(--surface-2);color:var(--text)}
 .bn-desktop{display:flex}
 .main-content{margin-left:0;padding:32px 32px 110px}
 .bn-item{min-width:74px;flex-direction:row;gap:8px;padding:10px 16px;border-radius:14px}
-.bn-item svg{width:20px;height:20px}
+.bn-item svg{width:23px;height:23px}
 .bn-item span{font-size:13px}
 .bn-item.active:before{display:none}
 .bn-item.active{background:var(--accent-soft)}
