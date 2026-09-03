@@ -2,6 +2,10 @@
 import { esc, fmtC, fmtD, td, dB } from "../utils.js";
 import { St } from "../store.js";
 import { st, sm, cm, closeModal } from "../ui.js";
+import { imprimirDocumento } from "./impressao.js";
+
+// guarda os dados da ultima fatura exibida para permitir impressao premium
+var faturaAtual = null;
 
 export function renderCheckout(){var el=document.getElementById("pageContent");
 var ativas=St.ga("r").filter(function(r){return r.status==="checkin"});
@@ -23,6 +27,12 @@ var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
 var total=diarias+totalServicos+taxaImp;
 var temServicos=servicos.length>0;
 
+// guarda os dados para impressao premium
+faturaAtual={ id:id, hospede:(h?h.nome:""), documento:(h?h.documento:""), quarto:(q?q.numero:""),
+  checkin:r.dataCheckin, checkout:hoje, noites:noitesReais, tipo:(tq?tq.nome:""),
+  diarias:diarias, servicos:servicos.map(function(o){var sv=St.fi("sv",o.servicoId);return {nome:sv?sv.nome:"-",qtd:o.quantidade,unit:o.precoUnit,total:o.total};}),
+  taxa:taxa, taxaImp:taxaImp, total:total };
+
 var fatura='<div style="background:var(--surface-2);padding:20px;border-radius:12px;margin-bottom:16px">'+
 '<h4 style="margin-bottom:12px;color:var(--text)">Fatura - '+(h?esc(h.nome):"")+' (Apto '+(q?q.numero:"")+')</h4>'+
 '<table style="margin-bottom:8px"><tr><td>Periodo:</td><td>'+fmtD(r.dataCheckin)+' a '+fmtD(hoje)+' ('+noitesReais+' noite(s))</td></tr>'+
@@ -36,7 +46,22 @@ servicos.map(function(o){var sv=St.fi("sv",o.servicoId);return'<tr><td>'+(sv?esc
 config.pm.map(function(p){return'<option value="'+p+'">'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</option>'}).join('')+'</select></div>'+
 '<div class="form-group"><label>Observacoes</label><textarea id="coObs" rows="2" placeholder="Observacoes do checkout"></textarea></div>';
 
-sm("Check-out - Fatura",fatura,'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="finalizarCheckout(\''+id+'\')">Finalizar Check-out</button>');}
+sm("Check-out - Fatura",fatura,'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-secondary" onclick="imprimirFatura()">Imprimir Fatura</button><button class="btn btn-primary" onclick="finalizarCheckout(\''+id+'\')">Finalizar Check-out</button>');}
+
+// Impressao premium da fatura (layout padrao do sistema)
+export function imprimirFatura(){
+  if(!faturaAtual)return st("Nenhuma fatura para imprimir.","warning");
+  var f=faturaAtual;
+  var corpo='<div class="cards"><div class="card"><h4>Hospede</h4><div class="v" style="font-size:14px">'+esc(f.hospede)+'</div></div>'+
+    '<div class="card"><h4>Quarto</h4><div class="v" style="font-size:14px">Apto '+esc(f.quarto)+'</div></div>'+
+    '<div class="card"><h4>Periodo</h4><div class="v" style="font-size:13px">'+fmtD(f.checkin)+' a '+fmtD(f.checkout)+'</div></div></div>';
+  corpo+='<table><tr><th>Descricao</th><th>Detalhe</th><th>Valor</th></tr>'+
+    '<tr><td>Diarias</td><td>'+f.noites+' noite(s) - '+esc(f.tipo)+'</td><td>'+fmtC(f.diarias)+'</td></tr>'+
+    f.servicos.map(function(s){return '<tr><td>'+esc(s.nome)+'</td><td>'+s.qtd+' x '+fmtC(s.unit)+'</td><td>'+fmtC(s.total)+'</td></tr>';}).join('')+
+    '<tr><td>Taxa de servico</td><td>'+f.taxa+'%</td><td>'+fmtC(f.taxaImp)+'</td></tr>'+
+    '<tr style="font-weight:800"><td>TOTAL</td><td></td><td>'+fmtC(f.total)+'</td></tr></table>';
+  imprimirDocumento("Fatura de Hospedagem", "Hospede: "+f.hospede+(f.documento?(" - "+f.documento):""), corpo);
+}
 
 export function finalizarCheckout(id){var r=St.fi("r",id);if(!r)return;
 var hoje=td(),noitesReais=Math.max(1,dB(r.dataCheckin,hoje));

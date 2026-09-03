@@ -3,6 +3,17 @@ import { esc, fmtC, fmtD, td } from "../utils.js";
 import { St } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
+import { imprimirDocumento } from "./impressao.js";
+
+var TITULOS_FIN = { resumo:"Resumo Financeiro", receitas:"Receitas", despesas:"Despesas", contas:"Contas a Pagar e Receber", caixa:"Caixa por Turno" };
+// imprime a aba atual do financeiro no layout premium
+export function imprimirFinanceiroAtual(){
+  var el=document.getElementById("financeiroContent");if(!el)return;
+  var clone=el.cloneNode(true);
+  clone.querySelectorAll(".no-print, button").forEach(function(n){n.remove()});
+  var sub=(periodo.fi||periodo.ff)?("Periodo: "+(periodo.fi?fmtD(periodo.fi):"inicio")+" a "+(periodo.ff?fmtD(periodo.ff):"hoje")):"Periodo: todo o historico";
+  imprimirDocumento(TITULOS_FIN[abaAtual]||"Financeiro", sub, clone.innerHTML);
+}
 
 var CATEGORIAS_DESPESA = ["Folha de Pagamento","Fornecedores","Contas (agua/luz/internet)","Manutencao","Impostos","Marketing","Outros"];
 var FORMAS = ["dinheiro","cartao","pix","boleto","transferencia"];
@@ -68,7 +79,7 @@ function buildResumo(){
     var saldo=(r.total||0)-pagoDaReserva; return s+(saldo>0?saldo:0);
   },0);
   var lucroCor = lucro>=0?"#43d18c":"#f16a6e";
-  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Resultado do Periodo'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button></div>'+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Resultado do Periodo'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:#43d18c">'+fmtC(receita)+'</div></div>'+
   '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:#f16a6e">'+fmtC(despesa)+'</div></div>'+
@@ -90,7 +101,7 @@ function buildComparativoMensal(){
   if(!chaves.length)return'<div class="report-container"><p style="color:var(--text-mute)">Sem dados para o comparativo mensal.</p></div>';
   var html='<div class="report-container"><h3 style="margin-bottom:14px;color:var(--text)">Comparativo Mensal (ultimos 12 meses)</h3><table><tr><th>Mes</th><th>Receita</th><th>Despesa</th><th>Lucro</th></tr>'+
   chaves.map(function(m){var v=meses[m];var l=v.r-v.d;return'<tr><td>'+m.split("-").reverse().join("/")+'</td><td style="color:#43d18c">'+fmtC(v.r)+'</td><td style="color:#f16a6e">'+fmtC(v.d)+'</td><td style="color:'+(l>=0?"#43d18c":"#f16a6e")+'">'+fmtC(l)+'</td></tr>'}).join('')+'</table></div>'+
-  '<div style="text-align:right"><button class="btn btn-secondary" onclick="window.print()">Imprimir</button></div>';
+  '<div class="no-print" style="text-align:right"><button class="btn btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>';
   return html;
 }
 
@@ -99,7 +110,7 @@ function buildReceitas(){
   var pg=noPeriodo(St.ga("pg")), hospedes=St.ga("h");
   var total=pg.reduce(function(s,p){return s+(p.valor||0)},0);
   var porForma={};pg.forEach(function(p){porForma[p.forma]=(porForma[p.forma]||0)+(p.valor||0)});
-  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Receitas'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarReceitasCSV()">Exportar CSV</button></div>'+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Receitas'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarReceitasCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
   '<div class="cards-row"><div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:#43d18c">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Transacoes</h3><div class="value">'+pg.length+'</div></div></div>';
   if(Object.keys(porForma).length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por Forma de Pagamento</h3><table><tr><th>Forma</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porForma).map(function(f){var pc=total?Math.round(porForma[f]/total*100):0;return'<tr><td>'+esc(cap(f))+'</td><td>'+fmtC(porForma[f])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
@@ -114,7 +125,7 @@ function buildDespesas(){
   var ds=noPeriodo(despesasPagas());
   var total=ds.reduce(function(s,d){return s+(d.valor||0)},0);
   var porCat={};ds.forEach(function(d){var c=d.categoria||"Outros";porCat[c]=(porCat[c]||0)+(d.valor||0)});
-  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Despesas'+labelPeriodo()+'</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="showNovaDespesa()">+ Nova Despesa</button><button class="btn btn-sm btn-secondary" onclick="exportarDespesasCSV()">Exportar CSV</button></div></div>'+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Despesas'+labelPeriodo()+'</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="showNovaDespesa()">+ Nova Despesa</button><button class="btn btn-sm btn-secondary" onclick="exportarDespesasCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
   '<div class="cards-row"><div class="stat-card"><h3>Total de Despesas</h3><div class="value" style="color:#f16a6e">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Lancamentos</h3><div class="value">'+ds.length+'</div></div></div>';
   if(Object.keys(porCat).length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por Categoria</h3><table><tr><th>Categoria</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porCat).map(function(c){var pc=total?Math.round(porCat[c]/total*100):0;return'<tr><td>'+esc(c)+'</td><td>'+fmtC(porCat[c])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
@@ -171,7 +182,7 @@ function buildContas(){
   });
   var totalReceber=aReceber.reduce(function(s,x){return s+x.saldo},0);
 
-  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Contas a Pagar e a Receber</h3><button class="btn btn-sm btn-primary" onclick="showNovaContaPagar()">+ Conta a Pagar</button></div>'+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Contas a Pagar e a Receber</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="showNovaContaPagar()">+ Conta a Pagar</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>A Pagar</h3><div class="value" style="color:#f16a6e">'+fmtC(totalPagar)+'</div><div class="sub">'+aPagar.length+' conta(s)'+(vencidas.length?(" &middot; "+vencidas.length+" vencida(s)"):"")+'</div></div>'+
   '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:#f0a83c">'+fmtC(totalReceber)+'</div><div class="sub">'+aReceber.length+' reserva(s) em aberto</div></div>'+
