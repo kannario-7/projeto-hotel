@@ -50,6 +50,28 @@ function render(tipo){
 }
 
 function noPer(lista,campo){campo=campo||"data";return lista.filter(function(x){var v=x[campo];if(!v)return false;if(periodo.fi&&v<periodo.fi)return false;if(periodo.ff&&v>periodo.ff)return false;return true;});}
+
+// grafico de barras horizontais: itens = [{label, valor, exib}] ; classe opcional pos/neg
+function barrasH(itens, classe){
+  if(!itens.length)return "";
+  var max=Math.max.apply(null,itens.map(function(i){return Math.abs(i.valor)||0}));if(!max)max=1;
+  return '<div class="chart">'+itens.map(function(i){
+    var pct=Math.round(Math.abs(i.valor)/max*100);
+    var dentro=pct>32; // se a barra e larga, texto dentro; senao fora
+    var val=i.exib!=null?i.exib:i.valor;
+    return '<div class="chart-row"><div class="chart-label" title="'+esc(i.label)+'">'+esc(i.label)+'</div><div class="chart-track"><div class="chart-fill '+(classe||"")+'" style="width:'+pct+'%">'+(dentro?'<span class="chart-val">'+esc(val)+'</span>':'')+'</div>'+(dentro?'':'<span class="chart-val out" style="position:absolute;left:calc('+pct+'% + 8px);top:50%;transform:translateY(-50%)">'+esc(val)+'</span>')+'</div></div>';
+  }).join('')+'</div>';
+}
+// grafico de colunas (comparativo receita x despesa por mes): meses=[{lbl, rec, des}]
+function colunasMes(meses){
+  if(!meses.length)return "";
+  var max=Math.max.apply(null,meses.map(function(m){return Math.max(m.rec||0,m.des||0)}));if(!max)max=1;
+  return '<div class="chart-legend"><span><i style="background:#43d18c"></i>Receita</span><span><i style="background:#f16a6e"></i>Despesa</span></div>'+
+  '<div class="chartc">'+meses.map(function(m){
+    var hr=Math.round((m.rec||0)/max*100),hd=Math.round((m.des||0)/max*100);
+    return '<div class="chartc-col"><div class="chartc-bars"><div class="chartc-bar rec" style="height:'+hr+'%" title="Receita: '+fmtC(m.rec)+'"></div><div class="chartc-bar des" style="height:'+hd+'%" title="Despesa: '+fmtC(m.des)+'"></div></div><div class="chartc-lbl">'+esc(m.lbl)+'</div></div>';
+  }).join('')+'</div>';
+}
 function labelPer(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi?fmtD(periodo.fi):"inicio")+' a '+(periodo.ff?fmtD(periodo.ff):"hoje");return' &middot; todo o periodo';}
 function diasPeriodo(){ // numero de dias do periodo (para RevPAR); se sem filtro, usa amplitude das reservas
   if(periodo.fi&&periodo.ff){var d=dB(periodo.fi,periodo.ff);return d>0?d:1;}
@@ -84,6 +106,13 @@ function buildOcupacao(){
   var taxaOcup=quartoNoitesDisp?Math.round(noitesVendidas/quartoNoitesDisp*100):0;
   var adr=noitesVendidas?Math.round(receitaDiarias/noitesVendidas):0;      // diaria media
   var revpar=quartoNoitesDisp?Math.round(receitaDiarias/quartoNoitesDisp):0; // receita por quarto disponivel
+  // TrevPAR: receita TOTAL (diarias + servicos/consumo) por quarto disponivel
+  var recServicos=noPer(St.ga("os")).reduce(function(s,c){return s+(c.total||0)},0);
+  var receitaTotal=receitaDiarias+recServicos;
+  var trevpar=quartoNoitesDisp?Math.round(receitaTotal/quartoNoitesDisp):0;
+  // GOPPAR: (receita total - despesas do periodo) por quarto disponivel
+  var despesasPeriodo=noPer(St.ga("ds").filter(function(d){return d.pago!==false})).reduce(function(s,d){return s+(d.valor||0)},0);
+  var goppar=quartoNoitesDisp?Math.round((receitaTotal-despesasPeriodo)/quartoNoitesDisp):0;
   // status atual dos quartos
   var ocupados=quartos.filter(function(q){return q.status==="ocupado"}).length;
   var disp=quartos.filter(function(q){return q.status==="disponivel"}).length;
@@ -93,13 +122,19 @@ function buildOcupacao(){
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Taxa de Ocupacao</h3><div class="value">'+taxaOcup+'%</div><div class="sub">'+noitesVendidas+' de '+quartoNoitesDisp+' noites</div></div>'+
   '<div class="stat-card"><h3>Diaria Media (ADR)</h3><div class="value">'+fmtC(adr)+'</div></div>'+
-  '<div class="stat-card"><h3>RevPAR</h3><div class="value">'+fmtC(revpar)+'</div><div class="sub">receita/quarto disp.</div></div>'+
+  '<div class="stat-card"><h3>RevPAR</h3><div class="value">'+fmtC(revpar)+'</div><div class="sub">receita diarias/quarto disp.</div></div>'+
+  '<div class="stat-card"><h3>TrevPAR</h3><div class="value">'+fmtC(trevpar)+'</div><div class="sub">receita total/quarto disp.</div></div>'+
+  '<div class="stat-card"><h3>GOPPAR</h3><div class="value" style="color:'+(goppar>=0?"#43d18c":"#f16a6e")+'">'+fmtC(goppar)+'</div><div class="sub">lucro/quarto disp.</div></div>'+
   '<div class="stat-card"><h3>Noites Vendidas</h3><div class="value">'+noitesVendidas+'</div></div>'+
   '<div class="stat-card"><h3>Receita de Diarias</h3><div class="value">'+fmtC(receitaDiarias)+'</div></div>'+
   '</div>'+
-  '<h3 style="margin:18px 0 10px;color:var(--text)">Status atual dos quartos</h3><table><tr><th>Status</th><th>Qtd</th><th>%</th></tr>'+
-  [["Ocupados",ocupados],["Disponiveis",disp],["Em manutencao",manut],["Em limpeza",limp]].map(function(x){var pc=totalQuartos?Math.round(x[1]/totalQuartos*100):0;return'<tr><td>'+x[0]+'</td><td>'+x[1]+'</td><td>'+pc+'%</td></tr>'}).join('')+
-  '<tr><td><b>Total</b></td><td><b>'+totalQuartos+'</b></td><td><b>100%</b></td></tr></table>'+
+  '<h3 style="margin:18px 0 10px;color:var(--text)">Status atual dos quartos</h3>'+
+  barrasH([
+    {label:"Ocupados",valor:ocupados,exib:ocupados+" ("+(totalQuartos?Math.round(ocupados/totalQuartos*100):0)+"%)"},
+    {label:"Disponiveis",valor:disp,exib:disp+" ("+(totalQuartos?Math.round(disp/totalQuartos*100):0)+"%)"},
+    {label:"Manutencao",valor:manut,exib:""+manut},
+    {label:"Limpeza",valor:limp,exib:""+limp}
+  ])+
   '</div>'+acoesRel("ocupacao");
   return html;
 }
@@ -119,9 +154,9 @@ function buildReceita(){
   '<div class="stat-card"><h3>Diarias (reservas)</h3><div class="value">'+fmtC(recDiarias)+'</div></div>'+
   '<div class="stat-card"><h3>Servicos/Consumo</h3><div class="value">'+fmtC(recServicos)+'</div></div>'+
   '</div>';
-  var dias=Object.keys(porDia).sort().reverse();
-  if(dias.length){html+='<h3 style="margin:18px 0 10px;color:var(--text)">Receita por Dia</h3><table><tr><th>Data</th><th>Recebido</th></tr>'+
-  dias.map(function(d){return'<tr><td>'+fmtD(d)+'</td><td>'+fmtC(porDia[d])+'</td></tr>'}).join('')+'</table>';}
+  var dias=Object.keys(porDia).sort().slice(-15); // ultimos 15 dias com movimento, em ordem
+  if(dias.length){html+='<h3 style="margin:18px 0 10px;color:var(--text)">Receita por Dia</h3>'+
+  barrasH(dias.map(function(d){return {label:fmtD(d).slice(0,5),valor:porDia[d],exib:fmtC(porDia[d])}}),"pos");}
   else{html+='<p style="color:var(--text-mute);padding:16px 0">Nenhuma receita no periodo.</p>';}
   html+='</div>'+acoesRel("receita");
   return html;
@@ -135,7 +170,10 @@ function buildPorTipo(){
   var linhas=Object.keys(stats).map(function(k){return stats[k]}).filter(function(s){return true;});
   var totalRec=linhas.reduce(function(s,x){return s+x.receita},0);
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Desempenho por Tipo de Quarto'+labelPer()+'</h3>';
-  if(linhas.length){html+='<table><tr><th>Tipo</th><th>Reservas</th><th>Noites</th><th>Receita</th><th>% Receita</th></tr>'+
+  if(linhas.length){
+    html+='<h4 style="margin:4px 0 8px;color:var(--text-dim);font-weight:600">Receita por tipo</h4>'+
+    barrasH(linhas.slice().sort(function(a,b){return b.receita-a.receita}).map(function(s){return {label:s.nome,valor:s.receita,exib:fmtC(s.receita)}}))+
+    '<table><tr><th>Tipo</th><th>Reservas</th><th>Noites</th><th>Receita</th><th>% Receita</th></tr>'+
   linhas.sort(function(a,b){return b.receita-a.receita}).map(function(s){var pc=totalRec?Math.round(s.receita/totalRec*100):0;return'<tr><td>'+esc(s.nome)+'</td><td>'+s.reservas+'</td><td>'+s.noites+'</td><td>'+fmtC(s.receita)+'</td><td>'+pc+'%</td></tr>'}).join('')+
   '<tr><td><b>Total</b></td><td><b>'+linhas.reduce(function(s,x){return s+x.reservas},0)+'</b></td><td><b>'+linhas.reduce(function(s,x){return s+x.noites},0)+'</b></td><td><b>'+fmtC(totalRec)+'</b></td><td><b>100%</b></td></tr></table>';}
   else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem dados de reservas no periodo.</p>';}
@@ -200,6 +238,13 @@ function buildFluxoCaixa(){
   '<div class="stat-card"><h3>Saidas</h3><div class="value" style="color:#f16a6e">'+fmtC(totSai)+'</div></div>'+
   '<div class="stat-card"><h3>Saldo do Periodo</h3><div class="value" style="color:'+(saldo>=0?"#43d18c":"#f16a6e")+'">'+fmtC(saldo)+'</div></div>'+
   '</div>';
+  // grafico de colunas por mes (receita x despesa)
+  var porMes={};
+  St.ga("pg").forEach(function(p){var m=p.data?p.data.slice(0,7):"";if(m){porMes[m]=porMes[m]||{rec:0,des:0};porMes[m].rec+=(p.valor||0);}});
+  St.ga("ds").filter(function(d){return d.pago!==false}).forEach(function(x){var m=x.data?x.data.slice(0,7):"";if(m){porMes[m]=porMes[m]||{rec:0,des:0};porMes[m].des+=(x.valor||0);}});
+  var mesesChaves=Object.keys(porMes).sort().slice(-6);
+  if(mesesChaves.length){html+='<h3 style="margin:18px 0 6px;color:var(--text)">Receita x Despesa (ultimos meses)</h3>'+
+  colunasMes(mesesChaves.map(function(m){return {lbl:m.slice(5)+"/"+m.slice(2,4),rec:porMes[m].rec,des:porMes[m].des}}));}
   if(chaves.length){var acum=0;html+='<h3 style="margin:18px 0 10px;color:var(--text)">Movimento Diario</h3><table><tr><th>Data</th><th>Entradas</th><th>Saidas</th><th>Saldo do dia</th><th>Saldo acumulado</th></tr>'+
   chaves.map(function(d){var v=dias[d];var sd=v.ent-v.sai;acum+=sd;return'<tr><td>'+fmtD(d)+'</td><td style="color:#43d18c">'+fmtC(v.ent)+'</td><td style="color:#f16a6e">'+fmtC(v.sai)+'</td><td style="color:'+(sd>=0?"#43d18c":"#f16a6e")+'">'+fmtC(sd)+'</td><td style="color:'+(acum>=0?"#43d18c":"#f16a6e")+'"><b>'+fmtC(acum)+'</b></td></tr>'}).join('')+'</table>';}
   else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem movimentacoes no periodo.</p>';}

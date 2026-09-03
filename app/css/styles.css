@@ -342,3 +342,24 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 
 /* Copyright na tela de login */
 .login-copy{text-align:center;color:var(--text-mute);font-size:11px;margin-top:6px;letter-spacing:.3px}
+
+/* Graficos de barras em CSS puro (relatorios) */
+.chart{display:flex;flex-direction:column;gap:10px;margin:12px 0 18px}
+.chart-row{display:flex;align-items:center;gap:12px}
+.chart-label{flex:none;width:90px;font-size:12px;color:var(--text-dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-track{flex:1;background:var(--surface-2);border-radius:8px;height:26px;position:relative;overflow:hidden}
+.chart-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:flex-end;padding:0 10px;min-width:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.chart-fill.pos{background:linear-gradient(90deg,#2f9e6b,#43d18c)}
+.chart-fill.neg{background:linear-gradient(90deg,#c0454a,#f16a6e)}
+.chart-val{font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.chart-val.out{color:var(--text);position:absolute;right:-0;padding-left:8px}
+/* barras verticais (colunas) para comparativo mensal */
+.chartc{display:flex;align-items:flex-end;gap:8px;height:160px;margin:14px 0 8px;padding-top:10px}
+.chartc-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+.chartc-bars{display:flex;gap:3px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.chartc-bar{width:14px;border-radius:4px 4px 0 0;min-height:2px;transition:height .5s ease}
+.chartc-bar.rec{background:#43d18c}
+.chartc-bar.des{background:#f16a6e}
+.chartc-lbl{font-size:10px;color:var(--text-mute);white-space:nowrap}
+.chart-legend{display:flex;gap:16px;font-size:11px;color:var(--text-dim);margin-bottom:4px}
+.chart-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
