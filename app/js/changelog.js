@@ -2,8 +2,14 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.2.0";
+export var APP_VERSION="1.3.0";
 export var CHANGELOG=[
+{v:"1.3.0",data:"2026-09-02",mudancas:[
+{t:"novo",d:"Relatorios com graficos visuais de barras e colunas."},
+{t:"novo",d:"Metricas hoteleiras TrevPAR e GOPPAR na ocupacao."},
+{t:"novo",d:"Balancete de Resultados: visao consolidada do financeiro em uma tela."},
+{t:"melhoria",d:"Impressao profissional em todas as areas (relatorios e fatura), com os dados do seu hotel."}
+]},
 {v:"1.2.0",data:"2026-09-02",mudancas:[
 {t:"novo",d:"Financeiro completo: resumo com lucro liquido, ticket medio e contas a receber."},
 {t:"novo",d:"Controle de despesas por categoria e comparativo mensal."},
