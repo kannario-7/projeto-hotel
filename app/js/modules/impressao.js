@@ -32,8 +32,6 @@ export function imprimirDocumento(titulo, subtitulo, corpoHTML){
   var h = dadosHotel();
   var contato = [h.tel, h.email].filter(Boolean).join(" · ");
   var docLinha = [h.razao, h.doc?("CNPJ/CPF: "+h.doc):""].filter(Boolean).join(" · ");
-  var win = window.open("", "_blank");
-  if(!win){ st("Permita pop-ups para gerar o relatorio.","warning"); return; }
   var css = ''+
   '@page{margin:18mm 16mm}'+
   '*{box-sizing:border-box}'+
@@ -71,10 +69,25 @@ export function imprimirDocumento(titulo, subtitulo, corpoHTML){
     (subtitulo?'<div class="doc-period">'+esc(subtitulo)+'</div>':'')+
     corpo+
     '<div class="doc-foot"><span>'+esc(h.nome)+' · Documento gerado pelo HospedaPrime</span><span>'+agora()+'</span></div>'+
-    '<div class="no-print" style="text-align:center;margin-top:20px"><button onclick="window.print()" style="background:#8b5cf6;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer">Imprimir / Salvar PDF</button></div>'+
     '</body></html>';
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  setTimeout(function(){ try{ win.focus(); }catch(e){} }, 200);
+
+  // Imprime via IFRAME oculto: abre o dialogo de impressao do sistema na propria tela,
+  // sem abrir uma nova janela/aba de documento.
+  var antigo = document.getElementById("printFrame");
+  if(antigo) antigo.remove();
+  var frame = document.createElement("iframe");
+  frame.id = "printFrame";
+  frame.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+  document.body.appendChild(frame);
+  var doc = frame.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+  // aguarda o conteudo (fontes/layout) e dispara o dialogo de impressao
+  var disparar = function(){
+    try{ frame.contentWindow.focus(); frame.contentWindow.print(); }
+    catch(e){ st("Nao foi possivel abrir a impressao.","error"); }
+  };
+  if(frame.contentWindow.document.readyState === "complete"){ setTimeout(disparar, 300); }
+  else { frame.onload = function(){ setTimeout(disparar, 300); }; }
+  // limpa o iframe depois de um tempo (apos o dialogo)
+  setTimeout(function(){ try{ frame.remove(); }catch(e){} }, 60000);
 }

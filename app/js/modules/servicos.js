@@ -11,8 +11,10 @@ el.innerHTML='<div class="page-header"><div><h2>Servicos</h2><p>Gerenciar servic
 '<div id="tabServicosLista">'+buildServicosTable(servicos)+'</div>'+
 '<div id="tabServicosConsumo" style="display:none">'+(os.length?buildConsumoServicosTable(os,reservas,hospedes,servicos):'<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhum consumo registrado.</p>')+'</div>';}
 
-function buildServicosTable(servicos){if(!servicos.length)return'<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhum servico cadastrado.</p>';
-return'<button class="btn btn-primary" onclick="showNovoServico()" style="margin-bottom:16px">+ Novo Servico</button><table><tr><th>Servico</th><th>Preco</th><th>Categoria</th><th>Acoes</th></tr>'+
+function buildServicosTable(servicos){
+  var topo='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><p style="color:var(--text-mute);font-size:13px;margin:0">Cadastre os servicos que o hotel oferece (cafe, lavanderia, frigobar, etc.). Depois lance o consumo na aba Consumo.</p><button class="btn btn-primary" onclick="showNovoServico()">+ Novo Servico</button></div>';
+  if(!servicos.length)return topo+'<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhum servico cadastrado ainda. Clique em "+ Novo Servico" para adicionar o primeiro.</p>';
+  return topo+'<table><tr><th>Servico</th><th>Preco</th><th>Categoria</th><th>Acoes</th></tr>'+
 servicos.map(function(s){return'<tr><td>'+esc(s.nome)+'</td><td>'+fmtC(s.preco)+'</td><td>'+esc(s.categoria||"-")+'</td><td><button class="btn btn-sm btn-primary" onclick="editarServico(\''+s.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirServico(\''+s.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>'}
 
 export function renderServicosLista(){document.getElementById("tabServicosLista").innerHTML=buildServicosTable(St.ga("sv"))}
