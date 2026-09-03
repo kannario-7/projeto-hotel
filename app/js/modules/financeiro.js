@@ -5,7 +5,7 @@ import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { imprimirDocumento } from "./impressao.js";
 
-var TITULOS_FIN = { resumo:"Resumo Financeiro", receitas:"Receitas", despesas:"Despesas", contas:"Contas a Pagar e Receber", caixa:"Caixa por Turno" };
+var TITULOS_FIN = { resumo:"Resumo Financeiro", receitas:"Receitas", despesas:"Despesas", contas:"Contas a Pagar e Receber", caixa:"Caixa por Turno", balancete:"Balancete de Resultados" };
 // imprime a aba atual do financeiro no layout premium
 export function imprimirFinanceiroAtual(){
   var el=document.getElementById("financeiroContent");if(!el)return;
@@ -34,6 +34,7 @@ el.innerHTML='<div class="page-header"><div><h2>Financeiro</h2><p>Controle finan
 '<div class="tab" onclick="mudarFinTab(this,\'despesas\')">Despesas</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'contas\')">Contas a Pagar/Receber</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'caixa\')">Caixa</div>'+
+'<div class="tab" onclick="mudarFinTab(this,\'balancete\')">Balancete</div>'+
 '</div><div id="financeiroContent">'+buildResumo()+'</div>';}
 
 var abaAtual = "resumo";
@@ -43,6 +44,7 @@ function renderAbaFin(aba){
   if(aba==="despesas")return buildDespesas();
   if(aba==="contas")return buildContas();
   if(aba==="caixa")return buildCaixa();
+  if(aba==="balancete")return buildBalancete();
   return buildResumo();
 }
 export function mudarFinTab(tab,aba){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");abaAtual=aba;
@@ -163,6 +165,63 @@ export function excluirDespesa(id){
     St.rm("ds",id);st("Despesa excluida.","warning");
     document.getElementById("financeiroContent").innerHTML=buildDespesas();
   });
+}
+
+// ---- BALANCETE DE RESULTADOS (visao consolidada) ----
+function linhaBal(lbl,val,cls,total){return '<div class="bal-line'+(total?" total":"")+'"><span class="bl-lbl">'+esc(lbl)+'</span><span class="bl-val '+(cls||"")+'">'+val+'</span></div>';}
+function buildBalancete(){
+  var pg=noPeriodo(St.ga("pg")), reservas=St.ga("r");
+  var ds=noPeriodo(despesasPagas());
+  // receitas
+  var receita=pg.reduce(function(s,p){return s+(p.valor||0)},0);
+  var porForma={};pg.forEach(function(p){porForma[p.forma]=(porForma[p.forma]||0)+(p.valor||0)});
+  var recServicos=noPeriodo(St.ga("os")).reduce(function(s,c){return s+(c.total||0)},0);
+  var recDiarias=receita-recServicos; if(recDiarias<0)recDiarias=0;
+  // despesas
+  var despesa=ds.reduce(function(s,d){return s+(d.valor||0)},0);
+  var porCat={};ds.forEach(function(d){var c=d.categoria||"Outros";porCat[c]=(porCat[c]||0)+(d.valor||0)});
+  var liquido=receita-despesa; var margem=receita?Math.round(liquido/receita*100):0;
+  // cancelamentos / no-show
+  var canceladas=reservas.filter(function(r){return r.status==="cancelada"});
+  var totalCancel=canceladas.reduce(function(s,r){return s+(r.total||0)},0);
+  // contas
+  var aReceber=0;reservas.filter(function(r){return ["confirmada","checkin"].indexOf(r.status)>=0}).forEach(function(r){var p=St.ga("pg").filter(function(x){return x.reservaId===r.id}).reduce(function(a,x){return a+(x.valor||0)},0);var s=(r.total||0)-p;if(s>0)aReceber+=s;});
+  var aPagar=St.ga("ds").filter(function(d){return d.pago===false}).reduce(function(s,d){return s+(d.valor||0)},0);
+  var h=St.gc();
+
+  var secReceitas='<div class="bal-sec"><div class="bal-sec-tit">Receitas por forma</div>'+
+    (Object.keys(porForma).length?Object.keys(porForma).map(function(f){return linhaBal(cap(f),fmtC(porForma[f]))}).join(''):'<div class="bal-line"><span class="bl-lbl" style="color:var(--text-mute)">Sem recebimentos</span><span class="bl-val">R$ 0,00</span></div>')+
+    linhaBal("Total recebido",fmtC(receita),"bal-pos",true)+'</div>';
+
+  var secCancel='<div class="bal-sec"><div class="bal-sec-tit">Cancelamentos</div>'+
+    linhaBal("Reservas canceladas",""+canceladas.length)+
+    linhaBal("Valor cancelado",fmtC(totalCancel))+'</div>';
+
+  var secFat='<div class="bal-sec"><div class="bal-sec-tit">Faturamento</div>'+
+    linhaBal("Receita de diarias",fmtC(recDiarias))+
+    linhaBal("Receita de servicos/consumo",fmtC(recServicos))+
+    linhaBal("(-) Despesas",fmtC(despesa),"bal-neg")+
+    linhaBal("Resultado liquido",fmtC(liquido),(liquido>=0?"bal-pos":"bal-neg"),true)+'</div>';
+
+  var secDesp='<div class="bal-sec"><div class="bal-sec-tit">Despesas por categoria</div>'+
+    (Object.keys(porCat).length?Object.keys(porCat).sort(function(a,b){return porCat[b]-porCat[a]}).map(function(c){return linhaBal(c,fmtC(porCat[c]))}).join(''):'<div class="bal-line"><span class="bl-lbl" style="color:var(--text-mute)">Sem despesas</span><span class="bl-val">R$ 0,00</span></div>')+
+    linhaBal("Total de despesas",fmtC(despesa),"bal-neg",true)+'</div>';
+
+  var secContas='<div class="bal-sec"><div class="bal-sec-tit">Contas</div>'+
+    linhaBal("Contas a receber",fmtC(aReceber),"")+
+    linhaBal("Contas a pagar",fmtC(aPagar),"")+
+    linhaBal("Saldo projetado",fmtC(aReceber-aPagar),((aReceber-aPagar)>=0?"bal-pos":"bal-neg"),true)+'</div>';
+
+  var secIndice='<div class="bal-sec"><div class="bal-sec-tit">Indices</div>'+
+    linhaBal("Margem liquida",margem+"%")+
+    linhaBal("Ticket medio",fmtC(pg.length?Math.round(receita/pg.length):0))+
+    linhaBal("Nº de pagamentos",""+pg.length)+'</div>';
+
+  return '<div class="report-container">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px"><h3 style="color:var(--text)">Balancete de Resultados'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary no-print" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
+    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:10px">Visao consolidada do periodo. Valores de contas a pagar/receber sao previsoes fora da faixa.</p>'+
+    '<div class="bal-grid">'+secReceitas+secCancel+secFat+secDesp+secContas+secIndice+'</div>'+
+    '</div>';
 }
 
 // ---- CONTAS A PAGAR / A RECEBER ----

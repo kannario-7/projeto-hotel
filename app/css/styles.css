@@ -363,3 +363,16 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .chartc-lbl{font-size:10px;color:var(--text-mute);white-space:nowrap}
 .chart-legend{display:flex;gap:16px;font-size:11px;color:var(--text-dim);margin-bottom:4px}
 .chart-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* Balancete de resultados (visao consolidada, estilo documento) */
+.bal-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 40px;margin-top:10px}
+.bal-sec{min-width:0}
+.bal-sec-tit{font-family:Sora,sans-serif;font-size:14px;color:var(--text);font-weight:600;padding-bottom:6px;border-bottom:2px solid var(--border);margin-bottom:10px}
+.bal-line{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:5px 0;font-size:13px}
+.bal-line .bl-lbl{color:var(--text-dim)}
+.bal-line .bl-val{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text);white-space:nowrap}
+.bal-line.total{border-top:1px solid var(--border);margin-top:6px;padding-top:8px;font-weight:700}
+.bal-line.total .bl-lbl,.bal-line.total .bl-val{color:var(--text);font-weight:700}
+.bal-pos{color:#43d18c!important}
+.bal-neg{color:#f16a6e!important}
+@media(max-width:768px){.bal-grid{grid-template-columns:1fr;gap:18px}}
