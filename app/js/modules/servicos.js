@@ -45,14 +45,14 @@ cm();renderServicos()}
 
 export function excluirServico(id){confirmar({titulo:"Excluir servico?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("sv",id);st("Servico excluido.","warning");renderServicos()})}
 
-export function showNovoConsumo(){sm("Novo Consumo",formConsumo(),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarConsumo()">Salvar</button>')}
+export function showNovoConsumo(reservaId){sm("Novo Consumo",formConsumo(reservaId),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarConsumo()">Salvar</button>')}
 
-function formConsumo(){var ativas=St.ga("r").filter(function(r){return r.status==="checkin"});
+function formConsumo(reservaIdSel){var ativas=St.ga("r").filter(function(r){return r.status==="checkin"});
 var servicos=St.ga("sv").filter(function(s){return s.ativo!==false});
 return'<div class="form-grid">'+
 '<div class="form-group"><label>Hospede (Estadia Ativa) *</label><select id="osfReserva">'+
 (ativas.length?'':'<option value="">Nenhum hospede em estadia</option>')+
-ativas.map(function(r){var h=St.fi("h",r.hospedeId);return'<option value="'+r.id+'">'+(h?esc(h.nome):"")+' - Apto '+(St.fi("q",r.quartoId)?St.fi("q",r.quartoId).numero:"")+'</option>'}).join('')+'</select></div>'+
+ativas.map(function(r){var h=St.fi("h",r.hospedeId);return'<option value="'+r.id+'"'+(reservaIdSel&&reservaIdSel===r.id?' selected':'')+'>'+(h?esc(h.nome):"")+' - Apto '+(St.fi("q",r.quartoId)?St.fi("q",r.quartoId).numero:"")+'</option>'}).join('')+'</select></div>'+
 '<div class="form-group"><label>Servico *</label><select id="osfServico">'+servicos.map(function(s){return'<option value="'+s.id+'" data-preco="'+(s.preco||0)+'">'+esc(s.nome)+' - '+fmtC(s.preco)+'</option>'}).join('')+'</select></div>'+
 '<div class="form-group"><label>Quantidade</label><input type="number" id="osfQtd" value="1" min="1"></div>'+
 '<div class="form-group"><label>Data</label><input type="date" id="osfData" value="'+td()+'"></div>'+
@@ -64,6 +64,8 @@ var preco=parseFloat(s.options[s.selectedIndex].dataset.preco||0);
 var qtd=parseInt(q?q.value:1);
 var total=preco*qtd;
 St.in("os",{reservaId:r.value,servicoId:s.value,quantidade:qtd,precoUnit:preco,total:total,data:(d?d.value:td())});
-st("Consumo registrado!","success");cm();renderServicos()}
+st("Consumo registrado!","success");cm();
+// so re-renderiza a tela de servicos se o usuario estiver nela (evita trocar de tela quando lancado pelo check-in)
+if((window.location.hash||"").slice(1)==="s")renderServicos();}
 
 export function excluirConsumo(id){St.rm("os",id);st("Consumo excluido.","warning");renderServicos()}
