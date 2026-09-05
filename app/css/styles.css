@@ -93,6 +93,35 @@ select option{background:var(--surface-2);color:var(--text)}
 .mapa-legenda .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .dot-disponivel{background:#30a46c}.dot-ocupado{background:var(--accent)}.dot-reservado{background:#f5b53d}.dot-limpeza{background:#3aa0d1}.dot-manutencao{background:#e5484d}
 .mapa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+
+/* ===== Mapa de ocupacao (grade quarto x dias) ===== */
+.mapa-oc-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.mapa-oc-periodo{font-weight:600;color:var(--text);font-size:13px;margin-left:4px}
+.mapa-oc-legenda{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--text-dim);margin-left:auto}
+.mapa-oc-legenda .oc-cell{width:16px;height:16px;border-radius:4px;display:inline-block;vertical-align:-3px;cursor:default;margin-left:8px}
+.mapa-oc-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+table.mapa-oc{border-collapse:separate;border-spacing:0;width:100%;min-width:640px}
+table.mapa-oc th,table.mapa-oc td{border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
+table.mapa-oc thead th{position:sticky;top:0;background:var(--surface-2);z-index:2;padding:8px 4px;text-align:center;font-weight:600}
+.oc-dia{min-width:44px}
+.oc-dia .oc-dow{display:block;font-size:10px;color:var(--text-mute);text-transform:uppercase}
+.oc-dia .oc-dnum{display:block;font-size:12px;color:var(--text);font-weight:700}
+.oc-dia.oc-hoje{background:var(--accent-soft)}
+.oc-dia.oc-hoje .oc-dnum{color:var(--accent-2)}
+.oc-quarto{position:sticky;left:0;background:var(--surface-2);z-index:1;text-align:left;padding:8px 12px;min-width:120px}
+.oc-quarto.oc-corner{z-index:3}
+.oc-quarto b{display:block;color:var(--text);font-size:14px}
+.oc-quarto small{color:var(--text-mute);font-size:11px}
+td.oc-cell{height:40px;padding:0;cursor:pointer;transition:filter .12s;text-align:center}
+td.oc-cell:hover{filter:brightness(1.25)}
+.oc-livre{background:transparent}
+.oc-livre:hover{background:var(--surface-2)}
+.oc-confirmada{background:#f5b53d}
+.oc-checkin{background:var(--accent)}
+.oc-pendente{background:rgba(245,181,61,.4)}
+.oc-ini-lbl{font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+/* borda esquerda arredondada no primeiro dia da reserva, pra dar sensacao de "faixa" */
+td.oc-ini{border-left:3px solid rgba(255,255,255,.55)}
 .qcard{border-radius:14px;padding:14px;cursor:pointer;border:1px solid var(--border);background:var(--surface-2);transition:transform .18s,box-shadow .2s,border-color .2s;position:relative;overflow:hidden}
 .qcard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
 .qcard:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.4)}

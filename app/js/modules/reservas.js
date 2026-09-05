@@ -6,7 +6,7 @@ import { ehErroOverbooking } from "../db.js";
 
 export function renderReservas(){var el=document.getElementById("pageContent");
 var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
-el.innerHTML='<div class="page-header"><div><h2>Reservas</h2><p>Gerenciar reservas do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button></div></div>';
+el.innerHTML='<div class="page-header"><div><h2>Reservas</h2><p>Gerenciar reservas do hotel</p></div><div class="page-header-actions"><button class="btn btn-secondary" onclick="abrirMapaOcupacao()">Mapa de ocupacao</button><button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button></div></div>';
 
 var filtro='<div id="reservaFiltros" style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">'+
 '<button class="btn btn-sm btn-primary" data-filtro="" onclick="filtrarReservas(\'\')">Todas</button>'+
@@ -227,3 +227,115 @@ if(!res.ok){
 }
 st(id?"Reserva atualizada!":"Reserva criada!","success");
 cm();renderReservas()}
+
+// ===================== MAPA DE OCUPACAO (grade quarto x dias) =====================
+var _mapaInicio=null;   // data (YYYY-MM-DD) do primeiro dia exibido
+var MAPA_DIAS=14;       // quantos dias mostrar por vez
+
+function somarDias(iso, n){
+  var p=iso.split("-"); var d=new Date(Number(p[0]),Number(p[1])-1,Number(p[2]));
+  d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+var DIAS_SEMANA=["Dom","Seg","Ter","Qua","Qui","Sex","Sab"];
+function diaSemana(iso){var p=iso.split("-");return DIAS_SEMANA[new Date(Number(p[0]),Number(p[1])-1,Number(p[2])).getDay()];}
+
+// Reserva ATIVA que ocupa um quarto num dia especifico (dia dentro de [checkin, checkout))
+function reservaNoDia(quartoId, dia, reservas){
+  return reservas.find(function(r){
+    return r.quartoId===quartoId &&
+      ["pendente","confirmada","checkin"].indexOf(r.status)>=0 &&
+      r.dataCheckin<=dia && r.dataCheckout>dia;
+  })||null;
+}
+
+export function abrirMapaOcupacao(){
+  if(!_mapaInicio)_mapaInicio=td();
+  pintarMapaOcupacao();
+}
+export function mapaNavegar(n){ _mapaInicio=somarDias(_mapaInicio, n); pintarMapaOcupacao(); }
+export function mapaHoje(){ _mapaInicio=td(); pintarMapaOcupacao(); }
+
+function pintarMapaOcupacao(){
+  var el=document.getElementById("pageContent");
+  var quartos=St.ga("q").filter(function(q){return q.ativo!==false}).sort(function(a,b){return (""+a.numero).localeCompare(""+b.numero,undefined,{numeric:true})});
+  var reservas=St.ga("r");
+  var tq=St.ga("tq");
+  var hoje=td();
+  // monta os dias
+  var dias=[]; for(var i=0;i<MAPA_DIAS;i++) dias.push(somarDias(_mapaInicio,i));
+  var fimISO=dias[dias.length-1];
+
+  var header='<div class="page-header"><div><h2>Mapa de ocupacao</h2><p>Ocupacao por quarto e por dia</p></div>'+
+    '<div class="page-header-actions">'+
+      '<button class="btn btn-secondary" onclick="renderReservas()">Voltar</button>'+
+      '<button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button>'+
+    '</div></div>';
+
+  var controles='<div class="mapa-oc-ctrl">'+
+    '<button class="btn btn-sm btn-secondary" onclick="mapaNavegar(-'+MAPA_DIAS+')">&laquo; Anterior</button>'+
+    '<button class="btn btn-sm btn-secondary" onclick="mapaHoje()">Hoje</button>'+
+    '<button class="btn btn-sm btn-secondary" onclick="mapaNavegar('+MAPA_DIAS+')">Proximo &raquo;</button>'+
+    '<span class="mapa-oc-periodo">'+fmtD(dias[0])+' a '+fmtD(fimISO)+'</span>'+
+    '<span class="mapa-oc-legenda"><i class="oc-cell oc-confirmada"></i>Confirmada <i class="oc-cell oc-checkin"></i>Hospedado <i class="oc-cell oc-pendente"></i>Pendente <i class="oc-cell oc-livre"></i>Livre</span>'+
+  '</div>';
+
+  if(!quartos.length){ el.innerHTML=header+'<p style="color:var(--text-mute);padding:16px 0">Cadastre quartos para ver o mapa de ocupacao.</p>'; return; }
+
+  // cabecalho de dias
+  var thDias=dias.map(function(d){
+    var ehHoje=d===hoje;
+    var p=d.split("-");
+    return '<th class="oc-dia'+(ehHoje?" oc-hoje":"")+'"><span class="oc-dow">'+diaSemana(d)+'</span><span class="oc-dnum">'+p[2]+'/'+p[1]+'</span></th>';
+  }).join('');
+
+  var linhas=quartos.map(function(q){
+    var t=tq.find(function(x){return x.id===q.tipoQuartoId});
+    var cels=dias.map(function(d){
+      var r=reservaNoDia(q.id,d,reservas);
+      if(!r) return '<td class="oc-cell oc-livre" title="Apto '+esc(q.numero)+' - '+fmtD(d)+' - livre" onclick="mapaNovaReservaEm(\''+q.id+'\',\''+d+'\')"></td>';
+      var hosp=St.fi("h",r.hospedeId);
+      var nome=hosp?hosp.nome:"Reserva";
+      var ini=nome.trim().split(/\s+/).slice(0,2).map(function(x){return x[0]}).join("").toUpperCase();
+      var ehInicio=r.dataCheckin===d;
+      return '<td class="oc-cell oc-'+r.status+(ehInicio?" oc-ini":"")+'" title="'+esc(nome)+' ('+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+')" onclick="mapaVerReserva(\''+r.id+'\')">'+(ehInicio?'<span class="oc-ini-lbl">'+esc(ini)+'</span>':'')+'</td>';
+    }).join('');
+    return '<tr><th class="oc-quarto"><b>'+esc(q.numero)+'</b><small>'+esc(t?t.nome:"Quarto")+'</small></th>'+cels+'</tr>';
+  }).join('');
+
+  el.innerHTML=header+controles+
+    '<div class="mapa-oc-wrap"><table class="mapa-oc"><thead><tr><th class="oc-quarto oc-corner">Quarto</th>'+thDias+'</tr></thead><tbody>'+linhas+'</tbody></table></div>';
+}
+
+// Clicar numa celula livre: abre nova reserva com o quarto e a data ja escolhidos
+export function mapaNovaReservaEm(quartoId, dia){
+  var q=St.fi("q",quartoId); if(!q)return;
+  showNovaReserva();
+  // preenche tipo, datas e quarto no formulario que acabou de abrir
+  setTimeout(function(){
+    var tSel=document.getElementById("rfTipo"), ci=document.getElementById("rfCheckin"), co=document.getElementById("rfCheckout");
+    if(tSel&&q.tipoQuartoId){ tSel.value=q.tipoQuartoId; }
+    if(ci)ci.value=dia;
+    if(co)co.value=somarDias(dia,1);
+    if(typeof atualizarQuartosDisponiveis==="function")atualizarQuartosDisponiveis();
+    var qSel=document.getElementById("rfQuarto"); if(qSel)qSel.value=quartoId;
+  },60);
+}
+
+// Clicar numa celula ocupada: mostra a reserva (reaproveita o detalhe existente por status)
+export function mapaVerReserva(id){
+  var r=St.fi("r",id); if(!r)return;
+  var h=St.fi("h",r.hospedeId), q=St.fi("q",r.quartoId), t=St.fi("tq",r.tipoQuartoId);
+  var body='<div class="qmodal-info">'+
+    '<div class="qmodal-row"><span>Hospede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
+    (h&&h.telefone?'<div class="qmodal-row"><span>Telefone</span><b>'+esc(h.telefone)+'</b></div>':'')+
+    '<div class="qmodal-row"><span>Quarto</span><b>Apto '+(q?esc(q.numero):"-")+' ('+(t?esc(t.nome):"")+')</b></div>'+
+    '<div class="qmodal-row"><span>Check-in</span><b>'+fmtD(r.dataCheckin)+'</b></div>'+
+    '<div class="qmodal-row"><span>Check-out</span><b>'+fmtD(r.dataCheckout)+'</b></div>'+
+    '<div class="qmodal-row"><span>Status</span><b>'+getStatusBadge(r.status)+'</b></div>'+
+    (r.total?'<div class="qmodal-row"><span>Total</span><b>'+fmtC(r.total)+'</b></div>':'')+
+  '</div>';
+  var footer='<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>';
+  if(r.status==="confirmada"||r.status==="checkin")footer+='<button class="btn btn-secondary" onclick="closeModal();trocarQuarto(\''+id+'\')">Trocar quarto</button>';
+  sm("Reserva - Apto "+(q?esc(q.numero):""),body,footer);
+}

@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.7.0";
+export var APP_VERSION="1.8.0";
 export var CHANGELOG=[
+{v:"1.8.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Mapa de ocupacao: em Reservas, veja uma grade de quartos por dia para saber de relance o que esta ocupado e livre nos proximos dias."},
+{t:"melhoria",d:"No mapa, clique num dia livre para ja criar a reserva com quarto e data preenchidos, ou clique numa reserva para ver os detalhes e trocar o quarto."}
+]},
 {v:"1.7.0",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Protecao contra reserva duplicada (overbooking): o sistema agora impede que o mesmo quarto seja reservado para o mesmo periodo, inclusive quando dois usuarios salvam ao mesmo tempo."},
 {t:"melhoria",d:"Check-out e caixa mais seguros: o sistema confirma a gravacao no banco antes de concluir e avisa caso algo falhe, evitando pagamento ou fechamento perdido em silencio."},
