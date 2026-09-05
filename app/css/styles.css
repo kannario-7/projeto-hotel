@@ -376,3 +376,8 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .bal-pos{color:#43d18c!important}
 .bal-neg{color:#f16a6e!important}
 @media(max-width:768px){.bal-grid{grid-template-columns:1fr;gap:18px}}
+
+/* Itens do menu Mais que ja estao na barra inferior no desktop (Financeiro/Check-in/Check-out):
+   escondidos no desktop (evita duplicar) e visiveis no mobile (onde nao estao na barra) */
+.mais-menu .mais-mobile{display:none}
+@media(max-width:768px){.mais-menu .mais-mobile{display:flex}}
