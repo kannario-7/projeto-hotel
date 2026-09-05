@@ -54,14 +54,20 @@ function paraApp(k, b){
   return o;
 }
 
-// Carrega TODOS os dados do hotel de uma vez (para o cache em memória)
+// Carrega TODOS os dados do hotel de uma vez (para o cache em memória).
+// Em PARALELO (Promise.all) para ficar rapido - antes era tabela por tabela em sequencia.
 export async function carregarHotel(hotelId){
+  var chaves = Object.keys(TABELAS);
+  var resultados = await Promise.all(chaves.map(function(k){
+    return supabase.from(TABELAS[k]).select("*").eq("hotel_id", hotelId)
+      .then(function(res){ return { k:k, data:res.data, error:res.error }; })
+      .catch(function(e){ return { k:k, data:[], error:e }; });
+  }));
   var out = {};
-  for(var k in TABELAS){
-    var { data, error } = await supabase.from(TABELAS[k]).select("*").eq("hotel_id", hotelId);
-    if(error){ console.error("Erro ao carregar "+k, error); out[k]=[]; }
-    else out[k] = (data||[]).map(function(row){ return paraApp(k, row); });
-  }
+  resultados.forEach(function(r){
+    if(r.error){ console.error("Erro ao carregar "+r.k, r.error); out[r.k]=[]; }
+    else out[r.k] = (r.data||[]).map(function(row){ return paraApp(r.k, row); });
+  });
   return out;
 }
 
