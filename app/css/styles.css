@@ -139,30 +139,40 @@ select option{background:var(--surface-2);color:var(--text)}
 .support-fab-close{opacity:0;transform:rotate(-90deg)}
 .support-widget.open .support-fab-open{opacity:0;transform:rotate(90deg)}
 .support-widget.open .support-fab-close{opacity:1;transform:rotate(0)}
-.support-panel{width:340px;max-width:calc(100vw - 40px);background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55);overflow:hidden;transform-origin:bottom right;transform:translateY(16px) scale(.92);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .22s}
-.support-widget.open .support-panel{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
-.support-head{background:linear-gradient(135deg,var(--accent),#6d3ff0);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;color:#fff}
 .support-title{font-family:Sora,sans-serif;font-weight:700;font-size:16px}
-.support-sub{font-size:12px;opacity:.9;margin-top:3px;display:flex;align-items:center;gap:6px}
+.support-sub{font-size:12px;opacity:.9;margin-top:2px;display:flex;align-items:center;gap:6px}
 .support-online{width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;box-shadow:0 0 0 3px rgba(74,222,128,.3)}
-.support-x{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;opacity:.85;line-height:1}
+.support-x{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:.85;line-height:1}
 .support-x:hover{opacity:1}
-.support-body{padding:18px 18px 20px}
-.support-hello{font-size:14px;color:var(--text-dim);margin-bottom:14px}
-.support-opt{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--text);margin-bottom:10px;transition:border-color .2s,background .2s,transform .15s}
-.support-opt:hover{border-color:var(--accent);background:var(--surface-2);transform:translateX(2px)}
-.support-opt-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.support-opt b{display:block;font-size:14px}
-.support-opt small{color:var(--text-mute);font-size:12px}
-.support-form{margin-top:6px}
-.support-form textarea{margin-bottom:10px;resize:vertical}
+
+/* ---- Modal de chat de suporte (centralizado, area ampla) ---- */
+.chat-overlay{position:fixed;inset:0;z-index:4100;background:rgba(11,29,58,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .22s}
+.chat-overlay.show{opacity:1;pointer-events:all}
+.chat-modal{width:440px;max-width:100%;height:600px;max-height:calc(100vh - 40px);background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 70px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden;transform:translateY(20px) scale(.96);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.chat-overlay.show .chat-modal{transform:translateY(0) scale(1)}
+.chat-head{background:linear-gradient(135deg,var(--accent),#6d3ff0);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;color:#fff;flex:none}
+.chat-head-info{display:flex;align-items:center;gap:12px}
+.chat-head-avatar{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex:none}
+.chat-alt{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);flex:none;background:var(--surface-2)}
+.chat-alt-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--text-dim);font-size:13px;font-weight:600;background:var(--surface);transition:border-color .15s,color .15s}
+.chat-alt-btn:hover{border-color:var(--accent);color:var(--text)}
+.chat-alt-btn svg{flex:none}
+.chat-conversa{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:16px;background:var(--surface-2);scroll-behavior:smooth}
+.chat-form{flex:none;display:flex;align-items:flex-end;gap:10px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface)}
+.chat-form textarea{flex:1;resize:none;max-height:120px;min-height:44px;margin:0;border-radius:22px;padding:11px 16px}
+.chat-send{flex:none;width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px rgba(139,92,246,.4)}
+.chat-send:hover{transform:scale(1.06);box-shadow:0 6px 18px rgba(139,92,246,.5)}
+.chat-send svg{margin-left:-2px}
+
 @media(max-width:768px){
 .support-widget{right:16px;bottom:20px}
-.support-panel{width:min(320px,calc(100vw - 32px))}
 .support-fab{width:52px;height:52px}
 .support-fab svg{width:22px;height:22px}
 /* quando a barra inferior existe (usuario logado), sobe o FAB para nao colar nela */
 body.logged .support-widget{bottom:88px}
+/* chat quase full-screen no celular */
+.chat-overlay{padding:0}
+.chat-modal{width:100%;height:100%;max-height:100%;border-radius:0;border:none}
 }
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(11,29,58,0.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.show{opacity:1;pointer-events:all}
@@ -392,7 +402,7 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .sup-day{align-self:center;font-size:11px;color:var(--text-mute);background:var(--surface-3);border:1px solid var(--border);border-radius:20px;padding:2px 12px;margin:8px 0 4px}
 
 /* linha da mensagem: avatar + balao */
-.sup-msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin-top:2px}
+.sup-msg{display:flex;align-items:flex-end;gap:8px;max-width:82%;margin-top:2px}
 .sup-msg-eu{align-self:flex-end;flex-direction:row-reverse}
 .sup-msg-sup{align-self:flex-start}
 /* agrupa mensagens seguidas do mesmo autor (esconde avatar repetido) */

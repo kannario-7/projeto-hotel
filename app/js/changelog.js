@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.5.1";
+export var APP_VERSION="1.5.2";
 export var CHANGELOG=[
+{v:"1.5.2",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Chat de suporte agora abre em tela cheia (janela ampla no computador, tela inteira no celular): muito mais espaco para conversar e facil de usar no telefone."},
+{t:"melhoria",d:"WhatsApp e E-mail viraram botoes rapidos no topo do chat; campo de mensagem com botao de enviar redondo."}
+]},
 {v:"1.5.1",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Chat de suporte atualiza sozinho: novas mensagens aparecem em segundos, sem precisar dar F5 ou reabrir a conversa."},
 {t:"melhoria",d:"No Painel do Dono, o contador de mensagens nao lidas se atualiza automaticamente."}

@@ -27,11 +27,16 @@ var _supPoll=null;      // timer de atualizacao automatica do chat do cliente
 var _supUltCount=-1;    // qtd de mensagens ja renderizadas (evita re-render desnecessario)
 
 export function toggleSuporte(){
-  var w=document.getElementById("supportWidget");w.classList.toggle("open");
-  if(w.classList.contains("open")){
+  var w=document.getElementById("supportWidget");
+  var modal=document.getElementById("supportModal");
+  var abrindo=!modal.classList.contains("show");
+  modal.classList.toggle("show",abrindo);
+  if(w)w.classList.toggle("open",abrindo); // anima o icone do FAB (X <-> balao)
+  if(abrindo){
     _supUltCount=-1;
     carregarConversaSuporte();
     iniciarPollSuporte();
+    setTimeout(function(){var t=document.getElementById("supportMsg");if(t)t.focus();},80);
   }else{
     pararPollSuporte();
   }
@@ -41,8 +46,8 @@ export function toggleSuporte(){
 function iniciarPollSuporte(){
   pararPollSuporte();
   _supPoll=setInterval(function(){
-    var w=document.getElementById("supportWidget");
-    if(!w||!w.classList.contains("open")){pararPollSuporte();return;}
+    var m=document.getElementById("supportModal");
+    if(!m||!m.classList.contains("show")){pararPollSuporte();return;}
     if(document.hidden)return; // nao consome rede com a aba em segundo plano
     carregarConversaSuporte();
   },4000);
@@ -152,6 +157,8 @@ export function initModalOverlay(){
     if(e.key!=="Escape")return;
     var conf=document.getElementById("confirmOverlay");
     if(conf&&conf.classList.contains("show")){var c=document.getElementById("confirmCancel");if(c)c.click();return;}
+    var chat=document.getElementById("supportModal");
+    if(chat&&chat.classList.contains("show")){toggleSuporte();return;}
     var ov=document.getElementById("modalOverlay");
     if(ov&&ov.classList.contains("show"))cm();
   });
