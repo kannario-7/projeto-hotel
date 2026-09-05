@@ -16,6 +16,7 @@ export async function renderAdmin(){
   if(!u||!u.isOwner){ el.innerHTML='<div class="page-header"><div><h2>Acesso restrito</h2><p>Area exclusiva do administrador do sistema.</p></div></div>'; return; }
   el.innerHTML='<div class="page-header"><div><h2>Painel do Dono</h2><p>Hoteis e mensalidades do HospedaPrime</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="abrirSuporteDono()">Mensagens de Suporte <span id="supBadge" style="display:none;background:#f16a6e;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px"></span></button></div></div><div id="adminContent"><p style="color:var(--text-mute)">Carregando...</p></div>';
   atualizarBadgeSuporte();
+  iniciarPollBadge();
   var c=document.getElementById("adminContent");
   var { data, error } = await supabase.rpc("listar_hoteis_admin");
   if(error){ c.innerHTML='<p style="color:#f16a6e">Erro ao carregar: '+esc(error.message)+'</p>'; return; }
@@ -53,6 +54,17 @@ export async function renderAdmin(){
 // ---- SUPORTE (dono ve e responde conversas de todos os hoteis) ----
 function nomeHotel(hid){var h=cacheHoteis.find(function(x){return x.id===hid});return h?h.nome:"Hotel";}
 
+// Atualiza o contador de nao-lidas a cada 15s enquanto o Painel do Dono estiver aberto
+var _badgePoll=null;
+function iniciarPollBadge(){
+  if(_badgePoll)clearInterval(_badgePoll);
+  _badgePoll=setInterval(function(){
+    if(document.hidden)return;
+    if(!document.getElementById("supBadge")){clearInterval(_badgePoll);_badgePoll=null;return;}
+    atualizarBadgeSuporte();
+  },15000);
+}
+
 export async function atualizarBadgeSuporte(){
   try{
     var msgs=await suporteConversas();
@@ -63,6 +75,7 @@ export async function atualizarBadgeSuporte(){
 }
 
 export async function abrirSuporteDono(){
+  pararPollDono();
   sm("Mensagens de Suporte",'<p style="color:var(--text-mute)">Carregando conversas...</p>','<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>');
   var msgs=await suporteConversas();
   // agrupa por hotel
@@ -90,27 +103,55 @@ export async function abrirSuporteDono(){
   document.getElementById("modalBody").innerHTML=html;
 }
 
-export async function abrirConversaHotel(hid){
+var _donoPoll=null;      // timer de atualizacao da conversa aberta no painel do dono
+var _donoHid=null;       // hotel da conversa aberta
+var _donoUltCount=-1;    // qtd de mensagens ja renderizadas
+
+function pararPollDono(){ if(_donoPoll){clearInterval(_donoPoll);_donoPoll=null;} _donoHid=null; }
+
+// Renderiza a conversa dentro de #donoConversa (re-render so quando muda a quantidade)
+async function pintarConversaDono(hid,forcar){
+  var caixa=document.getElementById("donoConversa");
+  if(!caixa){pararPollDono();return;}
   var msgs=await suporteConversas();
   var conv=msgs.filter(function(m){return m.hotel_id===hid});
-  // No painel do dono, "eu" (direita) = mensagens do suporte; o cliente aparece a esquerda
-  var chat=window.renderConversa?window.renderConversa(conv,"suporte",{vazio:"Nenhuma mensagem deste hotel ainda."}):"";
-  var body='<div class="chatbox" id="donoConversa" style="max-height:340px;margin-bottom:12px">'+chat+'</div>'+
+  if(!forcar && conv.length===_donoUltCount)return;
+  var novas=conv.length>_donoUltCount && _donoUltCount>=0;
+  _donoUltCount=conv.length;
+  var noFim=caixa.scrollHeight-caixa.scrollTop-caixa.clientHeight<40;
+  caixa.innerHTML=window.renderConversa?window.renderConversa(conv,"suporte",{vazio:"Nenhuma mensagem deste hotel ainda."}):"";
+  if(noFim||novas||forcar)caixa.scrollTop=caixa.scrollHeight;
+  // marca lidas as mensagens do cliente e atualiza o badge
+  try{ await suporteMarcarLidas(hid,"cliente"); atualizarBadgeSuporte(); }catch(e){}
+}
+
+export async function abrirConversaHotel(hid){
+  _donoHid=hid; _donoUltCount=-1;
+  var body='<div class="chatbox" id="donoConversa" style="max-height:340px;margin-bottom:12px"><p style="color:var(--text-mute)">Carregando...</p></div>'+
     '<div class="form-group" style="margin:0"><textarea id="donoResposta" rows="2" placeholder="Escreva sua resposta..." '+
     'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();responderSuporte(\''+hid+'\')}"></textarea></div>';
   sm("Conversa - "+esc(nomeHotel(hid)),body,'<button class="btn btn-secondary" onclick="abrirSuporteDono()">Voltar</button><button class="btn btn-primary" onclick="responderSuporte(\''+hid+'\')">Responder</button>');
-  try{ await suporteMarcarLidas(hid,"cliente"); atualizarBadgeSuporte(); }catch(e){}
-  setTimeout(function(){var c=document.getElementById("donoConversa");if(c)c.scrollTop=c.scrollHeight;var t=document.getElementById("donoResposta");if(t)t.focus();},50);
+  await pintarConversaDono(hid,true);
+  setTimeout(function(){var t=document.getElementById("donoResposta");if(t)t.focus();},50);
+  // atualiza a conversa a cada 4s enquanto estiver aberta
+  pararPollDono(); _donoHid=hid;
+  _donoPoll=setInterval(function(){
+    if(document.hidden)return;
+    if(!document.getElementById("donoConversa")||_donoHid!==hid){pararPollDono();return;}
+    pintarConversaDono(hid,false);
+  },4000);
 }
 
 export async function responderSuporte(hid){
   var t=document.getElementById("donoResposta");
   if(!t||!t.value.trim())return st("Escreva uma resposta.","warning");
   var u=getCurrentUser();
-  var salvo=await suporteEnviar(hid,"suporte",(u?u.nome:"Suporte"),t.value.trim());
-  if(!salvo)return st("Nao foi possivel enviar.","error");
-  st("Resposta enviada!","success");
-  abrirConversaHotel(hid);
+  var texto=t.value.trim();
+  t.value="";
+  var salvo=await suporteEnviar(hid,"suporte",(u?u.nome:"Suporte"),texto);
+  if(!salvo){t.value=texto;return st("Nao foi possivel enviar.","error");}
+  await pintarConversaDono(hid,true); // re-pinta so a conversa (mantem foco e poll)
+  if(t)t.focus();
 }
 
 // Modal de gerenciamento detalhado de um hotel (dados + plano + mensalidades)

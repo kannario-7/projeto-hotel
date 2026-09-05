@@ -23,10 +23,31 @@ cancel.onclick=fecha;
 // Nao fecha ao clicar fora: exige escolha explicita em Confirmar/Cancelar
 ov.classList.add("show")}
 
+var _supPoll=null;      // timer de atualizacao automatica do chat do cliente
+var _supUltCount=-1;    // qtd de mensagens ja renderizadas (evita re-render desnecessario)
+
 export function toggleSuporte(){
   var w=document.getElementById("supportWidget");w.classList.toggle("open");
-  if(w.classList.contains("open"))carregarConversaSuporte();
+  if(w.classList.contains("open")){
+    _supUltCount=-1;
+    carregarConversaSuporte();
+    iniciarPollSuporte();
+  }else{
+    pararPollSuporte();
+  }
 }
+
+// Enquanto o chat estiver aberto, verifica novas mensagens a cada 4s
+function iniciarPollSuporte(){
+  pararPollSuporte();
+  _supPoll=setInterval(function(){
+    var w=document.getElementById("supportWidget");
+    if(!w||!w.classList.contains("open")){pararPollSuporte();return;}
+    if(document.hidden)return; // nao consome rede com a aba em segundo plano
+    carregarConversaSuporte();
+  },4000);
+}
+function pararPollSuporte(){ if(_supPoll){clearInterval(_supPoll);_supPoll=null;} }
 
 // Carrega o historico da conversa do hotel do cliente logado
 export async function carregarConversaSuporte(){
@@ -35,9 +56,15 @@ export async function carregarConversaSuporte(){
   var hid=getHotelId();
   if(!hid){alvo.innerHTML="";return;}
   var msgs=await suporteListar(hid);
+  // So re-renderiza se mudou a quantidade de mensagens (evita piscar/perder scroll)
+  if(msgs.length===_supUltCount)return;
+  var novas=msgs.length>_supUltCount && _supUltCount>=0;
+  _supUltCount=msgs.length;
+  // Preserva se o usuario rolou pra cima (nao força scroll se ele esta lendo o historico)
+  var noFim=alvo.scrollHeight-alvo.scrollTop-alvo.clientHeight<40;
   // No chat do cliente, "eu" = autor cliente; o suporte aparece como interlocutor
   alvo.innerHTML=renderConversa(msgs,"cliente",{vazio:"Envie sua primeira mensagem.<br>Respondemos por aqui."});
-  alvo.scrollTop=alvo.scrollHeight;
+  if(noFim||novas)alvo.scrollTop=alvo.scrollHeight;
   // marca como lidas as respostas do suporte
   try{ await suporteMarcarLidas(hid,"suporte"); }catch(e){}
 }

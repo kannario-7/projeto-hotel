@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.5.0";
+export var APP_VERSION="1.5.1";
 export var CHANGELOG=[
+{v:"1.5.1",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Chat de suporte atualiza sozinho: novas mensagens aparecem em segundos, sem precisar dar F5 ou reabrir a conversa."},
+{t:"melhoria",d:"No Painel do Dono, o contador de mensagens nao lidas se atualiza automaticamente."}
+]},
 {v:"1.5.0",data:"2026-09-02",mudancas:[
 {t:"novo",d:"Suporte pelo chat dentro do sistema: envie sua mensagem e receba a resposta por aqui, sem sair do sistema."},
 {t:"melhoria",d:"Chat de suporte com visual novo: baloes de conversa, avatar, horario e separacao por dia (Hoje/Ontem)."},
