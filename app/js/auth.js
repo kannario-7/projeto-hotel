@@ -125,24 +125,27 @@ export async function logout(){
   showLogin();
 }
 
-// Restaura sessão ao abrir o app (se já estava logado)
+// Restaura sessão ao abrir o app (se já estava logado).
+// Blindado: qualquer erro (rede, dados) retorna false para cair no login, em vez de travar a tela.
 export async function restaurarSessao(){
-  var { data } = await supabase.auth.getSession();
-  if(data && data.session){
+  try{
+    var { data } = await supabase.auth.getSession();
+    if(!(data && data.session)) return false;
     var user = data.session.user;
-    var { data: perfil } = await supabase.from("perfis").select("*").eq("id", user.id).single();
-    if(perfil){
-      usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
-      if(!usuarioAtual.isOwner){
-        var liberado = await hotelLiberado();
-        if(!liberado){ mostrarBloqueio(); return false; }
-      }
-      setHotelId(perfil.hotel_id);
-      await carregarTudo(perfil.hotel_id);
-      return true;
+    var { data: perfil, error: errPerfil } = await supabase.from("perfis").select("*").eq("id", user.id).single();
+    if(errPerfil || !perfil) return false;
+    usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
+    if(!usuarioAtual.isOwner){
+      var liberado = await hotelLiberado();
+      if(!liberado){ mostrarBloqueio(); return false; }
     }
+    setHotelId(perfil.hotel_id);
+    await carregarTudo(perfil.hotel_id);
+    return true;
+  }catch(e){
+    console.error("Erro ao restaurar sessao:", e);
+    return false;
   }
-  return false;
 }
 
 // --- ACEITAR CONVITE (multi-usuário por link) ---

@@ -43,5 +43,5 @@ if(hash.indexOf("#convite=")===0){
   auth.restaurarSessao().then(function(logado){
     if(logado){ auth.hideLogin(); nav.renderPage(); }
     else { auth.showLogin(); }
-  });
+  }).catch(function(e){ console.error("Boot:", e); auth.showLogin(); });
 }
