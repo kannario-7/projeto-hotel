@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.5.2";
+export var APP_VERSION="1.6.0";
 export var CHANGELOG=[
+{v:"1.6.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Avaliacao do atendimento: depois que o suporte responde, o cliente pode dar de 1 a 5 estrelas e deixar um comentario."},
+{t:"novo",d:"Painel do Dono mostra a nota media e os comentarios de cada hotel, alem de quando o hotel acessou o sistema pela ultima vez."}
+]},
 {v:"1.5.2",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Chat de suporte agora abre em tela cheia (janela ampla no computador, tela inteira no celular): muito mais espaco para conversar e facil de usar no telefone."},
 {t:"melhoria",d:"WhatsApp e E-mail viraram botoes rapidos no topo do chat; campo de mensagem com botao de enviar redondo."}

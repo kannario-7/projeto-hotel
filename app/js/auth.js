@@ -2,6 +2,7 @@
 import { esc } from "./utils.js";
 import { supabase } from "./supabase.js";
 import { St, carregarTudo, setHotelId } from "./store.js";
+import { registrarAcesso } from "./db.js";
 import { st } from "./ui.js";
 import { showChangelog, atualizarBadgeNovidade, temNovidade } from "./changelog.js";
 import { renderPage } from "./nav.js";
@@ -96,6 +97,7 @@ async function aposAutenticar(user){
   }
   setHotelId(perfil.hotel_id);
   await carregarTudo(perfil.hotel_id);
+  registrarAcesso(); // marca ultimo acesso (nao bloqueia o fluxo)
   hideLogin();
   window.location.hash = "#d";
   renderPage();
@@ -141,6 +143,7 @@ export async function restaurarSessao(){
     }
     setHotelId(perfil.hotel_id);
     await carregarTudo(perfil.hotel_id);
+    registrarAcesso(); // marca ultimo acesso (nao bloqueia o fluxo)
     return true;
   }catch(e){
     console.error("Erro ao restaurar sessao:", e);

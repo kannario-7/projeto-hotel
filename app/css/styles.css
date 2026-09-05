@@ -426,3 +426,13 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 /* estado vazio */
 .sup-empty{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-mute);font-size:13px;text-align:center;padding:22px 12px}
 .sup-empty svg{width:34px;height:34px;opacity:.55}
+
+/* bloco de avaliacao do atendimento (chat do cliente) */
+.sup-avaliar{align-self:stretch;margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.sup-avaliar-tit{font-size:13px;font-weight:600;color:var(--text);text-align:center}
+.sup-stars{display:flex;justify-content:center;gap:4px}
+.sup-star{background:none;border:none;cursor:pointer;font-size:28px;line-height:1;color:var(--border);transition:transform .1s,color .12s;padding:0 2px}
+.sup-star:hover{transform:scale(1.15)}
+.sup-star.on{color:#f5b301}
+.sup-avaliar textarea{resize:none;min-height:40px;font-size:13px}
+.sup-avaliado{text-align:center;color:#43d18c;font-size:13px;font-weight:600}

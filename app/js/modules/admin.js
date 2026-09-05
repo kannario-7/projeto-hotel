@@ -3,7 +3,7 @@ import { esc, fmtC, fmtD } from "../utils.js";
 import { supabase } from "../supabase.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
-import { suporteConversas, suporteEnviar, suporteMarcarLidas } from "../db.js";
+import { suporteConversas, suporteEnviar, suporteMarcarLidas, avaliacoesSuporte } from "../db.js";
 
 var cacheHoteis = [];
 var PLANOS = { trial:"Teste Gratis", essencial:"Essencial", profissional:"Profissional" };
@@ -168,7 +168,9 @@ export async function adminGerenciar(id){
       (h.telefone?'<div class="qmodal-row"><span>Telefone</span><b>'+esc(h.telefone)+'</b></div>':'')+
       '<div class="qmodal-row"><span>Usuarios</span><b>'+h.qtd_usuarios+'</b></div>'+
       '<div class="qmodal-row"><span>Cadastro</span><b>'+fmtD((h.criado_em||"").slice(0,10))+'</b></div>'+
+      '<div class="qmodal-row"><span>Ultimo acesso</span><b>'+fmtQuando(h.ultimo_acesso)+'</b></div>'+
     '</div>'+
+    '<div id="agAvaliacoes" style="margin-bottom:16px"></div>'+
     '<div class="form-grid">'+
     '<div class="form-group"><label>Plano</label><select id="agPlano">'+
       Object.keys(PLANOS).map(function(k){return'<option value="'+k+'"'+(h.plano===k?' selected':'')+'>'+PLANOS[k]+'</option>'}).join('')+
@@ -192,6 +194,62 @@ export async function adminGerenciar(id){
       }).join('')+'</table>'
       :'<p style="color:var(--text-mute);font-size:14px">Nenhuma mensalidade registrada. Use "Gerar cobranca do mes".</p>');
   document.getElementById("modalBody").innerHTML=body;
+  // Carrega avaliacoes de suporte deste hotel
+  try{
+    var avs=await avaliacoesSuporte(id);
+    var box=document.getElementById("agAvaliacoes");
+    if(box) box.innerHTML=renderAvaliacoesDono(avs);
+  }catch(e){}
+}
+
+// Tempo relativo amigavel: "ha 2 dias", "hoje as 14:30", "nunca"
+function fmtQuando(iso){
+  if(!iso)return"Nunca acessou";
+  var d=new Date(iso),agora=new Date();
+  var seg=Math.floor((agora-d)/1000);
+  var p=function(n){return String(n).padStart(2,"0")};
+  var hora=p(d.getHours())+":"+p(d.getMinutes());
+  if(seg<60)return"Agora mesmo";
+  if(seg<3600)return"Ha "+Math.floor(seg/60)+" min";
+  var mesmoDia=d.toDateString()===agora.toDateString();
+  if(mesmoDia)return"Hoje as "+hora;
+  var ontem=new Date(agora);ontem.setDate(agora.getDate()-1);
+  if(d.toDateString()===ontem.toDateString())return"Ontem as "+hora;
+  var dias=Math.floor(seg/86400);
+  if(dias<30)return"Ha "+dias+" dias";
+  return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear();
+}
+
+// Estrelas preenchidas/vazias
+function estrelas(n){
+  var s="";
+  for(var i=1;i<=5;i++){ s+='<span style="color:'+(i<=n?"#f5b301":"var(--border)")+';font-size:15px">&#9733;</span>'; }
+  return s;
+}
+
+// Bloco de avaliacoes no modal Gerenciar (dono)
+function renderAvaliacoesDono(avs){
+  if(!avs||!avs.length){
+    return '<div style="border-top:1px solid var(--border);padding-top:14px"><h4 style="color:var(--text);margin-bottom:6px">Avaliacoes do suporte</h4>'+
+      '<p style="color:var(--text-mute);font-size:13px">Este hotel ainda nao avaliou o atendimento.</p></div>';
+  }
+  var media=(avs.reduce(function(a,x){return a+x.nota},0)/avs.length);
+  var html='<div style="border-top:1px solid var(--border);padding-top:14px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<h4 style="color:var(--text)">Avaliacoes do suporte</h4>'+
+      '<div style="text-align:right"><span style="font-size:18px;font-weight:700;color:var(--text)">'+media.toFixed(1)+'</span> '+estrelas(Math.round(media))+
+      '<div style="font-size:11px;color:var(--text-mute)">'+avs.length+' avaliacao'+(avs.length===1?"":"es")+'</div></div>'+
+    '</div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto">'+
+    avs.map(function(a){
+      return '<div style="border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--surface-2)">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+estrelas(a.nota)+
+        '<small style="color:var(--text-mute)">'+fmtQuando(a.criado_em)+'</small></div>'+
+        (a.comentario?'<div style="color:var(--text-dim);font-size:13px;margin-top:6px">'+esc(a.comentario)+'</div>':'')+
+        (a.nome?'<div style="color:var(--text-mute);font-size:11px;margin-top:4px">'+esc(a.nome)+'</div>':'')+
+      '</div>';
+    }).join('')+'</div></div>';
+  return html;
 }
 
 export async function adminSalvarHotel(id){

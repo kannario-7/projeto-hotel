@@ -127,3 +127,25 @@ export async function suporteConversas(){
 export async function suporteMarcarLidas(hotelId, autorLido){
   await supabase.from("suporte_mensagens").update({ lida:true }).eq("hotel_id", hotelId).eq("autor", autorLido).eq("lida", false);
 }
+
+// --- Ultimo acesso do hotel ---
+// Registra que o hotel do usuario logado acessou agora (chamado no login/restauracao)
+export async function registrarAcesso(){
+  try{ await supabase.rpc("registrar_acesso"); }catch(e){ /* silencioso: nao bloqueia o login */ }
+}
+
+// --- Avaliacao do atendimento de suporte ---
+// Cliente avalia (nota 1-5 + comentario opcional)
+export async function avaliarSuporte(hotelId, nota, comentario, nome){
+  var { data, error } = await supabase.from("suporte_avaliacoes")
+    .insert({ hotel_id:hotelId, nota:nota, comentario:comentario||null, nome:nome||null }).select().single();
+  if(error){ console.error("avaliarSuporte", error); return null; }
+  return data;
+}
+// Lista avaliacoes. Sem hotelId (dono) traz todas; com hotelId filtra.
+export async function avaliacoesSuporte(hotelId){
+  var q=supabase.from("suporte_avaliacoes").select("*").order("criado_em", { ascending:false });
+  if(hotelId) q=q.eq("hotel_id", hotelId);
+  var { data } = await q;
+  return data||[];
+}

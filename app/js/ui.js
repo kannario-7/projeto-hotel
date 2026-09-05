@@ -1,7 +1,7 @@
 // UI genérica: toasts, modais, confirmação e widget de suporte
 import { esc } from "./utils.js";
 import { getHotelId } from "./store.js";
-import { suporteEnviar, suporteListar, suporteMarcarLidas } from "./db.js";
+import { suporteEnviar, suporteListar, suporteMarcarLidas, avaliarSuporte, avaliacoesSuporte } from "./db.js";
 
 export function st(m,t){var n=document.createElement("div");n.className="toast "+(t||"info");n.innerHTML=(t==="success"?"✓":t==="error"?"✗":"ℹ")+" "+esc(m);document.getElementById("toastContainer").appendChild(n);setTimeout(function(){n.remove()},3500)}
 export function sm(t,b,f){document.getElementById("modalTitle").textContent=t;document.getElementById("modalBody").innerHTML=b||"";document.getElementById("modalFooter").innerHTML=f||"";document.getElementById("modalOverlay").classList.add("show")}
@@ -68,10 +68,54 @@ export async function carregarConversaSuporte(){
   // Preserva se o usuario rolou pra cima (nao força scroll se ele esta lendo o historico)
   var noFim=alvo.scrollHeight-alvo.scrollTop-alvo.clientHeight<40;
   // No chat do cliente, "eu" = autor cliente; o suporte aparece como interlocutor
-  alvo.innerHTML=renderConversa(msgs,"cliente",{vazio:"Envie sua primeira mensagem.<br>Respondemos por aqui."});
+  var html=renderConversa(msgs,"cliente",{vazio:"Envie sua primeira mensagem.<br>Respondemos por aqui."});
+  // Se o suporte ja respondeu, oferece avaliar o atendimento (some depois de avaliar)
+  var respondeu=msgs.some(function(m){return m.autor==="suporte"});
+  if(respondeu && !_supAvaliado){ html+=blocoAvaliar(); }
+  alvo.innerHTML=html;
   if(noFim||novas)alvo.scrollTop=alvo.scrollHeight;
   // marca como lidas as respostas do suporte
   try{ await suporteMarcarLidas(hid,"suporte"); }catch(e){}
+}
+
+var _supAvaliado=false;    // ja avaliou nesta sessao (evita mostrar de novo)
+var _supNotaSel=0;         // nota selecionada nas estrelas
+
+// Bloco convite para avaliar (aparece no fim da conversa)
+function blocoAvaliar(){
+  return '<div class="sup-avaliar" id="supAvaliar">'+
+    '<div class="sup-avaliar-tit">Como foi o atendimento?</div>'+
+    '<div class="sup-stars" id="supStars">'+
+      [1,2,3,4,5].map(function(n){return '<button type="button" class="sup-star" data-n="'+n+'" onclick="setNotaSuporte('+n+')" aria-label="'+n+' estrelas">&#9733;</button>';}).join('')+
+    '</div>'+
+    '<textarea id="supAvalComent" rows="2" placeholder="Deixe um comentario (opcional)"></textarea>'+
+    '<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="enviarAvaliacaoSuporte()">Enviar avaliacao</button>'+
+  '</div>';
+}
+
+// Cliente seleciona a nota (pinta as estrelas ate n)
+export function setNotaSuporte(n){
+  _supNotaSel=n;
+  var box=document.getElementById("supStars");
+  if(!box)return;
+  box.querySelectorAll(".sup-star").forEach(function(b){
+    b.classList.toggle("on", Number(b.getAttribute("data-n"))<=n);
+  });
+}
+
+// Envia a avaliacao do atendimento
+export async function enviarAvaliacaoSuporte(){
+  if(!_supNotaSel)return st("Escolha de 1 a 5 estrelas.","warning");
+  var hid=getHotelId();
+  if(!hid)return st("Faca login para avaliar.","warning");
+  var c=document.getElementById("supAvalComent");
+  var nome=(window.getCurrentUser&&window.getCurrentUser())?window.getCurrentUser().nome:"Cliente";
+  var salvo=await avaliarSuporte(hid,_supNotaSel,c?c.value.trim():"",nome);
+  if(!salvo)return st("Nao foi possivel enviar a avaliacao.","error");
+  _supAvaliado=true; _supNotaSel=0;
+  st("Obrigado pela avaliacao!","success");
+  var box=document.getElementById("supAvaliar");
+  if(box) box.outerHTML='<div class="sup-avaliar sup-avaliado">Obrigado pelo seu feedback! &#128522;</div>';
 }
 
 function fmtHora(iso){if(!iso)return"";var d=new Date(iso);var p=function(n){return String(n).padStart(2,"0")};return p(d.getHours())+":"+p(d.getMinutes());}
