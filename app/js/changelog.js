@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.8.0";
+export var APP_VERSION="1.9.0";
 export var CHANGELOG=[
+{v:"1.9.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Trilha de atividades: em Configuracoes > Atividades, veja o registro de quem fez o que (cancelamentos, check-in/out, caixa, troca de quarto) com data e usuario."},
+{t:"melhoria",d:"Mais transparencia e controle para hoteis com varios funcionarios."}
+]},
 {v:"1.8.0",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Mapa de ocupacao: em Reservas, veja uma grade de quartos por dia para saber de relance o que esta ocupado e livre nos proximos dias."},
 {t:"melhoria",d:"No mapa, clique num dia livre para ja criar a reserva com quarto e data preenchidos, ou clique numa reserva para ver os detalhes e trocar o quarto."}

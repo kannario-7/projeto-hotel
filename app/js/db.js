@@ -207,3 +207,20 @@ export async function suporteDefinirStatus(hotelId, status, porNome){
   if(error){ console.error("suporteDefinirStatus", error); return false; }
   return true;
 }
+
+// --- Trilha de auditoria (quem fez o que) ---
+// Registra uma acao. Nunca lanca erro para nao travar a operacao principal (best-effort).
+export async function inserirAuditoria(hotelId, usuarioId, usuarioNome, acao, detalhe){
+  try{
+    await supabase.from("auditoria").insert({
+      hotel_id:hotelId, usuario_id:usuarioId||null, usuario_nome:usuarioNome||null,
+      acao:acao, detalhe:detalhe||null
+    });
+  }catch(e){ /* silencioso: auditoria nunca deve bloquear o fluxo */ }
+}
+// Lista o historico de auditoria do hotel (mais recentes primeiro)
+export async function listarAuditoria(hotelId, limite){
+  var { data } = await supabase.from("auditoria").select("*")
+    .eq("hotel_id", hotelId).order("criado_em", { ascending:false }).limit(limite||200);
+  return data||[];
+}

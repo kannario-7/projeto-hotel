@@ -1,6 +1,6 @@
 // Módulo: Configurações
 import { esc, fmtC } from "../utils.js";
-import { St, carregarTudo, getHotelId } from "../store.js";
+import { St, carregarTudo, getHotelId, auditar, carregarAuditoria } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { renderUsuariosHotel } from "./usuarios.js";
@@ -14,17 +14,62 @@ el.innerHTML='<div class="page-header"><div><h2>Configuracoes</h2><p>Configurar 
 '<div class="tab" onclick="mudarConfigTab(this,\'tp\')">Tipos de Quarto</div>'+
 '<div class="tab" onclick="mudarConfigTab(this,\'pg\')">Pagamento</div>'+
 '<div class="tab" onclick="mudarConfigTab(this,\'us\')">Usuarios</div>'+
+'<div class="tab" onclick="mudarConfigTab(this,\'at\')">Atividades</div>'+
 '</div><div id="configContent">'+formConfigHotel(config)+'</div>';
 setTimeout(initFormHotel,0);}
 
 export function mudarConfigTab(tab,aba){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");
 var config=St.gc(),tq=St.ga("tq"),html="";
 if(aba==="us"){document.getElementById("configContent").innerHTML="";renderUsuariosHotel();return;}
+if(aba==="at"){document.getElementById("configContent").innerHTML='<p style="color:var(--text-mute)">Carregando atividades...</p>';renderAtividades();return;}
 if(aba==="hotel")html=formConfigHotel(config);
 else if(aba==="tp")html=formConfigTipoQuarto(tq);
 else if(aba==="pg")html=formConfigPagamento(config);
 document.getElementById("configContent").innerHTML=html;
 if(aba==="hotel")setTimeout(initFormHotel,0);}
+
+// ---- Aba Atividades (trilha de auditoria) ----
+var ACAO_LABEL={
+  "reserva.cancelar":{t:"Reserva cancelada",c:"#f16a6e"},
+  "reserva.trocar_quarto":{t:"Troca de quarto",c:"#f5b53d"},
+  "checkin.realizar":{t:"Check-in",c:"#43d18c"},
+  "checkout.finalizar":{t:"Check-out",c:"var(--accent-2)"},
+  "caixa.abrir":{t:"Caixa aberto",c:"#43d18c"},
+  "caixa.fechar":{t:"Caixa fechado",c:"#3aa0d1"},
+  "hotel.apagar_dados":{t:"Dados apagados",c:"#f16a6e"},
+  "usuario.desativar":{t:"Usuario desativado",c:"#f16a6e"},
+  "usuario.ativar":{t:"Usuario ativado",c:"#43d18c"}
+};
+function quandoRel(iso){
+  if(!iso)return"";
+  var d=new Date(iso),ag=new Date(),seg=Math.floor((ag-d)/1000),p=function(n){return String(n).padStart(2,"0")};
+  var hora=p(d.getHours())+":"+p(d.getMinutes());
+  if(seg<60)return"agora";
+  if(seg<3600)return"ha "+Math.floor(seg/60)+" min";
+  if(d.toDateString()===ag.toDateString())return"hoje "+hora;
+  var ont=new Date(ag);ont.setDate(ag.getDate()-1);
+  if(d.toDateString()===ont.toDateString())return"ontem "+hora;
+  return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+" "+hora;
+}
+export async function renderAtividades(){
+  var box=document.getElementById("configContent");
+  if(!box)return;
+  var itens=[];
+  try{ itens=await carregarAuditoria(200); }catch(e){ itens=[]; }
+  if(!itens.length){ box.innerHTML='<div class="form-container"><p style="color:var(--text-mute)">Nenhuma atividade registrada ainda. As acoes importantes (cancelamentos, check-in/out, caixa) aparecerao aqui.</p></div>'; return; }
+  var linhas=itens.map(function(a){
+    var meta=ACAO_LABEL[a.acao]||{t:a.acao,c:"var(--text-mute)"};
+    return '<tr>'+
+      '<td style="white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+meta.c+';margin-right:7px"></span>'+esc(meta.t)+'</td>'+
+      '<td>'+esc(a.detalhe||"")+'</td>'+
+      '<td style="white-space:nowrap">'+esc(a.usuario_nome||"-")+'</td>'+
+      '<td style="white-space:nowrap;color:var(--text-mute)">'+esc(quandoRel(a.criado_em))+'</td>'+
+    '</tr>';
+  }).join('');
+  box.innerHTML='<div class="form-container"><h3 style="margin-bottom:6px;color:var(--text)">Atividades recentes</h3>'+
+    '<p style="color:var(--text-mute);font-size:13px;margin-bottom:14px">Registro de quem fez o que no sistema (ultimas 200 acoes).</p>'+
+    '<div style="overflow-x:auto"><table><tr><th>Acao</th><th>Detalhe</th><th>Usuario</th><th>Quando</th></tr>'+linhas+'</table></div></div>';
+}
 
 var UF_LISTA=["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -212,6 +257,7 @@ export async function confirmarRestauracao(){
       if((error.message||"").toLowerCase().indexOf("senha")>=0)return st("Senha-mestra incorreta.","error");
       return st("Nao foi possivel restaurar: "+error.message,"error");
     }
+    auditar("hotel.apagar_dados","Apagou todos os dados operacionais do hotel");
     // recarrega o cache do hotel (agora vazio)
     await carregarTudo(getHotelId());
     cm();

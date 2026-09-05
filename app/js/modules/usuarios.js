@@ -3,7 +3,7 @@ import { esc } from "../utils.js";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "../supabase.js";
 import { st, sm, cm, closeModal } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
-import { getHotelId } from "../store.js";
+import { getHotelId, auditar } from "../store.js";
 
 // Renderiza a lista de usuários (perfis) do hotel + convites pendentes
 export async function renderUsuariosHotel(){
@@ -17,7 +17,8 @@ export async function renderUsuariosHotel(){
   if(meu&&meu.papel==="admin") html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"><button class="btn btn-primary" onclick="showNovoUsuarioHotel()">+ Criar usuario</button><button class="btn btn-secondary" onclick="showGerarConvite()">Gerar link de convite</button></div>';
   html+='<table><tr><th>Nome</th><th>Papel</th><th>Turno</th><th>Status</th>'+(meu&&meu.papel==="admin"?'<th>Acoes</th>':'')+'</tr>'+
   (perfis||[]).map(function(p){
-    var acoes=(meu&&meu.papel==="admin"&&p.id!==meu.id)?'<button class="btn btn-sm '+(p.ativo!==false?'btn-danger':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>':'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'voce':'')+'</span>';
+    var nomeEsc=(""+(p.nome||"")).replace(/'/g,"\\'");
+    var acoes=(meu&&meu.papel==="admin"&&p.id!==meu.id)?'<button class="btn btn-sm '+(p.ativo!==false?'btn-danger':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>':'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'voce':'')+'</span>';
     return '<tr><td>'+esc(p.nome)+'</td><td>'+esc(p.papel)+'</td><td>'+esc(p.turno||"-")+'</td><td>'+(p.ativo!==false?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>')+'</td>'+(meu&&meu.papel==="admin"?'<td>'+acoes+'</td>':'')+'</tr>';
   }).join('')+'</table>';
   if(convites&&convites.length){
@@ -86,9 +87,10 @@ export function copiarConvite(token){
   navigator.clipboard.writeText(link).then(function(){ st("Link copiado!","success"); }, function(){ st(link,"info"); });
 }
 
-export async function toggleUsuarioHotel(id, ativoAtual){
+export async function toggleUsuarioHotel(id, ativoAtual, nome){
   var { error } = await supabase.from("perfis").update({ ativo: !ativoAtual }).eq("id", id);
   if(error)return st("Erro: "+error.message,"error");
+  auditar(ativoAtual?"usuario.desativar":"usuario.ativar",(ativoAtual?"Desativou":"Ativou")+" o usuario "+(nome||id));
   st(!ativoAtual?"Usuario ativado!":"Usuario desativado.", !ativoAtual?"success":"warning");
   renderUsuariosHotel();
 }

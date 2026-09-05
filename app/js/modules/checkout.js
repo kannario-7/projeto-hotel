@@ -1,6 +1,6 @@
 // Módulo: Check-out
 import { esc, fmtC, fmtD, td, dB } from "../utils.js";
-import { St } from "../store.js";
+import { St, auditar } from "../store.js";
 import { st, sm, cm, closeModal } from "../ui.js";
 import { imprimirDocumento } from "./impressao.js";
 
@@ -88,5 +88,7 @@ if(!resR.ok){
   return st("Pagamento registrado, mas houve erro ao fechar a reserva. Verifique e tente de novo.","error"),false;
 }
 St.up("q",r.quartoId,{status:"limpeza"});
+var hsp=St.fi("h",r.hospedeId),qt=St.fi("q",r.quartoId);
+auditar("checkout.finalizar","Check-out de "+(hsp?hsp.nome:"hospede")+(qt?(" - Apto "+qt.numero):"")+" - Total "+fmtC(total)+" ("+(pag?pag.value:"dinheiro")+")");
 st("Check-out realizado! Total: "+fmtC(total),"success");
 cm();renderCheckout();}

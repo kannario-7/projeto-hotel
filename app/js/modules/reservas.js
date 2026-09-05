@@ -1,6 +1,6 @@
 // Módulo: Reservas
 import { esc, fmtC, fmtD, td, dB, mascDocAuto, mascTel, isValidCPF } from "../utils.js";
-import { St, getStatusBadge, quartosDisponiveis, quartosLivres, checkDisponivel } from "../store.js";
+import { St, getStatusBadge, quartosDisponiveis, quartosLivres, checkDisponivel, auditar } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { ehErroOverbooking } from "../db.js";
 
@@ -36,7 +36,11 @@ reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).
 export function showNovaReserva(){sm("Nova Reserva",formReserva(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva()">Salvar</button>')}
 export function editarReserva(id){sm("Editar Reserva",formReserva(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva(\''+id+'\')">Salvar</button>')}
 export function confirmarReserva(id){St.up("r",id,{status:"confirmada"});st("Reserva confirmada!","success");cm();renderReservas()}
-export function cancelarReserva(id){confirmar({titulo:"Cancelar reserva?",msg:"Esta reserva sera marcada como cancelada.",okLabel:"Sim, cancelar",tipo:"danger"},function(){St.up("r",id,{status:"cancelada"});st("Reserva cancelada.","warning");renderReservas()})}
+export function cancelarReserva(id){confirmar({titulo:"Cancelar reserva?",msg:"Esta reserva sera marcada como cancelada.",okLabel:"Sim, cancelar",tipo:"danger"},function(){
+var r=St.fi("r",id);var h=r?St.fi("h",r.hospedeId):null;var q=r?St.fi("q",r.quartoId):null;
+St.up("r",id,{status:"cancelada"});
+auditar("reserva.cancelar","Cancelou reserva de "+(h?h.nome:"hospede")+(q?(" - Apto "+q.numero):"")+(r?(" ("+fmtD(r.dataCheckin)+" a "+fmtD(r.dataCheckout)+")"):""));
+st("Reserva cancelada.","warning");renderReservas()})}
 
 // --- TROCA DE QUARTO ---
 // Abre modal para mover a reserva para outro quarto, mostrando apenas os quartos livres no periodo.
@@ -117,6 +121,8 @@ export async function salvarTrocaQuarto(id){
     if(quartoAntigoId)St.up("q",quartoAntigoId,{status:"limpeza"});
     St.up("q",novo.id,{status:"ocupado"});
   }
+  var qAntigo=St.fi("q",quartoAntigoId);
+  auditar("reserva.trocar_quarto","Trocou quarto"+(qAntigo?(" do Apto "+qAntigo.numero):"")+" para o Apto "+novo.numero+(r.hospedeId&&St.fi("h",r.hospedeId)?(" - "+St.fi("h",r.hospedeId).nome):""));
   st("Quarto trocado para o Apto "+novo.numero+"!","success");
   cm();
   renderReservas();

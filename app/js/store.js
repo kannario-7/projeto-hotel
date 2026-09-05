@@ -80,6 +80,15 @@ export var St = {
 };
 
 export function getStatusBadge(s){var m={disponivel:"success",ocupado:"info",reservado:"warning",pendente:"warning",confirmada:"info",checkin:"info",checkout:"",cancelada:"danger",manutencao:"danger",limpeza:"warning"};return'<span class="badge badge-'+m[s]+'">'+esc(s.charAt(0).toUpperCase()+s.slice(1))+'</span>'}
+
+// Registra uma acao na trilha de auditoria (best-effort). Pega usuario atual via window (evita import circular com auth).
+export function auditar(acao, detalhe){
+  try{
+    var u = (window.getCurrentUser && window.getCurrentUser()) || null;
+    db.inserirAuditoria(hotelIdAtual, u?u.id:null, u?u.nome:null, acao, detalhe);
+  }catch(e){ /* nunca bloqueia o fluxo */ }
+}
+export async function carregarAuditoria(limite){ return await db.listarAuditoria(hotelIdAtual, limite); }
 export function checkDisponivel(quartoId,checkin,checkout,excluirId){return!St.ga("r").some(function(r){return r.id!==excluirId&&r.quartoId===quartoId&&["confirmada","pendente","checkin"].includes(r.status)&&r.dataCheckin<checkout&&r.dataCheckout>checkin})}
 export function quartosDisponiveis(tipoId,checkin,checkout,excluirId){return St.ga("q").filter(function(q){return q.ativo!==false&&q.tipoQuartoId===tipoId&&(q.status==="disponivel"||q.status==="limpeza")&&checkDisponivel(q.id,checkin,checkout,excluirId)})}
 // Quartos livres para o periodo, de QUALQUER tipo (usado na troca de quarto). Ignora quartos ocupados/manutencao e o proprio (excluirId).

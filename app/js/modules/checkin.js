@@ -1,6 +1,6 @@
 // Módulo: Check-in
 import { esc, fmtD, fmtC, td } from "../utils.js";
-import { St } from "../store.js";
+import { St, auditar } from "../store.js";
 import { st, confirmar } from "../ui.js";
 
 export function renderCheckin(){var el=document.getElementById("pageContent");
@@ -24,5 +24,7 @@ export function realizarCheckin(id){confirmar({titulo:"Confirmar check-in?",msg:
 var r=St.fi("r",id);if(!r)return;
 St.up("r",id,{status:"checkin"});
 St.up("q",r.quartoId,{status:"ocupado"});
+var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);
+auditar("checkin.realizar","Check-in de "+(h?h.nome:"hospede")+(q?(" no Apto "+q.numero):""));
 st("Check-in realizado com sucesso!","success");
 renderCheckin();})}

@@ -1,6 +1,6 @@
 // Módulo: Financeiro completo (Resumo/DRE, Receitas, Despesas, Caixa, exportacao)
 import { esc, fmtC, fmtD, td } from "../utils.js";
-import { St } from "../store.js";
+import { St, auditar } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { imprimirDocumento } from "./impressao.js";
@@ -347,6 +347,7 @@ export async function abrirCaixa(){
   var res=await St.inErr("sc",{usuarioAbertura:(u?u.nome:"-"),abertoEm:new Date().toISOString(),valorAbertura:fundo,status:"aberto"});
   if(btn){btn.disabled=false;btn.textContent="Abrir caixa";}
   if(!res.ok)return st("Nao foi possivel abrir o caixa. Tente novamente.","error"),false;
+  auditar("caixa.abrir","Abriu o caixa com fundo de "+fmtC(fundo));
   st("Caixa aberto!","success");cm();
   document.getElementById("financeiroContent").innerHTML=buildCaixa();
 }
@@ -380,6 +381,7 @@ export async function fecharCaixa(){
   var res=await St.upErr("sc",aberto.id,{usuarioFechamento:(u?u.nome:"-"),fechadoEm:new Date().toISOString(),contadoDinheiro:din,contadoCartao:card,contadoPix:pix,contadoOutros:out,valorSistema:totalSistema,diferenca:diferenca,observacoes:(obs?obs.value.trim():""),status:"fechado"});
   if(btn){btn.disabled=false;btn.textContent="Fechar e conferir";}
   if(!res.ok)return st("Nao foi possivel fechar o caixa. Confira a conexao e tente novamente.","error"),false;
+  auditar("caixa.fechar","Fechou o caixa. Sistema "+fmtC(totalSistema)+", contado "+fmtC(contadoTotal)+", diferenca "+(diferenca>=0?"+":"")+fmtC(diferenca));
   var msg=diferenca===0?"Caixa fechado. Valores conferem!":(diferenca>0?("Caixa fechado. SOBRA de "+fmtC(diferenca)):("Caixa fechado. FALTA de "+fmtC(-diferenca)));
   st(msg, diferenca===0?"success":"warning");cm();
   document.getElementById("financeiroContent").innerHTML=buildCaixa();
