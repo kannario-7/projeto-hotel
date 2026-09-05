@@ -3,7 +3,7 @@ import { esc, fmtC, fmtD } from "../utils.js";
 import { supabase } from "../supabase.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
-import { suporteConversas, suporteEnviar, suporteMarcarLidas, avaliacoesSuporte } from "../db.js";
+import { suporteConversas, suporteEnviar, suporteMarcarLidas, avaliacoesSuporte, suporteStatusTodos, suporteDefinirStatus } from "../db.js";
 
 var cacheHoteis = [];
 var PLANOS = { trial:"Teste Gratis", essencial:"Essencial", profissional:"Profissional" };
@@ -74,33 +74,71 @@ export async function atualizarBadgeSuporte(){
   }catch(e){}
 }
 
+var _supFiltro="todos";   // filtro da lista de conversas: todos|abertos|finalizados
+var _supStatusCache={};   // mapa hotel_id -> status
+
 export async function abrirSuporteDono(){
   pararPollDono();
   sm("Mensagens de Suporte",'<p style="color:var(--text-mute)">Carregando conversas...</p>','<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>');
   var msgs=await suporteConversas();
+  try{ _supStatusCache=await suporteStatusTodos(); }catch(e){ _supStatusCache={}; }
   // agrupa por hotel
   var porHotel={};
   msgs.forEach(function(m){ (porHotel[m.hotel_id]=porHotel[m.hotel_id]||[]).push(m); });
+  _supPorHotel=porHotel;
+  if(!Object.keys(porHotel).length){ document.getElementById("modalBody").innerHTML='<p style="color:var(--text-mute);padding:12px 0">Nenhuma mensagem de suporte ainda.</p>'; return; }
+  pintarListaSuporte();
+}
+
+var _supPorHotel={};
+
+// Status efetivo do hotel: finalizado (se marcado) senao aberto/respondido conforme ultima mensagem
+function statusHotel(hid,conv){
+  var s=_supStatusCache[hid];
+  if(s && s.status==="finalizado") return "finalizado";
+  var ult=conv[conv.length-1];
+  return (ult && ult.autor==="suporte") ? "respondido" : "aberto";
+}
+function badgeStatus(st){
+  if(st==="finalizado") return '<span style="flex:none;background:var(--surface-3);color:var(--text-mute);border:1px solid var(--border);border-radius:20px;padding:1px 9px;font-size:11px">Finalizado</span>';
+  if(st==="respondido") return '<span style="flex:none;background:rgba(48,164,108,.18);color:#43d18c;border-radius:20px;padding:1px 9px;font-size:11px">Respondido</span>';
+  return '<span style="flex:none;background:rgba(241,106,110,.18);color:#f16a6e;border-radius:20px;padding:1px 9px;font-size:11px">Aberto</span>';
+}
+export function filtrarSuporte(f){ _supFiltro=f; pintarListaSuporte(); }
+
+function pintarListaSuporte(){
+  var porHotel=_supPorHotel;
   var ids=Object.keys(porHotel);
-  if(!ids.length){ document.getElementById("modalBody").innerHTML='<p style="color:var(--text-mute);padding:12px 0">Nenhuma mensagem de suporte ainda.</p>'; return; }
+  ids.forEach(function(hid){ porHotel[hid].sort(function(a,b){return (a.criado_em||"").localeCompare(b.criado_em||"")}); });
+  // filtro
+  var visiveis=ids.filter(function(hid){
+    var s=statusHotel(hid,porHotel[hid]);
+    if(_supFiltro==="abertos") return s!=="finalizado";
+    if(_supFiltro==="finalizados") return s==="finalizado";
+    return true;
+  });
   // ordena por mensagem mais recente
-  ids.sort(function(a,b){var ua=porHotel[a][porHotel[a].length-1].criado_em,ub=porHotel[b][porHotel[b].length-1].criado_em;return (ub||"").localeCompare(ua||"");});
-  var html='<div style="display:flex;flex-direction:column;gap:8px">'+ids.map(function(hid){
+  visiveis.sort(function(a,b){var ua=porHotel[a][porHotel[a].length-1].criado_em,ub=porHotel[b][porHotel[b].length-1].criado_em;return (ub||"").localeCompare(ua||"");});
+  var abertos=ids.filter(function(hid){return statusHotel(hid,porHotel[hid])!=="finalizado"}).length;
+  var chip=function(f,txt){return '<button class="sup-chip'+(_supFiltro===f?" on":"")+'" onclick="filtrarSuporte(\''+f+'\')">'+txt+'</button>';};
+  var filtros='<div class="sup-filtros">'+chip("todos","Todos ("+ids.length+")")+chip("abertos","Abertos ("+abertos+")")+chip("finalizados","Finalizados")+'</div>';
+  var lista=visiveis.map(function(hid){
     var conv=porHotel[hid];
-    conv.sort(function(a,b){return (a.criado_em||"").localeCompare(b.criado_em||"")});
     var ult=conv[conv.length-1];
     var naoLidas=conv.filter(function(m){return m.autor==="cliente"&&!m.lida}).length;
     var nome=nomeHotel(hid);
     var ini=(nome||"H").trim().split(/\s+/).map(function(p){return p[0]}).slice(0,2).join("").toUpperCase();
     var prev=(ult.autor==="suporte"?"Voce: ":"")+ult.texto;
+    var st=statusHotel(hid,conv);
     return '<div onclick="abrirConversaHotel(\''+hid+'\')" style="cursor:pointer;display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--surface-2);transition:border-color .15s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+
       '<div style="flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">'+esc(ini)+'</div>'+
       '<div style="flex:1;min-width:0">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="color:var(--text)">'+esc(nome)+'</b>'+(naoLidas?'<span style="flex:none;background:#f16a6e;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700">'+naoLidas+'</span>':'')+'</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="color:var(--text)">'+esc(nome)+'</b><div style="display:flex;gap:6px;align-items:center">'+(naoLidas?'<span style="flex:none;background:#f16a6e;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700">'+naoLidas+'</span>':'')+badgeStatus(st)+'</div></div>'+
         '<div style="color:'+(naoLidas?"var(--text)":"var(--text-mute)")+';font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(prev)+'</div>'+
       '</div></div>';
-  }).join('')+'</div>';
-  document.getElementById("modalBody").innerHTML=html;
+  }).join('');
+  if(!visiveis.length) lista='<p style="color:var(--text-mute);padding:16px 0;text-align:center">Nenhuma conversa neste filtro.</p>';
+  document.getElementById("modalBody").innerHTML=filtros+'<div style="display:flex;flex-direction:column;gap:8px">'+lista+'</div>';
 }
 
 var _donoPoll=null;      // timer de atualizacao da conversa aberta no painel do dono
@@ -127,10 +165,16 @@ async function pintarConversaDono(hid,forcar){
 
 export async function abrirConversaHotel(hid){
   _donoHid=hid; _donoUltCount=-1;
-  var body='<div class="chatbox" id="donoConversa" style="max-height:340px;margin-bottom:12px"><p style="color:var(--text-mute)">Carregando...</p></div>'+
+  var finalizado=_supStatusCache[hid] && _supStatusCache[hid].status==="finalizado";
+  var body='<div class="chatbox" id="donoConversa" style="max-height:320px;margin-bottom:12px"><p style="color:var(--text-mute)">Carregando...</p></div>'+
     '<div class="form-group" style="margin:0"><textarea id="donoResposta" rows="2" placeholder="Escreva sua resposta..." '+
     'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();responderSuporte(\''+hid+'\')}"></textarea></div>';
-  sm("Conversa - "+esc(nomeHotel(hid)),body,'<button class="btn btn-secondary" onclick="abrirSuporteDono()">Voltar</button><button class="btn btn-primary" onclick="responderSuporte(\''+hid+'\')">Responder</button>');
+  var btnFinalizar=finalizado
+    ? '<button class="btn btn-secondary" onclick="reabrirAtendimento(\''+hid+'\')">Reabrir</button>'
+    : '<button class="btn btn-secondary" onclick="finalizarAtendimento(\''+hid+'\')">Finalizar atendimento</button>';
+  sm("Conversa - "+esc(nomeHotel(hid)),body,
+    '<button class="btn btn-secondary" onclick="abrirSuporteDono()">Voltar</button>'+btnFinalizar+
+    '<button class="btn btn-primary" onclick="responderSuporte(\''+hid+'\')">Responder</button>');
   await pintarConversaDono(hid,true);
   setTimeout(function(){var t=document.getElementById("donoResposta");if(t)t.focus();},50);
   // atualiza a conversa a cada 4s enquanto estiver aberta
@@ -152,6 +196,27 @@ export async function responderSuporte(hid){
   if(!salvo){t.value=texto;return st("Nao foi possivel enviar.","error");}
   await pintarConversaDono(hid,true); // re-pinta so a conversa (mantem foco e poll)
   if(t)t.focus();
+}
+
+// Finaliza o atendimento: marca status + envia mensagem de sistema (dispara avaliacao no cliente)
+export async function finalizarAtendimento(hid){
+  var u=getCurrentUser();
+  var nome=u?u.nome:"Suporte";
+  var ok=await suporteDefinirStatus(hid,"finalizado",nome);
+  if(!ok)return st("Nao foi possivel finalizar.","error");
+  await suporteEnviar(hid,"suporte",nome,"[sistema] Atendimento finalizado. Se precisar, e so mandar uma nova mensagem.");
+  _supStatusCache[hid]={ hotel_id:hid, status:"finalizado", fechado_por:nome };
+  st("Atendimento finalizado.","success");
+  abrirConversaHotel(hid); // recarrega com botao Reabrir
+}
+
+// Reabre um atendimento finalizado
+export async function reabrirAtendimento(hid){
+  var ok=await suporteDefinirStatus(hid,"aberto",null);
+  if(!ok)return st("Nao foi possivel reabrir.","error");
+  _supStatusCache[hid]={ hotel_id:hid, status:"aberto" };
+  st("Atendimento reaberto.","success");
+  abrirConversaHotel(hid);
 }
 
 // Modal de gerenciamento detalhado de um hotel (dados + plano + mensalidades)

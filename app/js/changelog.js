@@ -2,8 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.6.0";
+export var APP_VERSION="1.6.1";
 export var CHANGELOG=[
+{v:"1.6.1",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Atendimento com status: o suporte pode Finalizar um atendimento e Reabrir quando precisar; cada conversa mostra se esta Aberta, Respondida ou Finalizada."},
+{t:"melhoria",d:"Filtro de conversas no Painel do Dono (todas, abertas ou finalizadas) para organizar o suporte."},
+{t:"melhoria",d:"A avaliacao do atendimento agora aparece para o cliente quando o suporte finaliza o atendimento."}
+]},
 {v:"1.6.0",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Avaliacao do atendimento: depois que o suporte responde, o cliente pode dar de 1 a 5 estrelas e deixar um comentario."},
 {t:"novo",d:"Painel do Dono mostra a nota media e os comentarios de cada hotel, alem de quando o hotel acessou o sistema pela ultima vez."}

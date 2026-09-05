@@ -149,3 +149,26 @@ export async function avaliacoesSuporte(hotelId){
   var { data } = await q;
   return data||[];
 }
+
+// --- Status do atendimento de suporte (aberto/finalizado) ---
+// Le o status de um hotel. Retorna {status, fechado_em, fechado_por} ou null (nunca aberto formalmente).
+export async function suporteStatus(hotelId){
+  var { data } = await supabase.from("suporte_status").select("*").eq("hotel_id", hotelId).maybeSingle();
+  return data||null;
+}
+// DONO: le o status de todos os hoteis de uma vez. Retorna mapa { hotelId: status }
+export async function suporteStatusTodos(){
+  var { data } = await supabase.from("suporte_status").select("*");
+  var mapa={};
+  (data||[]).forEach(function(s){ mapa[s.hotel_id]=s; });
+  return mapa;
+}
+// Define o status (upsert). status: 'aberto' | 'finalizado'
+export async function suporteDefinirStatus(hotelId, status, porNome){
+  var reg={ hotel_id:hotelId, status:status, atualizado_em:new Date().toISOString() };
+  if(status==="finalizado"){ reg.fechado_em=new Date().toISOString(); reg.fechado_por=porNome||null; }
+  else { reg.fechado_em=null; reg.fechado_por=null; }
+  var { error } = await supabase.from("suporte_status").upsert(reg, { onConflict:"hotel_id" });
+  if(error){ console.error("suporteDefinirStatus", error); return false; }
+  return true;
+}

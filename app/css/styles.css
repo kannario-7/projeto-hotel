@@ -401,6 +401,15 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 /* separador de dia */
 .sup-day{align-self:center;font-size:11px;color:var(--text-mute);background:var(--surface-3);border:1px solid var(--border);border-radius:20px;padding:2px 12px;margin:8px 0 4px}
 
+/* mensagem de sistema (ex: atendimento finalizado) */
+.sup-sys{align-self:center;font-size:11.5px;color:var(--text-mute);background:var(--surface-3);border:1px solid var(--border);border-radius:20px;padding:4px 14px;margin:8px 0;text-align:center;max-width:90%}
+
+/* chips de filtro da lista de conversas (dono) */
+.sup-filtros{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.sup-chip{border:1px solid var(--border);background:var(--surface-2);color:var(--text-dim);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.sup-chip:hover{border-color:var(--accent)}
+.sup-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
 /* linha da mensagem: avatar + balao */
 .sup-msg{display:flex;align-items:flex-end;gap:8px;max-width:82%;margin-top:2px}
 .sup-msg-eu{align-self:flex-end;flex-direction:row-reverse}

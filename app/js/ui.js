@@ -1,7 +1,7 @@
 // UI genérica: toasts, modais, confirmação e widget de suporte
 import { esc } from "./utils.js";
 import { getHotelId } from "./store.js";
-import { suporteEnviar, suporteListar, suporteMarcarLidas, avaliarSuporte, avaliacoesSuporte } from "./db.js";
+import { suporteEnviar, suporteListar, suporteMarcarLidas, avaliarSuporte, avaliacoesSuporte, suporteStatus, suporteDefinirStatus } from "./db.js";
 
 export function st(m,t){var n=document.createElement("div");n.className="toast "+(t||"info");n.innerHTML=(t==="success"?"✓":t==="error"?"✗":"ℹ")+" "+esc(m);document.getElementById("toastContainer").appendChild(n);setTimeout(function(){n.remove()},3500)}
 export function sm(t,b,f){document.getElementById("modalTitle").textContent=t;document.getElementById("modalBody").innerHTML=b||"";document.getElementById("modalFooter").innerHTML=f||"";document.getElementById("modalOverlay").classList.add("show")}
@@ -69,9 +69,15 @@ export async function carregarConversaSuporte(){
   var noFim=alvo.scrollHeight-alvo.scrollTop-alvo.clientHeight<40;
   // No chat do cliente, "eu" = autor cliente; o suporte aparece como interlocutor
   var html=renderConversa(msgs,"cliente",{vazio:"Envie sua primeira mensagem.<br>Respondemos por aqui."});
-  // Se o suporte ja respondeu, oferece avaliar o atendimento (some depois de avaliar)
-  var respondeu=msgs.some(function(m){return m.autor==="suporte"});
-  if(respondeu && !_supAvaliado){ html+=blocoAvaliar(); }
+  // A avaliacao so aparece quando o atendimento foi FINALIZADO pelo suporte
+  // (detecta pela mensagem de sistema, sem consulta extra). Some se o cliente escreveu depois.
+  var finalizado=false;
+  for(var i=0;i<msgs.length;i++){
+    var m=msgs[i];
+    if(typeof m.texto==="string" && m.texto.indexOf("[sistema] Atendimento finalizado")===0) finalizado=true;
+    else if(m.autor==="cliente") finalizado=false; // cliente reabriu ao escrever
+  }
+  if(finalizado && !_supAvaliado){ html+=blocoAvaliar(); }
   alvo.innerHTML=html;
   if(noFim||novas)alvo.scrollTop=alvo.scrollHeight;
   // marca como lidas as respostas do suporte
@@ -156,6 +162,11 @@ export function renderConversa(msgs,autorEu,opts){
   msgs.forEach(function(m){
     var dia=fmtDia(m.criado_em);
     if(dia!==diaAtual){ out+='<div class="sup-day">'+esc(dia)+'</div>'; diaAtual=dia; autorAnt=""; }
+    // mensagem de sistema (ex.: "[sistema] Atendimento finalizado.") vira faixa central
+    if(typeof m.texto==="string" && m.texto.indexOf("[sistema]")===0){
+      out+='<div class="sup-sys">'+esc(m.texto.replace("[sistema]","").trim())+'</div>';
+      autorAnt=""; return;
+    }
     var eu=m.autor===autorEu;
     var agrupado=m.autor===autorAnt;
     var nome=eu?"Voce":(m.autor==="suporte"?"Suporte":(m.nome||"Cliente"));
@@ -183,6 +194,9 @@ export async function enviarSuporte(){
   var salvo=await suporteEnviar(hid,"cliente",nome,texto);
   if(!salvo)return st("Nao foi possivel enviar. Tente pelo WhatsApp.","error");
   st("Mensagem enviada ao suporte!","success");
+  // Se o cliente escreve, o atendimento volta a ficar aberto (reabre se estava finalizado)
+  try{ suporteDefinirStatus(hid,"aberto",null); }catch(e){}
+  _supAvaliado=false; // permite avaliar de novo apos um novo ciclo de atendimento
   carregarConversaSuporte();
 }
 
