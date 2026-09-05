@@ -6,6 +6,7 @@ export var APP_VERSION="1.5.0";
 export var CHANGELOG=[
 {v:"1.5.0",data:"2026-09-02",mudancas:[
 {t:"novo",d:"Suporte pelo chat dentro do sistema: envie sua mensagem e receba a resposta por aqui, sem sair do sistema."},
+{t:"melhoria",d:"Chat de suporte com visual novo: baloes de conversa, avatar, horario e separacao por dia (Hoje/Ontem)."},
 {t:"melhoria",d:"O botao de WhatsApp continua disponivel no suporte como alternativa."}
 ]},
 {v:"1.4.0",data:"2026-09-02",mudancas:[

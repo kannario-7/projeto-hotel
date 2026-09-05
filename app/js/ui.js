@@ -35,18 +35,65 @@ export async function carregarConversaSuporte(){
   var hid=getHotelId();
   if(!hid){alvo.innerHTML="";return;}
   var msgs=await suporteListar(hid);
-  if(!msgs.length){alvo.innerHTML='<p style="color:var(--text-mute);font-size:13px;text-align:center;padding:8px 0">Envie sua primeira mensagem. Respondemos por aqui.</p>';}
-  else{
-    alvo.innerHTML=msgs.map(function(m){
-      var meu=m.autor==="cliente";
-      return '<div class="sup-msg '+(meu?"sup-msg-eu":"sup-msg-sup")+'"><div class="sup-msg-bolha">'+esc(m.texto)+'</div><div class="sup-msg-hora">'+(m.autor==="suporte"?"Suporte · ":"")+fmtHora(m.criado_em)+'</div></div>';
-    }).join('');
-    alvo.scrollTop=alvo.scrollHeight;
-  }
+  // No chat do cliente, "eu" = autor cliente; o suporte aparece como interlocutor
+  alvo.innerHTML=renderConversa(msgs,"cliente",{vazio:"Envie sua primeira mensagem.<br>Respondemos por aqui."});
+  alvo.scrollTop=alvo.scrollHeight;
   // marca como lidas as respostas do suporte
   try{ await suporteMarcarLidas(hid,"suporte"); }catch(e){}
 }
-function fmtHora(iso){if(!iso)return"";var d=new Date(iso);var p=function(n){return String(n).padStart(2,"0")};return p(d.getDate())+"/"+p(d.getMonth()+1)+" "+p(d.getHours())+":"+p(d.getMinutes());}
+
+function fmtHora(iso){if(!iso)return"";var d=new Date(iso);var p=function(n){return String(n).padStart(2,"0")};return p(d.getHours())+":"+p(d.getMinutes());}
+
+// Rotulo de dia amigavel (Hoje / Ontem / dd/mm/aaaa)
+function fmtDia(iso){
+  if(!iso)return"";
+  var d=new Date(iso);var h=new Date();
+  var dd=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  var hh=new Date(h.getFullYear(),h.getMonth(),h.getDate());
+  var diff=Math.round((hh-dd)/86400000);
+  if(diff===0)return"Hoje";
+  if(diff===1)return"Ontem";
+  var p=function(n){return String(n).padStart(2,"0")};
+  return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear();
+}
+function iniciais(nome){
+  nome=(nome||"").trim();
+  if(!nome)return"?";
+  var partes=nome.split(/\s+/);
+  if(partes.length===1)return partes[0].slice(0,2).toUpperCase();
+  return (partes[0][0]+partes[partes.length-1][0]).toUpperCase();
+}
+
+// Renderiza uma conversa de suporte em baloes de chat.
+// msgs: lista {autor:'cliente'|'suporte', nome, texto, criado_em}
+// autorEu: qual autor deve aparecer alinhado a direita ('cliente' no chat do cliente, 'suporte' no painel do dono)
+// opts.vazio: HTML mostrado quando nao ha mensagens
+export function renderConversa(msgs,autorEu,opts){
+  opts=opts||{};
+  msgs=(msgs||[]).slice().sort(function(a,b){return (a.criado_em||"").localeCompare(b.criado_em||"")});
+  if(!msgs.length){
+    return '<div class="sup-empty">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'+
+      '<span>'+(opts.vazio||"Nenhuma mensagem ainda.")+'</span></div>';
+  }
+  var out="";var diaAtual="";var autorAnt="";
+  msgs.forEach(function(m){
+    var dia=fmtDia(m.criado_em);
+    if(dia!==diaAtual){ out+='<div class="sup-day">'+esc(dia)+'</div>'; diaAtual=dia; autorAnt=""; }
+    var eu=m.autor===autorEu;
+    var agrupado=m.autor===autorAnt;
+    var nome=eu?"Voce":(m.autor==="suporte"?"Suporte":(m.nome||"Cliente"));
+    out+='<div class="sup-msg '+(eu?"sup-msg-eu":"sup-msg-sup")+(agrupado?" grouped":"")+'">'+
+      '<div class="sup-avatar">'+esc(eu?"EU":iniciais(nome==="Voce"?"Voce":nome))+'</div>'+
+      '<div class="sup-msg-body">'+
+        (agrupado?"":'<div class="sup-msg-nome">'+esc(nome)+'</div>')+
+        '<div class="sup-msg-bolha">'+esc(m.texto)+'</div>'+
+        '<div class="sup-msg-hora">'+fmtHora(m.criado_em)+'</div>'+
+      '</div></div>';
+    autorAnt=m.autor;
+  });
+  return out;
+}
 
 // Envia mensagem pelo sistema (grava no banco; o dono responde no Painel do Dono)
 export async function enviarSuporte(){
