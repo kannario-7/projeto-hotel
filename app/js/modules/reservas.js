@@ -1,6 +1,6 @@
 // Módulo: Reservas
 import { esc, fmtC, fmtD, td, dB, mascDocAuto, mascTel, isValidCPF } from "../utils.js";
-import { St, getStatusBadge, quartosDisponiveis } from "../store.js";
+import { St, getStatusBadge, quartosDisponiveis, quartosLivres } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 
 export function renderReservas(){var el=document.getElementById("pageContent");
@@ -28,6 +28,7 @@ reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).
 '<td>'+
 (r.status==="pendente"||r.status==="confirmada"?'<button class="btn btn-sm btn-primary" onclick="editarReserva(\''+r.id+'\')" style="margin-right:4px">Editar</button>':'')+
 (r.status==="pendente"?'<button class="btn btn-sm btn-success" onclick="confirmarReserva(\''+r.id+'\')" style="margin-right:4px">Confirmar</button>':'')+
+(r.status==="confirmada"||r.status==="checkin"?'<button class="btn btn-sm btn-secondary" onclick="trocarQuarto(\''+r.id+'\')" style="margin-right:4px">Trocar quarto</button>':'')+
 (r.status!=="cancelada"&&r.status!=="checkout"?'<button class="btn btn-sm btn-danger" onclick="cancelarReserva(\''+r.id+'\')">Cancelar</button>':'')+
 '</td></tr>'}).join('')+'</table>'}
 
@@ -35,6 +36,80 @@ export function showNovaReserva(){sm("Nova Reserva",formReserva(null),'<button c
 export function editarReserva(id){sm("Editar Reserva",formReserva(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva(\''+id+'\')">Salvar</button>')}
 export function confirmarReserva(id){St.up("r",id,{status:"confirmada"});st("Reserva confirmada!","success");cm();renderReservas()}
 export function cancelarReserva(id){confirmar({titulo:"Cancelar reserva?",msg:"Esta reserva sera marcada como cancelada.",okLabel:"Sim, cancelar",tipo:"danger"},function(){St.up("r",id,{status:"cancelada"});st("Reserva cancelada.","warning");renderReservas()})}
+
+// --- TROCA DE QUARTO ---
+// Abre modal para mover a reserva para outro quarto, mostrando apenas os quartos livres no periodo.
+export function trocarQuarto(id){
+  var r=St.fi("r",id);
+  if(!r)return;
+  var qAtual=St.fi("q",r.quartoId);
+  // quartos livres no periodo, de qualquer tipo, ignorando a propria reserva
+  var livres=quartosLivres(r.dataCheckin,r.dataCheckout,id).filter(function(q){return q.id!==r.quartoId});
+  var corpo;
+  if(!livres.length){
+    corpo='<div class="qmodal-info" style="margin-bottom:14px"><div class="qmodal-row"><span>Hospede</span><b>'+(St.fi("h",r.hospedeId)?esc(St.fi("h",r.hospedeId).nome):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Quarto atual</span><b>'+(qAtual?"Apto "+esc(qAtual.numero):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Periodo</span><b>'+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+'</b></div></div>'+
+      '<p style="color:var(--text-mute);text-align:center;padding:8px 0">Nenhum outro quarto esta livre neste periodo.<br>Libere um quarto ou ajuste as datas da reserva.</p>';
+    sm("Trocar quarto",corpo,'<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>');
+    return;
+  }
+  // agrupa por tipo para o select ficar claro (mostra tipo e diaria)
+  var porTipo={};
+  livres.forEach(function(q){ (porTipo[q.tipoQuartoId]=porTipo[q.tipoQuartoId]||[]).push(q); });
+  var optgroups=Object.keys(porTipo).map(function(tid){
+    var t=St.fi("tq",tid);
+    var label=(t?esc(t.nome)+" - "+fmtC(t.precoDiaria)+"/noite":"Sem tipo");
+    return '<optgroup label="'+label+'">'+porTipo[tid].map(function(q){
+      return '<option value="'+q.id+'">Apto '+esc(q.numero)+(q.andar?' (andar '+q.andar+')':'')+'</option>';
+    }).join('')+'</optgroup>';
+  }).join('');
+  var precoAtual=(St.fi("tq",r.tipoQuartoId)?St.fi("tq",r.tipoQuartoId).precoDiaria:0);
+  corpo='<div class="qmodal-info" style="margin-bottom:14px">'+
+      '<div class="qmodal-row"><span>Hospede</span><b>'+(St.fi("h",r.hospedeId)?esc(St.fi("h",r.hospedeId).nome):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Quarto atual</span><b>'+(qAtual?"Apto "+esc(qAtual.numero):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Periodo</span><b>'+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+'</b></div>'+
+    '</div>'+
+    '<div class="form-group"><label>Novo quarto (apenas livres) *</label>'+
+      '<select id="tqNovoQuarto" onchange="previewTrocaQuarto(\''+id+'\')"><option value="">Selecione...</option>'+optgroups+'</select></div>'+
+    '<div id="tqAviso" style="font-size:13px;color:var(--text-mute)"></div>';
+  sm("Trocar quarto",corpo,'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarTrocaQuarto(\''+id+'\')">Confirmar troca</button>');
+}
+
+// Mostra o efeito da troca (mudanca de tipo/valor) antes de confirmar
+export function previewTrocaQuarto(id){
+  var r=St.fi("r",id),sel=document.getElementById("tqNovoQuarto"),aviso=document.getElementById("tqAviso");
+  if(!r||!sel||!aviso)return;
+  var q=St.fi("q",sel.value);
+  if(!q){aviso.textContent="";return;}
+  var tNovo=St.fi("tq",q.tipoQuartoId),tAtual=St.fi("tq",r.tipoQuartoId);
+  if(!tNovo||!tAtual||tNovo.id===tAtual.id){aviso.innerHTML='<span style="color:#43d18c">Mesmo tipo de quarto: o valor da reserva nao muda.</span>';return;}
+  var novoTotal=r.noites*tNovo.precoDiaria;
+  aviso.innerHTML='Muda de <b>'+esc(tAtual.nome)+'</b> para <b>'+esc(tNovo.nome)+'</b>. '+
+    'Novo valor da reserva: <b>'+fmtC(novoTotal)+'</b> ('+r.noites+' noite(s) &times; '+fmtC(tNovo.precoDiaria)+').';
+}
+
+export function salvarTrocaQuarto(id){
+  var r=St.fi("r",id),sel=document.getElementById("tqNovoQuarto");
+  if(!r||!sel)return;
+  if(!sel.value)return st("Selecione o novo quarto.","error"),false;
+  var novo=St.fi("q",sel.value);
+  if(!novo)return st("Quarto invalido.","error"),false;
+  var tNovo=St.fi("tq",novo.tipoQuartoId);
+  var noites=r.noites||1;
+  var novoTotal=tNovo?noites*tNovo.precoDiaria:r.total;
+  var quartoAntigoId=r.quartoId;
+  // Atualiza a reserva (quarto, tipo e total recalculado)
+  St.up("r",id,{quartoId:novo.id,tipoQuartoId:novo.tipoQuartoId,total:novoTotal});
+  // Se o hospede ja fez check-in, sincroniza status dos quartos (libera o antigo, ocupa o novo)
+  if(r.status==="checkin"){
+    if(quartoAntigoId)St.up("q",quartoAntigoId,{status:"limpeza"});
+    St.up("q",novo.id,{status:"ocupado"});
+  }
+  st("Quarto trocado para o Apto "+novo.numero+"!","success");
+  cm();
+  renderReservas();
+}
 
 function formReserva(id){var r=id?St.fi("r",id):null;
 var hospedes=St.ga("h").filter(function(h){return h.ativo!==false});

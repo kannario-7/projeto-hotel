@@ -62,6 +62,8 @@ export var St = {
 export function getStatusBadge(s){var m={disponivel:"success",ocupado:"info",reservado:"warning",pendente:"warning",confirmada:"info",checkin:"info",checkout:"",cancelada:"danger",manutencao:"danger",limpeza:"warning"};return'<span class="badge badge-'+m[s]+'">'+esc(s.charAt(0).toUpperCase()+s.slice(1))+'</span>'}
 export function checkDisponivel(quartoId,checkin,checkout,excluirId){return!St.ga("r").some(function(r){return r.id!==excluirId&&r.quartoId===quartoId&&["confirmada","pendente","checkin"].includes(r.status)&&r.dataCheckin<checkout&&r.dataCheckout>checkin})}
 export function quartosDisponiveis(tipoId,checkin,checkout,excluirId){return St.ga("q").filter(function(q){return q.ativo!==false&&q.tipoQuartoId===tipoId&&(q.status==="disponivel"||q.status==="limpeza")&&checkDisponivel(q.id,checkin,checkout,excluirId)})}
+// Quartos livres para o periodo, de QUALQUER tipo (usado na troca de quarto). Ignora quartos ocupados/manutencao e o proprio (excluirId).
+export function quartosLivres(checkin,checkout,excluirId){return St.ga("q").filter(function(q){return q.ativo!==false&&(q.status==="disponivel"||q.status==="limpeza")&&checkDisponivel(q.id,checkin,checkout,excluirId)})}
 
 // Popula dados de exemplo para um hotel recém-criado (uma vez)
 export async function seedHotel(hotelId){

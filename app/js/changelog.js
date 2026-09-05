@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.6.1";
+export var APP_VERSION="1.6.2";
 export var CHANGELOG=[
+{v:"1.6.2",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Trocar quarto de uma reserva: botao 'Trocar quarto' nas reservas confirmadas e em andamento, mostrando apenas os quartos livres no periodo."},
+{t:"melhoria",d:"Se o novo quarto for de outro tipo, o valor da reserva e recalculado automaticamente; no check-in, o quarto antigo vai para limpeza e o novo fica ocupado."}
+]},
 {v:"1.6.1",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Atendimento com status: o suporte pode Finalizar um atendimento e Reabrir quando precisar; cada conversa mostra se esta Aberta, Respondida ou Finalizada."},
 {t:"melhoria",d:"Filtro de conversas no Painel do Dono (todas, abertas ou finalizadas) para organizar o suporte."},
