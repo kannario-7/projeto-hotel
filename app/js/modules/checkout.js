@@ -63,7 +63,7 @@ export function imprimirFatura(){
   imprimirDocumento("Fatura de Hospedagem", "Hospede: "+f.hospede+(f.documento?(" - "+f.documento):""), corpo);
 }
 
-export function finalizarCheckout(id){var r=St.fi("r",id);if(!r)return;
+export async function finalizarCheckout(id){var r=St.fi("r",id);if(!r)return;
 var hoje=td(),noitesReais=Math.max(1,dB(r.dataCheckin,hoje));
 var tq=St.fi("tq",r.tipoQuartoId);
 var diarias=tq?noitesReais*tq.precoDiaria:0;
@@ -72,9 +72,21 @@ var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
 var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
 var total=diarias+totalServicos+taxaImp;
 var pag=document.getElementById("coPag"),obs=document.getElementById("coObs");
-var pagamento={id:crypto.randomUUID(),reservaId:id,hospedeId:r.hospedeId,valor:total,forma:(pag?pag.value:"dinheiro"),data:hoje,observacoes:(obs?obs.value.trim():"")};
-St.in("pg",pagamento);
-St.up("r",id,{status:"checkout",dataCheckout:hoje,total:total});
+var pagamento={reservaId:id,hospedeId:r.hospedeId,valor:total,forma:(pag?pag.value:"dinheiro"),data:hoje,observacoes:(obs?obs.value.trim():"")};
+var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Finalizando...";}
+// PRIMEIRO grava o pagamento AGUARDANDO o banco. Se falhar, aborta sem marcar checkout
+// (evita quarto liberado / reserva fechada sem o pagamento ter sido registrado).
+var resPg=await St.inErr("pg",pagamento);
+if(!resPg.ok){
+  if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}
+  return st("Nao foi possivel registrar o pagamento. Check-out NAO concluido. Tente novamente.","error"),false;
+}
+// Pagamento confirmado: agora atualiza reserva e quarto.
+var resR=await St.upErr("r",id,{status:"checkout",dataCheckout:hoje,total:total});
+if(!resR.ok){
+  if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}
+  return st("Pagamento registrado, mas houve erro ao fechar a reserva. Verifique e tente de novo.","error"),false;
+}
 St.up("q",r.quartoId,{status:"limpeza"});
 st("Check-out realizado! Total: "+fmtC(total),"success");
 cm();renderCheckout();}

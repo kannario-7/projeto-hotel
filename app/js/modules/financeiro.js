@@ -338,12 +338,15 @@ export function showAbrirCaixa(){
   '<p style="color:var(--text-mute);font-size:12px">Valor em dinheiro que ja esta na gaveta no inicio do turno.</p>',
   '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="abrirCaixa()">Abrir</button>');
 }
-export function abrirCaixa(){
+export async function abrirCaixa(){
   if(caixaAberto())return st("Ja existe um caixa aberto. Feche-o antes de abrir outro.","warning");
   var v=document.getElementById("cxAbertura");
   var fundo=Math.round(parseFloat(v&&v.value?v.value:0)*100);
   var u=getCurrentUser();
-  St.in("sc",{usuarioAbertura:(u?u.nome:"-"),abertoEm:new Date().toISOString(),valorAbertura:fundo,status:"aberto"});
+  var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Abrindo...";}
+  var res=await St.inErr("sc",{usuarioAbertura:(u?u.nome:"-"),abertoEm:new Date().toISOString(),valorAbertura:fundo,status:"aberto"});
+  if(btn){btn.disabled=false;btn.textContent="Abrir caixa";}
+  if(!res.ok)return st("Nao foi possivel abrir o caixa. Tente novamente.","error"),false;
   st("Caixa aberto!","success");cm();
   document.getElementById("financeiroContent").innerHTML=buildCaixa();
 }
@@ -362,7 +365,7 @@ export function showFecharCaixa(){
   '</div>',
   '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-danger" onclick="fecharCaixa()">Fechar e conferir</button>');
 }
-export function fecharCaixa(){
+export async function fecharCaixa(){
   var aberto=caixaAberto();if(!aberto)return st("Nenhum caixa aberto.","error");
   var g=function(id){var e=document.getElementById(id);return Math.round(parseFloat(e&&e.value?e.value:0)*100)};
   var din=g("cxDin"),card=g("cxCard"),pix=g("cxPix"),out=g("cxOut");
@@ -372,7 +375,11 @@ export function fecharCaixa(){
   var diferenca=(contadoTotal-aberto.valorAbertura)-totalSistema;
   var u=getCurrentUser();
   var obs=document.getElementById("cxObs");
-  St.up("sc",aberto.id,{usuarioFechamento:(u?u.nome:"-"),fechadoEm:new Date().toISOString(),contadoDinheiro:din,contadoCartao:card,contadoPix:pix,contadoOutros:out,valorSistema:totalSistema,diferenca:diferenca,observacoes:(obs?obs.value.trim():""),status:"fechado"});
+  var btn=document.querySelector("#modalFooter .btn-danger"); if(btn){btn.disabled=true;btn.textContent="Fechando...";}
+  // AGUARDA o banco: o fechamento de caixa (conferencia/diferenca) nao pode se perder silenciosamente
+  var res=await St.upErr("sc",aberto.id,{usuarioFechamento:(u?u.nome:"-"),fechadoEm:new Date().toISOString(),contadoDinheiro:din,contadoCartao:card,contadoPix:pix,contadoOutros:out,valorSistema:totalSistema,diferenca:diferenca,observacoes:(obs?obs.value.trim():""),status:"fechado"});
+  if(btn){btn.disabled=false;btn.textContent="Fechar e conferir";}
+  if(!res.ok)return st("Nao foi possivel fechar o caixa. Confira a conexao e tente novamente.","error"),false;
   var msg=diferenca===0?"Caixa fechado. Valores conferem!":(diferenca>0?("Caixa fechado. SOBRA de "+fmtC(diferenca)):("Caixa fechado. FALTA de "+fmtC(-diferenca)));
   st(msg, diferenca===0?"success":"warning");cm();
   document.getElementById("financeiroContent").innerHTML=buildCaixa();

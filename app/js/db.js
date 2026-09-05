@@ -54,12 +54,29 @@ function paraApp(k, b){
   return o;
 }
 
+// Busca TODAS as linhas de uma tabela do hotel, paginando em blocos.
+// O Supabase limita cada select a ~1000 linhas; sem paginar, hoteis grandes
+// carregariam dados INCOMPLETOS em silencio (relatorios/financeiro errados).
+var PAGINA = 1000;
+async function buscarTudo(tabela, hotelId){
+  var todas = [];
+  for(var offset = 0; ; offset += PAGINA){
+    var { data, error } = await supabase.from(tabela).select("*")
+      .eq("hotel_id", hotelId).range(offset, offset + PAGINA - 1);
+    if(error) return { data: todas, error: error };
+    var lote = data || [];
+    todas = todas.concat(lote);
+    if(lote.length < PAGINA) break; // ultima pagina
+  }
+  return { data: todas, error: null };
+}
+
 // Carrega TODOS os dados do hotel de uma vez (para o cache em memória).
-// Em PARALELO (Promise.all) para ficar rapido - antes era tabela por tabela em sequencia.
+// Em PARALELO (Promise.all) entre tabelas; cada tabela pagina internamente ate trazer tudo.
 export async function carregarHotel(hotelId){
   var chaves = Object.keys(TABELAS);
   var resultados = await Promise.all(chaves.map(function(k){
-    return supabase.from(TABELAS[k]).select("*").eq("hotel_id", hotelId)
+    return buscarTudo(TABELAS[k], hotelId)
       .then(function(res){ return { k:k, data:res.data, error:res.error }; })
       .catch(function(e){ return { k:k, data:[], error:e }; });
   }));
@@ -83,6 +100,24 @@ export async function atualizar(k, id, patch, hotelId){
   var { data, error } = await supabase.from(TABELAS[k]).update(paraBanco(k, patch, hotelId)).eq("id", id).select().single();
   if(error){ console.error("Erro ao atualizar "+k, error); return null; }
   return paraApp(k, data);
+}
+
+// Variantes que EXPÕEM o erro (para fluxos criticos: reservas/overbooking, financeiro).
+// Retornam { data, error } em vez de engolir o erro.
+export async function inserirComErro(k, obj, hotelId){
+  var { data, error } = await supabase.from(TABELAS[k]).insert(paraBanco(k, obj, hotelId)).select().single();
+  if(error){ console.error("Erro ao inserir "+k, error); return { data:null, error:error }; }
+  return { data:paraApp(k, data), error:null };
+}
+export async function atualizarComErro(k, id, patch, hotelId){
+  var { data, error } = await supabase.from(TABELAS[k]).update(paraBanco(k, patch, hotelId)).eq("id", id).select().single();
+  if(error){ console.error("Erro ao atualizar "+k, error); return { data:null, error:error }; }
+  return { data:paraApp(k, data), error:null };
+}
+// True se o erro do banco foi violacao da trava de overbooking (constraint exclude)
+export function ehErroOverbooking(error){
+  if(!error) return false;
+  return error.code==="23P01" || (typeof error.message==="string" && error.message.indexOf("reservas_sem_overbooking")>=0);
 }
 
 // Remove por id

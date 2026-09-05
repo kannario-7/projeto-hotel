@@ -1,7 +1,8 @@
 // Módulo: Reservas
 import { esc, fmtC, fmtD, td, dB, mascDocAuto, mascTel, isValidCPF } from "../utils.js";
-import { St, getStatusBadge, quartosDisponiveis, quartosLivres } from "../store.js";
+import { St, getStatusBadge, quartosDisponiveis, quartosLivres, checkDisponivel } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
+import { ehErroOverbooking } from "../db.js";
 
 export function renderReservas(){var el=document.getElementById("pageContent");
 var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
@@ -89,18 +90,28 @@ export function previewTrocaQuarto(id){
     'Novo valor da reserva: <b>'+fmtC(novoTotal)+'</b> ('+r.noites+' noite(s) &times; '+fmtC(tNovo.precoDiaria)+').';
 }
 
-export function salvarTrocaQuarto(id){
+export async function salvarTrocaQuarto(id){
   var r=St.fi("r",id),sel=document.getElementById("tqNovoQuarto");
   if(!r||!sel)return;
   if(!sel.value)return st("Selecione o novo quarto.","error"),false;
   var novo=St.fi("q",sel.value);
   if(!novo)return st("Quarto invalido.","error"),false;
+  // Revalida: o quarto de destino ainda esta livre no periodo? (ignora a propria reserva)
+  if(!checkDisponivel(novo.id,r.dataCheckin,r.dataCheckout,id)){
+    return st("Esse quarto ja foi ocupado nesse periodo. Escolha outro.","error"),false;
+  }
   var tNovo=St.fi("tq",novo.tipoQuartoId);
   var noites=r.noites||1;
   var novoTotal=tNovo?noites*tNovo.precoDiaria:r.total;
   var quartoAntigoId=r.quartoId;
-  // Atualiza a reserva (quarto, tipo e total recalculado)
-  St.up("r",id,{quartoId:novo.id,tipoQuartoId:novo.tipoQuartoId,total:novoTotal});
+  var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Trocando...";}
+  // Atualiza a reserva aguardando o banco (a trava de overbooking pode barrar por concorrencia)
+  var res=await St.upErr("r",id,{quartoId:novo.id,tipoQuartoId:novo.tipoQuartoId,total:novoTotal});
+  if(btn){btn.disabled=false;btn.textContent="Confirmar troca";}
+  if(!res.ok){
+    if(ehErroOverbooking(res.error)) return st("Esse quarto acabou de ser ocupado por outra reserva. Escolha outro.","error"),false;
+    return st("Nao foi possivel trocar o quarto. Tente novamente.","error"),false;
+  }
   // Se o hospede ja fez check-in, sincroniza status dos quartos (libera o antigo, ocupa o novo)
   if(r.status==="checkin"){
     if(quartoAntigoId)St.up("q",quartoAntigoId,{status:"limpeza"});
@@ -194,13 +205,25 @@ export async function salvarHospedeNaReserva(){
   toggleNovoHospedeReserva();
 }
 
-export function salvarReserva(id){var h=document.getElementById("rfHospede"),t=document.getElementById("rfTipo"),q=document.getElementById("rfQuarto"),ci=document.getElementById("rfCheckin"),co=document.getElementById("rfCheckout"),selSt=document.getElementById("rfStatus");
+export async function salvarReserva(id){var h=document.getElementById("rfHospede"),t=document.getElementById("rfTipo"),q=document.getElementById("rfQuarto"),ci=document.getElementById("rfCheckin"),co=document.getElementById("rfCheckout"),selSt=document.getElementById("rfStatus");
 if(!h||!t||!q||!ci||!co)return;
 if(!h.value||!t.value||!q.value||!ci.value||!co.value)return st("Preencha todos os campos obrigatorios.","error"),false;
 if(ci.value>=co.value)return st("Check-out deve ser apos Check-in.","error"),false;
+// Revalida disponibilidade no momento de salvar (datas podem ter mudado apos escolher o quarto).
+// So bloqueia se a reserva for ficar ativa (pendente/confirmada); ignora a propria reserva ao editar.
+var statusNovo=(selSt?selSt.value:"pendente");
+if(["pendente","confirmada"].indexOf(statusNovo)>=0 && !checkDisponivel(q.value,ci.value,co.value,id||null)){
+  return st("Esse quarto ja esta reservado nesse periodo. Escolha outro quarto ou datas.","error"),false;
+}
 var qo=St.fi("q",q.value),tq=St.fi("tq",qo?qo.tipoQuartoId:null);
 var noites=dB(ci.value,co.value),total=noites*(tq?tq.precoDiaria:0);
-var dados={hospedeId:h.value,quartoId:q.value,tipoQuartoId:t.value,dataCheckin:ci.value,dataCheckout:co.value,noites:noites,total:total,status:(selSt?selSt.value:"pendente"),servicosIds:[]};
-if(id){St.up("r",id,dados);st("Reserva atualizada!","success")}
-else{St.in("r",dados);st("Reserva criada!","success")}
+var dados={hospedeId:h.value,quartoId:q.value,tipoQuartoId:t.value,dataCheckin:ci.value,dataCheckout:co.value,noites:noites,total:total,status:statusNovo,servicosIds:[]};
+var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Salvando...";}
+var res = id ? await St.upErr("r",id,dados) : await St.inErr("r",dados);
+if(btn){btn.disabled=false;btn.textContent="Salvar";}
+if(!res.ok){
+  if(ehErroOverbooking(res.error)) return st("Esse quarto acabou de ser reservado por outra pessoa nesse periodo. Escolha outro.","error"),false;
+  return st("Nao foi possivel salvar a reserva. Tente novamente.","error"),false;
+}
+st(id?"Reserva atualizada!":"Reserva criada!","success");
 cm();renderReservas()}

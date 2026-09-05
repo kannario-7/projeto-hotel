@@ -56,6 +56,26 @@ export var St = {
   rm:function(k,i){
     cache[k] = (cache[k]||[]).filter(function(x){return x.id!==i});
     db.remover(k, i);
+  },
+  // INSERT confiavel: AGUARDA o banco e retorna { ok, error, obj }.
+  // So grava no cache se o banco confirmar (evita "sucesso" falso).
+  inErr:async function(k,v){
+    var res = await db.inserirComErro(k, v, hotelIdAtual);
+    if(res.error) return { ok:false, error:res.error, obj:null };
+    cache[k] = cache[k] || [];
+    cache[k].push(res.data);
+    return { ok:true, error:null, obj:res.data };
+  },
+  // UPDATE confiavel: AGUARDA o banco. So aplica no cache se confirmar; senao mantem o valor antigo.
+  upErr:async function(k,i,u){
+    var a = cache[k]||[], p = a.findIndex(function(x){return x.id===i});
+    if(p<0) return { ok:false, error:{ message:"registro nao encontrado" }, obj:null };
+    var anterior = Object.assign({}, a[p]);
+    var patch = Object.assign({}, anterior, u);
+    var res = await db.atualizarComErro(k, i, patch, hotelIdAtual);
+    if(res.error) return { ok:false, error:res.error, obj:null };
+    Object.assign(a[p], u);
+    return { ok:true, error:null, obj:a[p] };
   }
 };
 

@@ -2,8 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.6.2";
+export var APP_VERSION="1.7.0";
 export var CHANGELOG=[
+{v:"1.7.0",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Protecao contra reserva duplicada (overbooking): o sistema agora impede que o mesmo quarto seja reservado para o mesmo periodo, inclusive quando dois usuarios salvam ao mesmo tempo."},
+{t:"melhoria",d:"Check-out e caixa mais seguros: o sistema confirma a gravacao no banco antes de concluir e avisa caso algo falhe, evitando pagamento ou fechamento perdido em silencio."},
+{t:"melhoria",d:"Hoteis com muito historico: carregamento completo dos dados (reservas, pagamentos, consumos) sem cortar em silencio - relatorios ficam corretos."}
+]},
 {v:"1.6.2",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Trocar quarto de uma reserva: botao 'Trocar quarto' nas reservas confirmadas e em andamento, mostrando apenas os quartos livres no periodo."},
 {t:"melhoria",d:"Se o novo quarto for de outro tipo, o valor da reserva e recalculado automaticamente; no check-in, o quarto antigo vai para limpeza e o novo fica ocupado."}
