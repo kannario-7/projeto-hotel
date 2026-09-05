@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.4.0";
+export var APP_VERSION="1.5.0";
 export var CHANGELOG=[
+{v:"1.5.0",data:"2026-09-02",mudancas:[
+{t:"novo",d:"Suporte pelo chat dentro do sistema: envie sua mensagem e receba a resposta por aqui, sem sair do sistema."},
+{t:"melhoria",d:"O botao de WhatsApp continua disponivel no suporte como alternativa."}
+]},
 {v:"1.4.0",data:"2026-09-02",mudancas:[
 {t:"melhoria",d:"Financeiro reorganizado: aba Visao Geral reune os numeros principais e o balancete numa tela so."},
 {t:"melhoria",d:"Relatorios mais enxutos e focados em analise (ocupacao, KPIs, reservas e hospedes); o financeiro fica no proprio modulo Financeiro."},

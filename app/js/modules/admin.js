@@ -3,6 +3,7 @@ import { esc, fmtC, fmtD } from "../utils.js";
 import { supabase } from "../supabase.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
+import { suporteConversas, suporteEnviar, suporteMarcarLidas } from "../db.js";
 
 var cacheHoteis = [];
 var PLANOS = { trial:"Teste Gratis", essencial:"Essencial", profissional:"Profissional" };
@@ -13,7 +14,8 @@ export async function renderAdmin(){
   var el=document.getElementById("pageContent");
   var u=getCurrentUser();
   if(!u||!u.isOwner){ el.innerHTML='<div class="page-header"><div><h2>Acesso restrito</h2><p>Area exclusiva do administrador do sistema.</p></div></div>'; return; }
-  el.innerHTML='<div class="page-header"><div><h2>Painel do Dono</h2><p>Hoteis e mensalidades do HospedaPrime</p></div></div><div id="adminContent"><p style="color:var(--text-mute)">Carregando...</p></div>';
+  el.innerHTML='<div class="page-header"><div><h2>Painel do Dono</h2><p>Hoteis e mensalidades do HospedaPrime</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="abrirSuporteDono()">Mensagens de Suporte <span id="supBadge" style="display:none;background:#f16a6e;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px"></span></button></div></div><div id="adminContent"><p style="color:var(--text-mute)">Carregando...</p></div>';
+  atualizarBadgeSuporte();
   var c=document.getElementById("adminContent");
   var { data, error } = await supabase.rpc("listar_hoteis_admin");
   if(error){ c.innerHTML='<p style="color:#f16a6e">Erro ao carregar: '+esc(error.message)+'</p>'; return; }
@@ -46,6 +48,60 @@ export async function renderAdmin(){
     }).join('')+'</table>';
   }
   c.innerHTML=html;
+}
+
+// ---- SUPORTE (dono ve e responde conversas de todos os hoteis) ----
+function nomeHotel(hid){var h=cacheHoteis.find(function(x){return x.id===hid});return h?h.nome:"Hotel";}
+
+export async function atualizarBadgeSuporte(){
+  try{
+    var msgs=await suporteConversas();
+    var naoLidas=msgs.filter(function(m){return m.autor==="cliente" && !m.lida});
+    var b=document.getElementById("supBadge");
+    if(b){ if(naoLidas.length){ b.style.display="inline-block"; b.textContent=naoLidas.length; } else b.style.display="none"; }
+  }catch(e){}
+}
+
+export async function abrirSuporteDono(){
+  sm("Mensagens de Suporte",'<p style="color:var(--text-mute)">Carregando conversas...</p>','<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>');
+  var msgs=await suporteConversas();
+  // agrupa por hotel
+  var porHotel={};
+  msgs.forEach(function(m){ (porHotel[m.hotel_id]=porHotel[m.hotel_id]||[]).push(m); });
+  var ids=Object.keys(porHotel);
+  if(!ids.length){ document.getElementById("modalBody").innerHTML='<p style="color:var(--text-mute);padding:12px 0">Nenhuma mensagem de suporte ainda.</p>'; return; }
+  // ordena por mensagem mais recente
+  ids.sort(function(a,b){var ua=porHotel[a][porHotel[a].length-1].criado_em,ub=porHotel[b][porHotel[b].length-1].criado_em;return (ub||"").localeCompare(ua||"");});
+  var html='<div style="display:flex;flex-direction:column;gap:8px">'+ids.map(function(hid){
+    var conv=porHotel[hid];var ult=conv[conv.length-1];
+    var naoLidas=conv.filter(function(m){return m.autor==="cliente"&&!m.lida}).length;
+    return '<div onclick="abrirConversaHotel(\''+hid+'\')" style="cursor:pointer;border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface-2)">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:var(--text)">'+esc(nomeHotel(hid))+'</b>'+(naoLidas?'<span style="background:#f16a6e;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px">'+naoLidas+' nova(s)</span>':'')+'</div>'+
+      '<div style="color:var(--text-mute);font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(ult.autor==="suporte"?"Voce: ":"")+esc(ult.texto)+'</div></div>';
+  }).join('')+'</div>';
+  document.getElementById("modalBody").innerHTML=html;
+}
+
+export async function abrirConversaHotel(hid){
+  var msgs=await suporteConversas();
+  var conv=msgs.filter(function(m){return m.hotel_id===hid}).sort(function(a,b){return (a.criado_em||"").localeCompare(b.criado_em||"")});
+  var body='<div style="font-weight:600;color:var(--text);margin-bottom:8px">'+esc(nomeHotel(hid))+'</div>'+
+    '<div id="donoConversa" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;padding:4px">'+
+    conv.map(function(m){var sup=m.autor==="suporte";return '<div class="sup-msg '+(sup?"sup-msg-eu":"sup-msg-sup")+'"><div class="sup-msg-bolha">'+esc(m.texto)+'</div><div class="sup-msg-hora">'+(sup?"Voce":esc(m.nome||"Cliente"))+'</div></div>';}).join('')+'</div>'+
+    '<div class="form-group"><textarea id="donoResposta" rows="2" placeholder="Escreva sua resposta..."></textarea></div>';
+  sm("Conversa - "+esc(nomeHotel(hid)),body,'<button class="btn btn-secondary" onclick="abrirSuporteDono()">Voltar</button><button class="btn btn-primary" onclick="responderSuporte(\''+hid+'\')">Responder</button>');
+  try{ await suporteMarcarLidas(hid,"cliente"); atualizarBadgeSuporte(); }catch(e){}
+  setTimeout(function(){var c=document.getElementById("donoConversa");if(c)c.scrollTop=c.scrollHeight;},50);
+}
+
+export async function responderSuporte(hid){
+  var t=document.getElementById("donoResposta");
+  if(!t||!t.value.trim())return st("Escreva uma resposta.","warning");
+  var u=getCurrentUser();
+  var salvo=await suporteEnviar(hid,"suporte",(u?u.nome:"Suporte"),t.value.trim());
+  if(!salvo)return st("Nao foi possivel enviar.","error");
+  st("Resposta enviada!","success");
+  abrirConversaHotel(hid);
 }
 
 // Modal de gerenciamento detalhado de um hotel (dados + plano + mensalidades)

@@ -381,3 +381,13 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
    escondidos no desktop (evita duplicar) e visiveis no mobile (onde nao estao na barra) */
 .mais-menu .mais-mobile{display:none}
 @media(max-width:768px){.mais-menu .mais-mobile{display:flex}}
+
+/* Conversa do suporte (chat interno cliente <-> dono) */
+.support-conversa{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin:4px 0 12px;padding:4px 2px}
+.sup-msg{display:flex;flex-direction:column;max-width:85%}
+.sup-msg-eu{align-self:flex-end;align-items:flex-end}
+.sup-msg-sup{align-self:flex-start;align-items:flex-start}
+.sup-msg-bolha{padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.4;word-break:break-word}
+.sup-msg-eu .sup-msg-bolha{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.sup-msg-sup .sup-msg-bolha{background:var(--surface-3);color:var(--text);border:1px solid var(--border);border-bottom-left-radius:4px}
+.sup-msg-hora{font-size:10px;color:var(--text-mute);margin-top:3px}

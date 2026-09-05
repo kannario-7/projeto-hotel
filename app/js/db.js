@@ -104,3 +104,26 @@ export async function salvarConfig(hotelId, c){
     razao_social:c.hrazao||null, tipo_doc:c.htipodoc||null, cep:c.hcep||null, endereco:c.hend||null, numero:c.hnum||null, complemento:c.hcompl||null, bairro:c.hbairro||null, cidade:c.hcidade||null, uf:c.huf||null }).eq("id", hotelId);
 }
 export async function supabaseRpcPlano(){ return await supabase.rpc("meu_plano_status"); }
+
+// --- Suporte (mensagens cliente <-> dono) ---
+// Envia uma mensagem. autor: 'cliente' ou 'suporte'. hotelId destino.
+export async function suporteEnviar(hotelId, autor, nome, texto){
+  var { data, error } = await supabase.from("suporte_mensagens")
+    .insert({ hotel_id:hotelId, autor:autor, nome:nome, texto:texto }).select().single();
+  if(error){ console.error("suporteEnviar", error); return null; }
+  return data;
+}
+// Lista mensagens de um hotel (cliente ve as suas; dono passa o hotel_id do cliente)
+export async function suporteListar(hotelId){
+  var { data } = await supabase.from("suporte_mensagens").select("*").eq("hotel_id", hotelId).order("criado_em", { ascending:true });
+  return data||[];
+}
+// DONO: lista todas as conversas (uma linha por hotel) com contagem de nao lidas do cliente
+export async function suporteConversas(){
+  var { data } = await supabase.from("suporte_mensagens").select("*").order("criado_em", { ascending:true });
+  return data||[];
+}
+// Marca como lidas as mensagens de um hotel escritas pelo outro lado
+export async function suporteMarcarLidas(hotelId, autorLido){
+  await supabase.from("suporte_mensagens").update({ lida:true }).eq("hotel_id", hotelId).eq("autor", autorLido).eq("lida", false);
+}
