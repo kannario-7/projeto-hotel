@@ -5,7 +5,7 @@ import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { imprimirDocumento } from "./impressao.js";
 
-var TITULOS_FIN = { resumo:"Resumo Financeiro", receitas:"Receitas", despesas:"Despesas", contas:"Contas a Pagar e Receber", caixa:"Caixa por Turno", balancete:"Balancete de Resultados" };
+var TITULOS_FIN = { geral:"Balancete de Resultados", receitas:"Receitas", despesas:"Despesas", contas:"Contas a Pagar e Receber", caixa:"Caixa por Turno" };
 // imprime a aba atual do financeiro no layout premium
 export function imprimirFinanceiroAtual(){
   var el=document.getElementById("financeiroContent");if(!el)return;
@@ -29,23 +29,21 @@ el.innerHTML='<div class="page-header"><div><h2>Financeiro</h2><p>Controle finan
 '<button class="btn btn-primary btn-sm" onclick="filtrarFinanceiro()">Filtrar</button>'+
 '<button class="btn btn-secondary btn-sm" onclick="limparFiltroFinanceiro()">Limpar</button></div>'+
 '<div class="tabs">'+
-'<div class="tab active" onclick="mudarFinTab(this,\'resumo\')">Resumo</div>'+
+'<div class="tab active" onclick="mudarFinTab(this,\'geral\')">Visao Geral</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'receitas\')">Receitas</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'despesas\')">Despesas</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'contas\')">Contas a Pagar/Receber</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'caixa\')">Caixa</div>'+
-'<div class="tab" onclick="mudarFinTab(this,\'balancete\')">Balancete</div>'+
-'</div><div id="financeiroContent">'+buildResumo()+'</div>';}
+'</div><div id="financeiroContent">'+buildVisaoGeral()+'</div>';}
 
-var abaAtual = "resumo";
+var abaAtual = "geral";
 function renderAbaFin(aba){
-  if(aba==="resumo")return buildResumo();
+  if(aba==="geral")return buildVisaoGeral();
   if(aba==="receitas")return buildReceitas();
   if(aba==="despesas")return buildDespesas();
   if(aba==="contas")return buildContas();
   if(aba==="caixa")return buildCaixa();
-  if(aba==="balancete")return buildBalancete();
-  return buildResumo();
+  return buildVisaoGeral();
 }
 export function mudarFinTab(tab,aba){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");abaAtual=aba;
 document.getElementById("financeiroContent").innerHTML = renderAbaFin(aba);}
@@ -68,7 +66,7 @@ function labelPeriodo(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi
 // despesas efetivadas (pagas) - contas a pagar em aberto nao entram no resultado realizado
 function despesasPagas(){return St.ga("ds").filter(function(d){return d.pago!==false;});}
 
-function buildResumo(){
+function buildVisaoGeral(){
   var pg=noPeriodo(St.ga("pg")), ds=noPeriodo(despesasPagas()), reservas=St.ga("r");
   var receita=pg.reduce(function(s,p){return s+(p.valor||0)},0);
   var despesa=ds.reduce(function(s,d){return s+(d.valor||0)},0);
@@ -81,7 +79,7 @@ function buildResumo(){
     var saldo=(r.total||0)-pagoDaReserva; return s+(saldo>0?saldo:0);
   },0);
   var lucroCor = lucro>=0?"#43d18c":"#f16a6e";
-  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Resultado do Periodo'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Visao Geral'+labelPeriodo()+'</h3><div class="no-print" style="display:flex;gap:8px"><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:#43d18c">'+fmtC(receita)+'</div></div>'+
   '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:#f16a6e">'+fmtC(despesa)+'</div></div>'+
@@ -89,6 +87,7 @@ function buildResumo(){
   '<div class="stat-card"><h3>Ticket Medio</h3><div class="value">'+fmtC(ticket)+'</div><div class="sub">'+pg.length+' pagamento(s)</div></div>'+
   '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:#f0a83c">'+fmtC(aReceber)+'</div><div class="sub">reservas em aberto</div></div>'+
   '</div></div>';
+  html+=buildBalanceteSecoes();
   html+=buildComparativoMensal();
   return html;
 }
@@ -167,9 +166,9 @@ export function excluirDespesa(id){
   });
 }
 
-// ---- BALANCETE DE RESULTADOS (visao consolidada) ----
+// ---- BALANCETE DE RESULTADOS (visao consolidada, secoes) ----
 function linhaBal(lbl,val,cls,total){return '<div class="bal-line'+(total?" total":"")+'"><span class="bl-lbl">'+esc(lbl)+'</span><span class="bl-val '+(cls||"")+'">'+val+'</span></div>';}
-function buildBalancete(){
+function buildBalanceteSecoes(){
   var pg=noPeriodo(St.ga("pg")), reservas=St.ga("r");
   var ds=noPeriodo(despesasPagas());
   // receitas
@@ -218,8 +217,8 @@ function buildBalancete(){
     linhaBal("Nº de pagamentos",""+pg.length)+'</div>';
 
   return '<div class="report-container">'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px"><h3 style="color:var(--text)">Balancete de Resultados'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary no-print" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
-    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:10px">Visao consolidada do periodo. Valores de contas a pagar/receber sao previsoes fora da faixa.</p>'+
+    '<h3 style="color:var(--text);margin-bottom:4px">Balancete de Resultados'+labelPeriodo()+'</h3>'+
+    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:12px">Visao consolidada do periodo. Contas a pagar/receber sao previsoes.</p>'+
     '<div class="bal-grid">'+secReceitas+secCancel+secFat+secDesp+secContas+secIndice+'</div>'+
     '</div>';
 }

@@ -17,17 +17,15 @@ el.innerHTML='<div class="page-header"><div><h2>Relatorios</h2><p>Relatorios e e
 '<button class="btn btn-primary btn-sm" onclick="aplicarPeriodoRel()">Aplicar</button>'+
 '<button class="btn btn-secondary btn-sm" onclick="limparPeriodoRel()">Limpar</button></div>'+
 '<div class="tabs">'+
-'<div class="tab active" onclick="mudarRelatorio(this,\'ocupacao\')">Ocupacao</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'receita\')">Receita</div>'+
+'<div class="tab active" onclick="mudarRelatorio(this,\'ocupacao\')">Ocupacao e KPIs</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'tipos\')">Por Tipo de Quarto</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'reservas\')">Reservas</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'fluxo\')">Fluxo de Caixa</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'dre\')">DRE</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'lucro\')">Lucro</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'extrato\')">Extrato</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'proximas\')">Chegadas</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'extrato\')">Extrato do Hospede</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'vip\')">Hospedes Fieis</div>'+
-'</div><div id="relatorioContent">'+render(abaAtual)+'</div>';}
+'</div>'+
+'<p style="color:var(--text-mute);font-size:12px;margin:10px 2px 0">Relatorios de analise e ocupacao. Para receitas, despesas e lucro, use o modulo <b>Financeiro</b>.</p>'+
+'<div id="relatorioContent">'+render(abaAtual)+'</div>';}
 
 export function mudarRelatorio(tab,tipo){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");abaAtual=tipo;
 document.getElementById("relatorioContent").innerHTML=render(tipo);}

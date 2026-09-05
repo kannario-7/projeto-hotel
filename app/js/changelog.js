@@ -2,8 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.3.0";
+export var APP_VERSION="1.4.0";
 export var CHANGELOG=[
+{v:"1.4.0",data:"2026-09-02",mudancas:[
+{t:"melhoria",d:"Financeiro reorganizado: aba Visao Geral reune os numeros principais e o balancete numa tela so."},
+{t:"melhoria",d:"Relatorios mais enxutos e focados em analise (ocupacao, KPIs, reservas e hospedes); o financeiro fica no proprio modulo Financeiro."},
+{t:"melhoria",d:"Menos abas repetidas: cada informacao tem um lugar so."}
+]},
 {v:"1.3.0",data:"2026-09-02",mudancas:[
 {t:"novo",d:"Relatorios com graficos visuais de barras e colunas."},
 {t:"novo",d:"Metricas hoteleiras TrevPAR e GOPPAR na ocupacao."},
