@@ -52,6 +52,17 @@ export function imprimirDocumento(titulo, subtitulo, corpoHTML){
   '.card h4{margin:0 0 4px;font-size:10px;color:#777;font-weight:600;text-transform:uppercase;letter-spacing:.3px}'+
   '.card .v{font-size:16px;font-weight:800;color:#1a1a1a}'+
   '.doc-foot{margin-top:24px;border-top:1px solid #ddd;padding-top:10px;color:#999;font-size:10px;display:flex;justify-content:space-between}'+
+  // balancete (mesmas classes da tela, adaptadas para o documento impresso)
+  '.bal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 32px;margin:12px 0}'+
+  '.bal-sec{min-width:0;break-inside:avoid}'+
+  '.bal-sec-tit{font-size:12px;font-weight:700;color:#4c1d95;padding-bottom:5px;border-bottom:1.5px solid #ddd6f5;margin-bottom:8px}'+
+  '.bal-line{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:4px 0;font-size:11px;border-bottom:1px solid #f0f0f0}'+
+  '.bal-line .bl-lbl{color:#444}'+
+  '.bal-line .bl-val{font-weight:600;color:#1a1a1a;white-space:nowrap;text-align:right}'+
+  '.bal-line.total{border-top:1.5px solid #ccc;border-bottom:none;margin-top:4px;padding-top:6px;font-weight:700}'+
+  '.bal-line.total .bl-lbl,.bal-line.total .bl-val{color:#1a1a1a;font-weight:700}'+
+  '.bal-pos{color:#1f8a54!important}.bal-neg{color:#c0454a!important}'+
+  '.chart,.chartc,.chart-legend{display:none}'+ // graficos coloridos nao vao bem no papel; ocultos na impressao
   '@media print{.no-print{display:none}}';
   // converte os cards do app (stat-card) para o formato de impressao, se vierem
   var corpo = corpoHTML
