@@ -101,3 +101,31 @@ if(hash.indexOf("#convite=")===0){
     else { auth.showLogin(); }
   }).catch(function(e){ console.error("Boot:", e); auth.showLogin(); });
 }
+
+// ===== Auto-atualizacao por inatividade =====
+// Apos 30 min SEM nenhuma interacao, recarrega a pagina para trazer dados/permissoes atualizados.
+// So recarrega se estiver logado, sem modal/chat aberto e sem campo sendo editado (nao interrompe o operador).
+(function(){
+  var LIMITE = 30*60*1000; // 30 minutos
+  var timer = null;
+  function podeRecarregar(){
+    if(!document.body.classList.contains("logged")) return false; // so no app logado
+    // nao recarrega com modal, confirmacao ou chat de suporte abertos
+    var abertos = ["modalOverlay","confirmOverlay","supportModal"];
+    for(var i=0;i<abertos.length;i++){ var el=document.getElementById(abertos[i]); if(el && el.classList.contains("show")) return false; }
+    // nao recarrega se o usuario esta digitando em algum campo
+    var a=document.activeElement;
+    if(a){ var tag=(a.tagName||"").toLowerCase(); if(tag==="input"||tag==="textarea"||tag==="select"||a.isContentEditable) return false; }
+    return true;
+  }
+  function disparar(){
+    if(podeRecarregar()){ location.reload(); }
+    else { agendar(); } // adia: tenta de novo apos mais um ciclo quando ficar ocioso de verdade
+  }
+  function agendar(){ if(timer) clearTimeout(timer); timer=setTimeout(disparar, LIMITE); }
+  function resetar(){ agendar(); }
+  ["mousemove","mousedown","keydown","touchstart","scroll","click"].forEach(function(ev){
+    document.addEventListener(ev, resetar, { passive:true });
+  });
+  agendar();
+})();
