@@ -89,7 +89,7 @@ export async function fazerCadastro(){
 async function aposAutenticar(user){
   var { data: perfil, error } = await supabase.from("perfis").select("*").eq("id", user.id).single();
   if(error||!perfil){ st("Perfil nao encontrado. Contate o suporte.","error"); await supabase.auth.signOut(); return; }
-  usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
+  usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true, permissoes:(perfil.permissoes||null) };
   // Bloqueio automatico: hotel suspenso ou plano vencido (dono sempre entra)
   if(!usuarioAtual.isOwner){
     var liberado = await hotelLiberado();
@@ -136,7 +136,7 @@ export async function restaurarSessao(){
     var user = data.session.user;
     var { data: perfil, error: errPerfil } = await supabase.from("perfis").select("*").eq("id", user.id).single();
     if(errPerfil || !perfil) return false;
-    usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true };
+    usuarioAtual = { id:user.id, nome:perfil.nome, papel:perfil.papel, turno:perfil.turno||"", hotelId:perfil.hotel_id, isOwner:perfil.is_owner===true, permissoes:(perfil.permissoes||null) };
     if(!usuarioAtual.isOwner){
       var liberado = await hotelLiberado();
       if(!liberado){ mostrarBloqueio(); return false; }
@@ -188,17 +188,57 @@ export async function finalizarConvite(){
 }
 
 export function getTurnoAtual(){var h=new Date().getHours();if(h>=6&&h<14)return"Manha";if(h>=14&&h<22)return"Tarde";return"Noite"}
-export function hasAccess(m){var u=getCurrentUser();if(!u)return false;var t=u.papel;
-if(t==="admin")return true;
-if(u.turno&&u.turno!==""&&u.turno!==getTurnoAtual()){if(m==="d")return true;return false}
-if(t==="operador")return m!=="fu"&&m!=="cg";
-if(t==="recepcao"){if(m==="f"||m==="fu"||m==="cg"||m==="rl")return false;if(m==="q")return"view";return true}
-return false}
+
+// ===== PERMISSOES (fonte de verdade unica) =====
+// Modulos configuraveis por operador (id + rotulo). 'd' (Painel) e sempre liberado, nao entra aqui.
+export var MODULOS=[
+  {id:"r",nome:"Reservas"},{id:"h",nome:"Hospedes"},{id:"q",nome:"Quartos"},
+  {id:"ci",nome:"Check-in"},{id:"co",nome:"Check-out"},{id:"f",nome:"Financeiro"},
+  {id:"s",nome:"Servicos"},{id:"gov",nome:"Limpeza"},{id:"fu",nome:"Funcionarios"},
+  {id:"rl",nome:"Relatorios"},{id:"cg",nome:"Configuracoes"}
+];
+// Padrao por papel. '*' = tudo. Objeto = acesso por modulo (true / false / "view").
+// Dashboard ('d') sempre true implicitamente.
+export var PADRAO_PERMISSOES={
+  admin:"*",
+  operador:{r:true,h:true,q:true,ci:true,co:true,f:true,s:true,gov:true,fu:false,rl:"view",cg:false},
+  recepcao:{r:true,h:true,q:"view",ci:true,co:true,f:false,s:true,gov:true,fu:false,rl:false,cg:false}
+};
+
+// Permissao efetiva de um usuario para um modulo (resolve owner/admin, turno, override e padrao do papel).
+// Retorna true | false | "view".
+export function permModulo(u, m){
+  if(!u) return false;
+  if(m==="d") return true;                         // painel sempre
+  if(u.isOwner || u.papel==="admin") return true;  // dono e admin veem tudo (nunca se autotravar)
+  // fora do turno: so o painel
+  if(u.turno && u.turno!=="" && u.turno!==getTurnoAtual()) return false;
+  // override por usuario (jsonb permissoes) tem prioridade sobre o padrao do papel
+  if(u.permissoes && Object.prototype.hasOwnProperty.call(u.permissoes, m)) return u.permissoes[m];
+  var padrao=PADRAO_PERMISSOES[u.papel];
+  if(padrao==="*") return true;
+  if(padrao && Object.prototype.hasOwnProperty.call(padrao, m)) return padrao[m];
+  return false;
+}
+
+export function hasAccess(m){ return permModulo(getCurrentUser(), m); }
+
 export function filtrarSidebar(){var u=getCurrentUser();if(!u)return;
-var ta=getTurnoAtual(),foraTurno=u.turno&&u.turno!==""&&u.turno!==ta;
-var acessos={admin:true,operador:{d:true,r:true,h:true,q:true,ci:true,co:true,f:true,s:true,gov:true,fu:false,rl:"view",cg:false},recepcao:{d:true,r:true,h:true,q:"view",ci:true,co:true,f:false,s:true,gov:true,fu:false,rl:false,cg:false}};
-var perm=foraTurno?{d:true}:acessos[u.papel];
-document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAttribute("href").slice(1);if(mod==="admin")return;if(perm===true||perm[mod])a.style.display="flex";else a.style.display="none"});
-var ol=document.getElementById("ownerLink");if(ol)ol.style.display=u.isOwner?"flex":"none";
-var olm=document.getElementById("ownerLinkMais");if(olm)olm.style.display=u.isOwner?"flex":"none";
-if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:var(--warn);font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}
+  var ta=getTurnoAtual(),foraTurno=u.turno&&u.turno!==""&&u.turno!==ta;
+  // aplica visibilidade a um conjunto de links (sidebar, bottom-nav, mais-menu)
+  function aplicar(sel, attr){
+    document.querySelectorAll(sel).forEach(function(a){
+      var mod=attr==="data-nav"?a.getAttribute("data-nav"):(a.getAttribute("href")||"").slice(1);
+      if(!mod||mod==="admin")return;
+      var perm=permModulo(u, mod);
+      // com permissao: remove o display inline e deixa o CSS decidir (preserva .bn-desktop no mobile);
+      // sem permissao: esconde de vez.
+      a.style.display=perm?"":"none";
+    });
+  }
+  aplicar(".sidebar-nav a","href");
+  aplicar(".bottom-nav .bn-item[data-nav]","data-nav");
+  aplicar("#maisMenu a.mais-item","href");
+  var ol=document.getElementById("ownerLink");if(ol)ol.style.display=u.isOwner?"flex":"none";
+  var olm=document.getElementById("ownerLinkMais");if(olm)olm.style.display=u.isOwner?"flex":"none";
+  if(foraTurno)document.getElementById("userInfo").innerHTML=esc(u.nome)+' <span style="color:var(--warn);font-size:11px">(Fora do turno - '+u.turno+')</span> &nbsp; Sair'}

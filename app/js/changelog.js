@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.1.0";
+export var APP_VERSION="2.2.0";
 export var CHANGELOG=[
+{v:"2.2.0",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Permissoes por operador: em Configuracoes > Usuarios, o administrador escolhe exatamente quais modulos cada pessoa acessa (Reservas, Financeiro, Relatorios, etc.), pelo botao Permissoes ou ao criar/convidar. O Painel fica sempre disponivel."},
+{t:"melhoria",d:"O menu agora esconde os modulos sem acesso tambem no celular (barra inferior e menu Mais), nao so no computador. Administrador e dono continuam com acesso total."}
+]},
 {v:"2.1.0",data:"2026-09-06",mudancas:[
 {t:"melhoria",d:"Caixa por turno mais preciso: o fechamento passa a somar exatamente os pagamentos feitos entre a abertura e o fechamento daquela sessao, sem misturar valores de outros horarios ou dias."},
 {t:"novo",d:"Recebido por operador: o caixa mostra quanto cada pessoa recebeu no turno, e cada pagamento agora registra quem o lancou e a hora exata."}
