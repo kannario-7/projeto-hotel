@@ -92,7 +92,8 @@ var pag=document.getElementById("coPag"),obs=document.getElementById("coObs");
 var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Finalizando...";}
 // So grava pagamento se houver saldo a cobrar. Se ja pago integralmente, apenas fecha a reserva.
 if(saldo>0){
-  var pagamento={reservaId:id,hospedeId:r.hospedeId,valor:saldo,forma:(pag?pag.value:"dinheiro"),data:hoje,tipo:"final",observacoes:(obs?obs.value.trim():"")};
+  var _u=getCurrentUser();
+  var pagamento={reservaId:id,hospedeId:r.hospedeId,valor:saldo,forma:(pag?pag.value:"dinheiro"),data:hoje,tipo:"final",observacoes:(obs?obs.value.trim():""),criadoEm:new Date().toISOString(),usuarioId:(_u?_u.id:null),usuarioNome:(_u?_u.nome:null)};
   var resPg=await St.inErr("pg",pagamento);
   if(!resPg.ok){
     if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}

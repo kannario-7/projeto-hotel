@@ -3,6 +3,7 @@ import { esc, fmtC, fmtD, td, dB, mascDocAuto, mascTel, isValidCPF } from "../ut
 import { St, getStatusBadge, quartosDisponiveis, quartosLivres, checkDisponivel, auditar, calcularDiarias } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { ehErroOverbooking } from "../db.js";
+import { getCurrentUser } from "../auth.js";
 
 export function renderReservas(){var el=document.getElementById("pageContent");
 var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
@@ -81,7 +82,8 @@ export async function salvarPagamentoReserva(id){
   var v=Math.round(parseFloat(val&&val.value?val.value:0)*100);
   if(!v||v<=0)return st("Informe um valor valido.","error"),false;
   var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Registrando...";}
-  var res=await St.inErr("pg",{reservaId:id,hospedeId:r.hospedeId,valor:v,forma:(forma?forma.value:"dinheiro"),data:(data&&data.value?data.value:td()),tipo:(tipo?tipo.value:"avulso"),observacoes:(obs?obs.value.trim():"")});
+  var _u=getCurrentUser();
+  var res=await St.inErr("pg",{reservaId:id,hospedeId:r.hospedeId,valor:v,forma:(forma?forma.value:"dinheiro"),data:(data&&data.value?data.value:td()),tipo:(tipo?tipo.value:"avulso"),observacoes:(obs?obs.value.trim():""),criadoEm:new Date().toISOString(),usuarioId:(_u?_u.id:null),usuarioNome:(_u?_u.nome:null)});
   if(btn){btn.disabled=false;btn.textContent="Registrar pagamento";}
   if(!res.ok)return st("Nao foi possivel registrar o pagamento. Tente novamente.","error"),false;
   var h=St.fi("h",r.hospedeId);

@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.0.3";
+export var APP_VERSION="2.1.0";
 export var CHANGELOG=[
+{v:"2.1.0",data:"2026-09-06",mudancas:[
+{t:"melhoria",d:"Caixa por turno mais preciso: o fechamento passa a somar exatamente os pagamentos feitos entre a abertura e o fechamento daquela sessao, sem misturar valores de outros horarios ou dias."},
+{t:"novo",d:"Recebido por operador: o caixa mostra quanto cada pessoa recebeu no turno, e cada pagamento agora registra quem o lancou e a hora exata."}
+]},
 {v:"2.0.3",data:"2026-09-06",mudancas:[
 {t:"novo",d:"Aviso de entrada vencida sem check-in: o painel destaca quando uma reserva ja passou da data de entrada e o check-in nao foi registrado, para a recepcao verificar com o hospede e regularizar."},
 {t:"melhoria",d:"O aviso de check-out de hoje passou a contar apenas hospedes que ja fizeram check-in, separando de vez as duas situacoes. No Mapa de Quartos, entradas atrasadas aparecem marcadas como 'atrasado'."}

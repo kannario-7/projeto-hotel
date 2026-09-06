@@ -298,15 +298,32 @@ export function marcarPagoDespesa(id){
 function caixaAberto(){return St.ga("sc").filter(function(s){return s.status==="aberto"}).sort(function(a,b){return (b.abertoEm||"").localeCompare(a.abertoEm||"")})[0]||null;}
 function fmtDataHora(iso){if(!iso)return"-";var d=new Date(iso);var p=function(n){return String(n).padStart(2,"0")};return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes());}
 
-// soma dos pagamentos desde a abertura do caixa (o que o sistema registrou no turno)
+// Pagamentos pertencentes a uma sessao de caixa.
+// Usa o horario REAL do pagamento (criadoEm) e a JANELA da sessao (abertoEm -> fechadoEm):
+// so conta o que entrou entre a abertura e o fechamento daquele turno. Isso separa
+// corretamente turnos do mesmo dia e nao mistura dias quando o caixa fica aberto.
+// Fallback para pagamentos antigos (sem criadoEm): usa a data (dia) >= dia da abertura.
 function pagamentosDoTurno(sessao){
   if(!sessao)return [];
-  var ini=sessao.abertoEm||"";
+  var ini=sessao.abertoEm||"";       // ISO
+  var fim=sessao.fechadoEm||"";      // ISO ("" se ainda aberto)
+  var diaIni=(ini||"").slice(0,10);
   return St.ga("pg").filter(function(p){
-    // pagamento tem data (dia); usamos criado a partir da data >= dia da abertura
-    var dia=(ini||"").slice(0,10);
-    return p.data && dia && p.data>=dia;
+    if(p.criadoEm){
+      if(ini && p.criadoEm < ini) return false;      // antes de abrir
+      if(fim && p.criadoEm >= fim) return false;      // depois de fechar
+      return true;
+    }
+    // Retrocompat: pagamento sem hora real -> aproxima pelo dia da abertura
+    return p.data && diaIni && p.data>=diaIni;
   });
+}
+
+// Agrupa pagamentos por operador (usuarioNome), para o fechamento mostrar quem recebeu o que.
+function porOperador(pgs){
+  var m={};
+  pgs.forEach(function(p){ var k=p.usuarioNome||"Nao identificado"; m[k]=(m[k]||0)+(p.valor||0); });
+  return m;
 }
 
 function buildCaixa(){
@@ -321,6 +338,8 @@ function buildCaixa(){
     '<div class="stat-card"><h3>Fundo de Troco</h3><div class="value">'+fmtC(aberto.valorAbertura)+'</div></div>'+
     '<div class="stat-card"><h3>Esperado em Caixa</h3><div class="value">'+fmtC(aberto.valorAbertura+totalSistema)+'</div></div></div>';
     if(Object.keys(porForma).length){html+='<h4 style="margin:12px 0 8px;color:var(--text)">Recebido por forma (sistema)</h4><table><tr><th>Forma</th><th>Total</th></tr>'+Object.keys(porForma).map(function(f){return'<tr><td>'+esc(cap(f))+'</td><td>'+fmtC(porForma[f])+'</td></tr>'}).join('')+'</table>';}
+    var porOp=porOperador(pgT);
+    if(Object.keys(porOp).length){html+='<h4 style="margin:12px 0 8px;color:var(--text)">Recebido por operador</h4><table><tr><th>Operador</th><th>Total</th></tr>'+Object.keys(porOp).map(function(nome){return'<tr><td>'+esc(nome)+'</td><td>'+fmtC(porOp[nome])+'</td></tr>'}).join('')+'</table>';}
     html+='<div style="margin-top:14px"><button class="btn btn-danger" onclick="showFecharCaixa()">Fechar Caixa (conferencia)</button></div>';
   } else {
     html+='<p style="color:var(--text-mute);margin-bottom:14px">Nenhum caixa aberto no momento. Abra o caixa para iniciar um turno.</p><button class="btn btn-primary" onclick="showAbrirCaixa()">Abrir Caixa</button>';
