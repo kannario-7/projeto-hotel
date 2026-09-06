@@ -1,5 +1,5 @@
 // Módulo: Financeiro completo (Resumo/DRE, Receitas, Despesas, Caixa, exportacao)
-import { esc, fmtC, fmtD, td } from "../utils.js";
+import { esc, fmtC, fmtD, td, reais, cap, baixarCSV } from "../utils.js";
 import { St, auditar } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
@@ -387,33 +387,22 @@ export async function fecharCaixa(){
   document.getElementById("financeiroContent").innerHTML=buildCaixa();
 }
 
-// ---- Exportacao CSV ----
-function baixarCSV(nome, linhas){
-  var conteudo=linhas.map(function(l){return l.map(function(c){var s=String(c==null?"":c);return '"'+s.replace(/"/g,'""')+'"';}).join(";")}).join("\r\n");
-  var blob=new Blob(["\ufeff"+conteudo],{type:"text/csv;charset=utf-8;"});
-  var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=nome;document.body.appendChild(a);a.click();
-  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
-  st("Arquivo exportado.","success");
-}
-function reais(c){return ((c||0)/100).toFixed(2).replace(".",",");}
-
+// ---- Exportacao CSV (baixarCSV/reais/cap vem de utils.js) ----
 export function exportarReceitasCSV(){
   var pg=noPeriodo(St.ga("pg")),hospedes=St.ga("h");
   var linhas=[["Data","Hospede","Valor","Forma","Observacoes"]];
   pg.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"")}).forEach(function(p){var h=hospedes.find(function(x){return x.id===p.hospedeId});linhas.push([fmtD(p.data),h?h.nome:"",reais(p.valor),cap(p.forma||""),p.observacoes||""]);});
-  baixarCSV("receitas.csv",linhas);
+  baixarCSV("receitas.csv",linhas);st("Arquivo exportado.","success");
 }
 export function exportarDespesasCSV(){
   var ds=noPeriodo(despesasPagas());
   var linhas=[["Data","Descricao","Categoria","Valor","Forma","Observacoes"]];
   ds.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"")}).forEach(function(d){linhas.push([fmtD(d.data),d.descricao,d.categoria||"",reais(d.valor),cap(d.forma||""),d.observacoes||""]);});
-  baixarCSV("despesas.csv",linhas);
+  baixarCSV("despesas.csv",linhas);st("Arquivo exportado.","success");
 }
 export function exportarResumoCSV(){
   var pg=noPeriodo(St.ga("pg")),ds=noPeriodo(despesasPagas());
   var receita=pg.reduce(function(s,p){return s+(p.valor||0)},0),despesa=ds.reduce(function(s,d){return s+(d.valor||0)},0);
   var linhas=[["Indicador","Valor (R$)"],["Receita",reais(receita)],["Despesa",reais(despesa)],["Lucro Liquido",reais(receita-despesa)],["Transacoes",pg.length],["Ticket Medio",reais(pg.length?Math.round(receita/pg.length):0)]];
-  baixarCSV("resumo-financeiro.csv",linhas);
+  baixarCSV("resumo-financeiro.csv",linhas);st("Arquivo exportado.","success");
 }
-
-function cap(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1);}

@@ -1,6 +1,6 @@
 // Módulo: Relatórios profissionais (ocupacao/ADR/RevPAR, receita detalhada,
 // desempenho por tipo, reservas e financeiro/lucro) com filtro de periodo e exportacao.
-import { esc, fmtC, fmtD, td, dB } from "../utils.js";
+import { esc, fmtC, fmtD, td, dB, reais, baixarCSV } from "../utils.js";
 import { St, getStatusBadge } from "../store.js";
 import { st } from "../ui.js";
 import { imprimirDocumento } from "./impressao.js";
@@ -316,9 +316,7 @@ if(!sorted.length)return'<div class="report-container"><p style="color:var(--tex
 return'<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Top Hospedes - Mais Estadias</h3><table><tr><th>#</th><th>Hospede</th><th>Estadias</th></tr>'+
 sorted.map(function(id,i){var h=St.fi("h",id);return'<tr><td>'+(i+1)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+count[id]+'</td></tr>'}).join('')+'</table></div>'+acoesRel("hospedes-fieis");}
 
-// ---- EXPORTACAO CSV (gera a partir da aba atual) ----
-function baixarCSV(nome,linhas){var conteudo=linhas.map(function(l){return l.map(function(c){var s=String(c==null?"":c);return '"'+s.replace(/"/g,'""')+'"';}).join(";")}).join("\r\n");var blob=new Blob(["\ufeff"+conteudo],{type:"text/csv;charset=utf-8;"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=nome;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);st("Relatorio exportado.","success");}
-function reais(c){return ((c||0)/100).toFixed(2).replace(".",",");}
+// ---- EXPORTACAO CSV (baixarCSV/reais vem de utils.js) ----
 
 export function exportarRelatorioCSV(nome){
   var linhas=[];
@@ -329,5 +327,5 @@ export function exportarRelatorioCSV(nome){
   else{ // ocupacao e demais: exporta resumo simples
     var quartos=St.ga("q").filter(function(q){return q.ativo!==false});var rO=reservasNoPeriodo().filter(function(x){return ["confirmada","checkin","checkout"].indexOf(x.status)>=0});var noites=rO.reduce(function(s,x){return s+(x.noites||0)},0);linhas.push(["Indicador","Valor"],["Total de quartos",quartos.length],["Noites vendidas",noites]);
   }
-  baixarCSV((nome||"relatorio")+".csv",linhas);
+  baixarCSV((nome||"relatorio")+".csv",linhas);st("Relatorio exportado.","success");
 }

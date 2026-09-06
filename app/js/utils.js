@@ -1,6 +1,21 @@
 // Utilitários gerais
 export function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 export function fmtC(c){if(c==null||isNaN(c))return"R$ 0,00";return"R$ "+(c/100).toLocaleString("pt-BR",{minimumFractionDigits:2})}
+// Centavos -> "1234,56" (sem "R$"), usado em exportacoes CSV
+export function reais(c){return ((c||0)/100).toFixed(2).replace(".",",");}
+// Primeira letra maiuscula
+export function cap(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1);}
+// Gera e baixa um arquivo (Blob). mime opcional (default CSV com BOM para Excel PT-BR)
+export function baixarArquivo(nome, conteudo, mime){
+  var blob=new Blob([conteudo],{type:mime||"text/csv;charset=utf-8;"});
+  var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download=nome;document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+}
+// Monta CSV (separador ;) a partir de linhas [][] e dispara o download (com BOM p/ acentos no Excel)
+export function baixarCSV(nome, linhas){
+  var conteudo=linhas.map(function(l){return l.map(function(c){var s=String(c==null?"":c);return '"'+s.replace(/"/g,'""')+'"';}).join(";")}).join("\r\n");
+  baixarArquivo(nome, "\ufeff"+conteudo, "text/csv;charset=utf-8;");
+}
 export function fmtD(d){return d?d.split("-").reverse().join("/"):"-"}
 export function td(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 export function dB(a,b){var d1=new Date(a),d2=new Date(b);return Math.round((d2-d1)/86400000)}

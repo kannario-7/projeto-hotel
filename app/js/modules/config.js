@@ -1,5 +1,5 @@
 // Módulo: Configurações
-import { esc, fmtC } from "../utils.js";
+import { esc, fmtC, mascCep, mascTel } from "../utils.js";
 import { St, carregarTudo, getHotelId, auditar, carregarAuditoria } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
@@ -133,8 +133,9 @@ export function mascaraDoc(el){
   else{v=v.slice(0,14).replace(/(\d{2})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1/$2").replace(/(\d{4})(\d{1,2})$/,"$1-$2");}
   el.value=v;
 }
-export function mascaraCep(el){el.value=el.value.replace(/\D/g,"").slice(0,8).replace(/(\d{5})(\d)/,"$1-$2");}
-export function mascaraTel(el){var v=el.value.replace(/\D/g,"").slice(0,11);if(v.length>10)v=v.replace(/(\d{2})(\d{5})(\d{1,4})/,"($1) $2-$3");else if(v.length>6)v=v.replace(/(\d{2})(\d{4})(\d{1,4})/,"($1) $2-$3");else if(v.length>2)v=v.replace(/(\d{2})(\d+)/,"($1) $2");el.value=v;}
+// wrappers finos sobre utils (mantem o nome usado nos onclick inline)
+export function mascaraCep(el){mascCep(el);}
+export function mascaraTel(el){mascTel(el);}
 
 export function onTipoDocChange(){
   var tipo=document.getElementById("cfgTipoDoc").value;
