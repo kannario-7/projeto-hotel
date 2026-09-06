@@ -43,7 +43,7 @@ function paraApp(k, b){
   var o = { id: b.id };
   switch(k){
     case "tq": o.nome=b.nome; o.capacidade=b.capacidade; o.precoDiaria=b.preco_diaria; o.ativo=b.ativo; break;
-    case "q": o.numero=b.numero; o.andar=b.andar; o.tipoQuartoId=b.tipo_quarto_id; o.status=b.status; o.ativo=b.ativo; o.limpezaResponsavel=b.limpeza_responsavel; o.limpezaAtualizadoEm=b.limpeza_atualizado_em; break;
+    case "q": o.numero=b.numero; o.andar=b.andar; o.tipoQuartoId=b.tipo_quarto_id; o.status=b.status; o.ativo=b.ativo; o.limpezaResponsavel=b.limpeza_responsavel; o.limpezaAtualizadoEm=b.limpeza_atualizado_em; o.icalToken=b.ical_token; break;
     case "h": o.nome=b.nome; o.documento=b.documento; o.telefone=b.telefone; o.email=b.email; o.endereco=b.endereco; o.observacoes=b.observacoes; o.ativo=b.ativo; o.consentimentoEm=b.consentimento_em; break;
     case "sv": o.nome=b.nome; o.preco=b.preco; o.categoria=b.categoria; o.unidade=b.unidade; o.ativo=b.ativo; break;
     case "r": o.hospedeId=b.hospede_id; o.quartoId=b.quarto_id; o.tipoQuartoId=b.tipo_quarto_id; o.dataCheckin=b.data_checkin; o.dataCheckout=b.data_checkout; o.noites=b.noites; o.total=b.total; o.status=b.status; break;

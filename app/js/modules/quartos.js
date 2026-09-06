@@ -16,12 +16,29 @@ porAndar[a].forEach(function(q){var t=tq.find(function(x){return x.id===q.tipoQu
 (q.status==="manutencao"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Liberar</button>'):'')+
 (q.status==="limpeza"?('<button class="btn btn-sm btn-success" onclick="liberarQuarto(\''+q.id+'\')">Limpo</button>'):'')+
 '<button class="btn btn-sm btn-secondary" onclick="editarQuarto(\''+q.id+'\')">Editar</button>'+
+(q.icalToken?'<button class="btn btn-sm btn-secondary" onclick="mostrarLinkIcal(\''+q.id+'\')" title="Sincronizar datas com Airbnb/Booking">Calendario</button>':'')+
 '<button class="btn btn-sm btn-danger" onclick="excluirQuarto(\''+q.id+'\')">Excluir</button></div></div>'});
 html+='</div>'});
 el.innerHTML+=html;}
 
 export function showManutencaoQuarto(id){St.up("q",id,{status:"manutencao"});st("Quarto em manutencao.","warning");renderQuartos()}
 export function liberarQuarto(id){St.up("q",id,{status:"disponivel"});st("Quarto disponivel.","success");renderQuartos()}
+
+// Link de calendario (iCal) do quarto: cola-se no Airbnb/Booking para bloquearem as datas ocupadas aqui.
+export function mostrarLinkIcal(id){
+  var q=St.fi("q",id); if(!q)return;
+  if(!q.icalToken)return st("Este quarto ainda nao tem link de calendario. Rode a atualizacao do banco (schema-28).","error");
+  var link=location.origin+"/api/ical?t="+q.icalToken;
+  sm("Calendario do Apto "+esc(q.numero),
+    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">Cole este link no <b>Airbnb</b> ou <b>Booking</b> (em "Importar calendario" / "Sincronizar calendarios"). Eles vao bloquear automaticamente as datas ja ocupadas neste quarto.</p>'+
+    '<div class="form-group"><input type="text" id="icalLink" value="'+esc(link)+'" readonly></div>'+
+    '<p style="color:var(--text-mute);font-size:12px">Sincroniza apenas as <b>datas ocupadas</b> (nao inclui preco nem dados do hospede). As plataformas atualizam periodicamente, entao pode haver algumas horas de defasagem.</p>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="copiarLinkIcal()">Copiar link</button>');
+}
+export function copiarLinkIcal(){
+  var el=document.getElementById("icalLink"); if(!el)return;
+  navigator.clipboard.writeText(el.value).then(function(){ st("Link copiado!","success"); }, function(){ st(el.value,"info"); });
+}
 
 export function excluirQuarto(id){
   var q=St.fi("q",id);if(!q)return;

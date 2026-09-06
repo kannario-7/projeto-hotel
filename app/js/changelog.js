@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.5.0";
+export var APP_VERSION="2.6.0";
 export var CHANGELOG=[
+{v:"2.6.0",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Integracao de calendario (Airbnb/Booking): cada quarto agora tem um link de calendario (em Quartos > Calendario). Cole esse link no Airbnb ou Booking e eles bloqueiam automaticamente as datas ja ocupadas no HospedaPrime, ajudando a evitar reserva em dobro."},
+{t:"melhoria",d:"O link compartilha apenas as datas ocupadas - nunca o nome do hospede nem valores. A sincronizacao das plataformas e periodica (pode levar algumas horas)."}
+]},
 {v:"2.5.0",data:"2026-09-06",mudancas:[
 {t:"novo",d:"Relatorio por turno: em Relatorios > Por Turno, veja quanto foi recebido em cada turno (manha, tarde, noite) e por cada operador no periodo, com total, quantidade de pagamentos e ticket medio."},
 {t:"melhoria",d:"O turno de cada pagamento e definido pela hora em que foi registrado. Exportacao em CSV e impressao disponiveis."}
