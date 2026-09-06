@@ -33,7 +33,7 @@ export function mascHospedeDoc(el){
   mascDocAuto(el);
   var msg=document.getElementById("hfDocMsg");if(!msg)return;
   var dig=el.value.replace(/\D/g,"");
-  if(dig.length===11){msg.textContent=isValidCPF(dig)?"CPF valido.":"CPF invalido.";msg.style.color=isValidCPF(dig)?"#43d18c":"#f16a6e";}
+  if(dig.length===11){msg.textContent=isValidCPF(dig)?"CPF valido.":"CPF invalido.";msg.style.color=isValidCPF(dig)?"var(--pos)":"var(--neg)";}
   else if(dig.length===14){msg.textContent="CNPJ.";msg.style.color="var(--text-mute)";}
   else{msg.textContent="";}
 }

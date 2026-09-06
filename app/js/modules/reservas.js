@@ -59,8 +59,8 @@ export function registrarPagamento(id){
   var corpo='<div class="qmodal-info" style="margin-bottom:14px">'+
       '<div class="qmodal-row"><span>Hospede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
       '<div class="qmodal-row"><span>Total da reserva</span><b>'+fmtC(total)+'</b></div>'+
-      '<div class="qmodal-row"><span>Ja pago</span><b style="color:#43d18c">'+fmtC(pago)+'</b></div>'+
-      '<div class="qmodal-row"><span>Saldo a receber</span><b style="color:'+(saldo>0?"#f0a83c":"#43d18c")+'">'+fmtC(saldo>0?saldo:0)+'</b></div>'+
+      '<div class="qmodal-row"><span>Ja pago</span><b style="color:var(--pos)">'+fmtC(pago)+'</b></div>'+
+      '<div class="qmodal-row"><span>Saldo a receber</span><b style="color:'+(saldo>0?"var(--warn)":"var(--pos)")+'">'+fmtC(saldo>0?saldo:0)+'</b></div>'+
     '</div>'+
     '<div class="form-grid">'+
     '<div class="form-group"><label>Valor do pagamento (R$) *</label><input type="number" id="pgValor" step="0.01" min="0" value="'+(saldo>0?(saldo/100).toFixed(2):"")+'"></div>'+
@@ -136,7 +136,7 @@ export function previewTrocaQuarto(id){
   var q=St.fi("q",sel.value);
   if(!q){aviso.textContent="";return;}
   var tNovo=St.fi("tq",q.tipoQuartoId),tAtual=St.fi("tq",r.tipoQuartoId);
-  if(!tNovo||!tAtual||tNovo.id===tAtual.id){aviso.innerHTML='<span style="color:#43d18c">Mesmo tipo de quarto: o valor da reserva nao muda.</span>';return;}
+  if(!tNovo||!tAtual||tNovo.id===tAtual.id){aviso.innerHTML='<span style="color:var(--pos)">Mesmo tipo de quarto: o valor da reserva nao muda.</span>';return;}
   var calc=calcularDiarias(tNovo.id, r.dataCheckin, r.dataCheckout);
   aviso.innerHTML='Muda de <b>'+esc(tAtual.nome)+'</b> para <b>'+esc(tNovo.nome)+'</b>. '+
     'Novo valor da reserva: <b>'+fmtC(calc.total)+'</b> ('+(calc.noites||r.noites)+' noite(s)'+(calc.variou?', tarifa variavel':'')+').';

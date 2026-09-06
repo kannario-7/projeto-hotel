@@ -2,8 +2,14 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.9";
+export var APP_VERSION="2.0.0";
 export var CHANGELOG=[
+{v:"2.0.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Novo visual do HospedaPrime: identidade clara e quente (tons de areia e terracota), mais leve e agradavel para o uso do dia a dia."},
+{t:"novo",d:"Modo escuro: alterne entre claro e escuro pelo botao no rodape do menu lateral (ou em Mais, no celular). A escolha fica salva para os proximos acessos."},
+{t:"melhoria",d:"Cores dos status de quarto agora sao distintas e faceis de diferenciar: disponivel (verde), ocupado (azul), reservado (roxo), limpeza (ciano) e manutencao (vermelho)."},
+{t:"melhoria",d:"Contraste revisado em telas, tabelas, graficos e chat nos dois temas, para leitura confortavel sem texto apagado."}
+]},
 {v:"1.9.9",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Quartos com reserva futura aparecem como 'Reservado' no mapa, com o hospede e a data de check-in em destaque - nao passa mais batido como livre."}
 ]},

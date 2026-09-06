@@ -29,9 +29,9 @@ export function renderGovernanca(){
 
   // Resumo
   el.innerHTML+='<div class="cards-row">'+
-    '<div class="stat-card"><h3>Aguardando limpeza</h3><div class="value" style="color:#3aa0d1">'+fila.length+'</div></div>'+
-    '<div class="stat-card"><h3>Em manutencao</h3><div class="value" style="color:#f16a6e">'+manut.length+'</div></div>'+
-    '<div class="stat-card"><h3>Disponiveis</h3><div class="value" style="color:#43d18c">'+quartos.filter(function(q){return q.status==="disponivel";}).length+'</div></div>'+
+    '<div class="stat-card"><h3>Aguardando limpeza</h3><div class="value" style="color:var(--ciano)">'+fila.length+'</div></div>'+
+    '<div class="stat-card"><h3>Em manutencao</h3><div class="value" style="color:var(--neg)">'+manut.length+'</div></div>'+
+    '<div class="stat-card"><h3>Disponiveis</h3><div class="value" style="color:var(--pos)">'+quartos.filter(function(q){return q.status==="disponivel";}).length+'</div></div>'+
     '</div>';
 
   // Fila de limpeza

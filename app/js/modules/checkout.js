@@ -48,7 +48,7 @@ var fatura='<div style="background:var(--surface-2);padding:20px;border-radius:1
 servicos.map(function(o){var sv=St.fi("sv",o.servicoId);return'<tr><td>'+(sv?esc(sv.nome):"-")+'</td><td>'+o.quantidade+'</td><td>'+fmtC(o.precoUnit)+'</td><td>'+fmtC(o.total)+'</td></tr>'}).join('')+'</table>':'')+
 '<table style="margin-top:8px"><tr><td>Taxa ('+taxa+'%):</td><td>'+fmtC(taxaImp)+'</td></tr>'+
 '<tr style="font-weight:700"><td>Total:</td><td>'+fmtC(total)+'</td></tr>'+
-(jaPago>0?'<tr style="color:#43d18c"><td>Ja pago (sinal/parcial):</td><td>- '+fmtC(jaPago)+'</td></tr><tr style="font-weight:800"><td>Saldo a pagar:</td><td>'+fmtC(saldo)+'</td></tr>':'')+
+(jaPago>0?'<tr style="color:var(--pos)"><td>Ja pago (sinal/parcial):</td><td>- '+fmtC(jaPago)+'</td></tr><tr style="font-weight:800"><td>Saldo a pagar:</td><td>'+fmtC(saldo)+'</td></tr>':'')+
 '</table></div>'+
 (saldo<=0?'<div class="alert alert-info" style="margin-bottom:12px">Esta reserva ja esta totalmente paga. Nenhum valor adicional sera cobrado.</div>':'')+
 '<div class="form-group"><label>Forma de Pagamento'+(saldo<=0?'':' *')+'</label><select id="coPag">'+

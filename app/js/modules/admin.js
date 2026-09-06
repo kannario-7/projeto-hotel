@@ -14,12 +14,12 @@ export async function renderAdmin(){
   var el=document.getElementById("pageContent");
   var u=getCurrentUser();
   if(!u||!u.isOwner){ el.innerHTML='<div class="page-header"><div><h2>Acesso restrito</h2><p>Area exclusiva do administrador do sistema.</p></div></div>'; return; }
-  el.innerHTML='<div class="page-header"><div><h2>Painel do Dono</h2><p>Hoteis e mensalidades do HospedaPrime</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="abrirSuporteDono()">Mensagens de Suporte <span id="supBadge" style="display:none;background:#f16a6e;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px"></span></button></div></div><div id="adminContent"><p style="color:var(--text-mute)">Carregando...</p></div>';
+  el.innerHTML='<div class="page-header"><div><h2>Painel do Dono</h2><p>Hoteis e mensalidades do HospedaPrime</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="abrirSuporteDono()">Mensagens de Suporte <span id="supBadge" style="display:none;background:var(--neg);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px"></span></button></div></div><div id="adminContent"><p style="color:var(--text-mute)">Carregando...</p></div>';
   atualizarBadgeSuporte();
   iniciarPollBadge();
   var c=document.getElementById("adminContent");
   var { data, error } = await supabase.rpc("listar_hoteis_admin");
-  if(error){ c.innerHTML='<p style="color:#f16a6e">Erro ao carregar: '+esc(error.message)+'</p>'; return; }
+  if(error){ c.innerHTML='<p style="color:var(--neg)">Erro ao carregar: '+esc(error.message)+'</p>'; return; }
   cacheHoteis = data||[];
   var hoteis=cacheHoteis;
   // resumo financeiro do SaaS
@@ -43,7 +43,7 @@ export async function renderAdmin(){
     hoteis.map(function(h){
       var badge=h.status==="ativo"?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Suspenso</span>';
       var exp = h.plano_expira?fmtD(h.plano_expira):"-";
-      if(vencido(h)) exp='<span style="color:#f16a6e;font-weight:700">'+fmtD(h.plano_expira)+' ⚠</span>';
+      if(vencido(h)) exp='<span style="color:var(--neg);font-weight:700">'+fmtD(h.plano_expira)+' ⚠</span>';
       return '<tr><td>'+esc(h.nome)+'</td><td>'+esc(planoLabel(h.plano))+'</td><td>'+exp+'</td><td>'+h.qtd_usuarios+'</td><td>'+badge+'</td>'+
       '<td><button class="btn btn-sm btn-primary" onclick="adminGerenciar(\''+h.id+'\')">Gerenciar</button></td></tr>';
     }).join('')+'</table>';
@@ -101,8 +101,8 @@ function statusHotel(hid,conv){
 }
 function badgeStatus(st){
   if(st==="finalizado") return '<span style="flex:none;background:var(--surface-3);color:var(--text-mute);border:1px solid var(--border);border-radius:20px;padding:1px 9px;font-size:11px">Finalizado</span>';
-  if(st==="respondido") return '<span style="flex:none;background:rgba(48,164,108,.18);color:#43d18c;border-radius:20px;padding:1px 9px;font-size:11px">Respondido</span>';
-  return '<span style="flex:none;background:rgba(241,106,110,.18);color:#f16a6e;border-radius:20px;padding:1px 9px;font-size:11px">Aberto</span>';
+  if(st==="respondido") return '<span style="flex:none;background:var(--pos-bg);color:var(--pos);border-radius:20px;padding:1px 9px;font-size:11px">Respondido</span>';
+  return '<span style="flex:none;background:var(--neg-bg);color:var(--neg);border-radius:20px;padding:1px 9px;font-size:11px">Aberto</span>';
 }
 export function filtrarSuporte(f){ _supFiltro=f; pintarListaSuporte(); }
 
@@ -133,7 +133,7 @@ function pintarListaSuporte(){
     return '<div onclick="abrirConversaHotel(\''+hid+'\')" style="cursor:pointer;display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--surface-2);transition:border-color .15s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'+
       '<div style="flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px">'+esc(ini)+'</div>'+
       '<div style="flex:1;min-width:0">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="color:var(--text)">'+esc(nome)+'</b><div style="display:flex;gap:6px;align-items:center">'+(naoLidas?'<span style="flex:none;background:#f16a6e;color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700">'+naoLidas+'</span>':'')+badgeStatus(st)+'</div></div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="color:var(--text)">'+esc(nome)+'</b><div style="display:flex;gap:6px;align-items:center">'+(naoLidas?'<span style="flex:none;background:var(--neg);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:700">'+naoLidas+'</span>':'')+badgeStatus(st)+'</div></div>'+
         '<div style="color:'+(naoLidas?"var(--text)":"var(--text-mute)")+';font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(prev)+'</div>'+
       '</div></div>';
   }).join('');
@@ -288,7 +288,7 @@ function fmtQuando(iso){
 // Estrelas preenchidas/vazias
 function estrelas(n){
   var s="";
-  for(var i=1;i<=5;i++){ s+='<span style="color:'+(i<=n?"#f5b301":"var(--border)")+';font-size:15px">&#9733;</span>'; }
+  for(var i=1;i<=5;i++){ s+='<span style="color:'+(i<=n?"var(--star)":"var(--border)")+';font-size:15px">&#9733;</span>'; }
   return s;
 }
 

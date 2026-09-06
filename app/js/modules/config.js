@@ -38,19 +38,19 @@ function rotularAcao(a){
   return txt.charAt(0).toUpperCase()+txt.slice(1);
 }
 var ACAO_LABEL={
-  "reserva.cancelar":{t:"Reserva cancelada",c:"#f16a6e"},
-  "reserva.trocar_quarto":{t:"Troca de quarto",c:"#f5b53d"},
-  "checkin.realizar":{t:"Check-in",c:"#43d18c"},
+  "reserva.cancelar":{t:"Reserva cancelada",c:"var(--neg)"},
+  "reserva.trocar_quarto":{t:"Troca de quarto",c:"var(--warn)"},
+  "checkin.realizar":{t:"Check-in",c:"var(--pos)"},
   "checkout.finalizar":{t:"Check-out",c:"var(--accent-2)"},
-  "caixa.abrir":{t:"Caixa aberto",c:"#43d18c"},
-  "caixa.fechar":{t:"Caixa fechado",c:"#3aa0d1"},
-  "hotel.apagar_dados":{t:"Dados apagados",c:"#f16a6e"},
-  "usuario.desativar":{t:"Usuario desativado",c:"#f16a6e"},
-  "usuario.ativar":{t:"Usuario ativado",c:"#43d18c"},
-  "pagamento.registrar":{t:"Pagamento registrado",c:"#43d18c"},
-  "tarifa.criar":{t:"Tarifa criada",c:"#8b5cf6"},
-  "tarifa.editar":{t:"Tarifa editada",c:"#f5b53d"},
-  "tarifa.excluir":{t:"Tarifa excluida",c:"#f16a6e"}
+  "caixa.abrir":{t:"Caixa aberto",c:"var(--pos)"},
+  "caixa.fechar":{t:"Caixa fechado",c:"var(--ciano)"},
+  "hotel.apagar_dados":{t:"Dados apagados",c:"var(--neg)"},
+  "usuario.desativar":{t:"Usuario desativado",c:"var(--neg)"},
+  "usuario.ativar":{t:"Usuario ativado",c:"var(--pos)"},
+  "pagamento.registrar":{t:"Pagamento registrado",c:"var(--pos)"},
+  "tarifa.criar":{t:"Tarifa criada",c:"var(--accent)"},
+  "tarifa.editar":{t:"Tarifa editada",c:"var(--warn)"},
+  "tarifa.excluir":{t:"Tarifa excluida",c:"var(--neg)"}
 };
 function quandoRel(iso){
   if(!iso)return"";

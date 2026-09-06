@@ -79,14 +79,14 @@ function buildVisaoGeral(){
     var pagoDaReserva=St.ga("pg").filter(function(p){return p.reservaId===r.id}).reduce(function(a,p){return a+(p.valor||0)},0);
     var saldo=(r.total||0)-pagoDaReserva; return s+(saldo>0?saldo:0);
   },0);
-  var lucroCor = lucro>=0?"#43d18c":"#f16a6e";
+  var lucroCor = lucro>=0?"var(--pos)":"var(--neg)";
   var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Visao Geral'+labelPeriodo()+'</h3><div class="no-print" style="display:flex;gap:8px"><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
   '<div class="cards-row">'+
-  '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:#43d18c">'+fmtC(receita)+'</div></div>'+
-  '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:#f16a6e">'+fmtC(despesa)+'</div></div>'+
+  '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:var(--pos)">'+fmtC(receita)+'</div></div>'+
+  '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:var(--neg)">'+fmtC(despesa)+'</div></div>'+
   '<div class="stat-card"><h3>Lucro Liquido</h3><div class="value" style="color:'+lucroCor+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
   '<div class="stat-card"><h3>Ticket Medio</h3><div class="value">'+fmtC(ticket)+'</div><div class="sub">'+pg.length+' pagamento(s)</div></div>'+
-  '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:#f0a83c">'+fmtC(aReceber)+'</div><div class="sub">reservas em aberto</div></div>'+
+  '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:var(--warn)">'+fmtC(aReceber)+'</div><div class="sub">reservas em aberto</div></div>'+
   '</div></div>';
   html+=buildBalanceteSecoes();
   html+=buildComparativoMensal();
@@ -102,7 +102,7 @@ function buildComparativoMensal(){
   var chaves=Object.keys(meses).sort().reverse().slice(0,12);
   if(!chaves.length)return'<div class="report-container"><p style="color:var(--text-mute)">Sem dados para o comparativo mensal.</p></div>';
   var html='<div class="report-container"><h3 style="margin-bottom:14px;color:var(--text)">Comparativo Mensal (ultimos 12 meses)</h3><table><tr><th>Mes</th><th>Receita</th><th>Despesa</th><th>Lucro</th></tr>'+
-  chaves.map(function(m){var v=meses[m];var l=v.r-v.d;return'<tr><td>'+m.split("-").reverse().join("/")+'</td><td style="color:#43d18c">'+fmtC(v.r)+'</td><td style="color:#f16a6e">'+fmtC(v.d)+'</td><td style="color:'+(l>=0?"#43d18c":"#f16a6e")+'">'+fmtC(l)+'</td></tr>'}).join('')+'</table></div>'+
+  chaves.map(function(m){var v=meses[m];var l=v.r-v.d;return'<tr><td>'+m.split("-").reverse().join("/")+'</td><td style="color:var(--pos)">'+fmtC(v.r)+'</td><td style="color:var(--neg)">'+fmtC(v.d)+'</td><td style="color:'+(l>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(l)+'</td></tr>'}).join('')+'</table></div>'+
   '<div class="no-print" style="text-align:right"><button class="btn btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>';
   return html;
 }
@@ -113,7 +113,7 @@ function buildReceitas(){
   var total=pg.reduce(function(s,p){return s+(p.valor||0)},0);
   var porForma={};pg.forEach(function(p){porForma[p.forma]=(porForma[p.forma]||0)+(p.valor||0)});
   var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Receitas'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarReceitasCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
-  '<div class="cards-row"><div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:#43d18c">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Transacoes</h3><div class="value">'+pg.length+'</div></div></div>';
+  '<div class="cards-row"><div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:var(--pos)">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Transacoes</h3><div class="value">'+pg.length+'</div></div></div>';
   if(Object.keys(porForma).length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por Forma de Pagamento</h3><table><tr><th>Forma</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porForma).map(function(f){var pc=total?Math.round(porForma[f]/total*100):0;return'<tr><td>'+esc(cap(f))+'</td><td>'+fmtC(porForma[f])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
   if(pg.length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Historico</h3><table><tr><th>Data</th><th>Hospede</th><th>Valor</th><th>Forma</th><th>Obs</th></tr>'+
@@ -128,11 +128,11 @@ function buildDespesas(){
   var total=ds.reduce(function(s,d){return s+(d.valor||0)},0);
   var porCat={};ds.forEach(function(d){var c=d.categoria||"Outros";porCat[c]=(porCat[c]||0)+(d.valor||0)});
   var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Despesas'+labelPeriodo()+'</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="showNovaDespesa()">+ Nova Despesa</button><button class="btn btn-sm btn-secondary" onclick="exportarDespesasCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
-  '<div class="cards-row"><div class="stat-card"><h3>Total de Despesas</h3><div class="value" style="color:#f16a6e">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Lancamentos</h3><div class="value">'+ds.length+'</div></div></div>';
+  '<div class="cards-row"><div class="stat-card"><h3>Total de Despesas</h3><div class="value" style="color:var(--neg)">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Lancamentos</h3><div class="value">'+ds.length+'</div></div></div>';
   if(Object.keys(porCat).length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por Categoria</h3><table><tr><th>Categoria</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porCat).map(function(c){var pc=total?Math.round(porCat[c]/total*100):0;return'<tr><td>'+esc(c)+'</td><td>'+fmtC(porCat[c])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
   if(ds.length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Lancamentos</h3><table><tr><th>Data</th><th>Descricao</th><th>Categoria</th><th>Valor</th><th>Forma</th><th>Acoes</th></tr>'+
-  ds.slice().sort(function(a,b){return (b.data||"").localeCompare(a.data||"")}).map(function(d){return'<tr><td>'+fmtD(d.data)+'</td><td>'+esc(d.descricao)+'</td><td>'+esc(d.categoria||"-")+'</td><td style="color:#f16a6e">'+fmtC(d.valor)+'</td><td>'+esc(cap(d.forma||"-"))+'</td><td><button class="btn btn-sm btn-danger" onclick="excluirDespesa(\''+d.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
+  ds.slice().sort(function(a,b){return (b.data||"").localeCompare(a.data||"")}).map(function(d){return'<tr><td>'+fmtD(d.data)+'</td><td>'+esc(d.descricao)+'</td><td>'+esc(d.categoria||"-")+'</td><td style="color:var(--neg)">'+fmtC(d.valor)+'</td><td>'+esc(cap(d.forma||"-"))+'</td><td><button class="btn btn-sm btn-danger" onclick="excluirDespesa(\''+d.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
   else{html+='<p style="padding:20px;text-align:center;color:var(--text-mute)">Nenhuma despesa no periodo. Clique em "+ Nova Despesa".</p>';}
   html+='</div>';return html;
 }
@@ -243,9 +243,9 @@ function buildContas(){
 
   var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Contas a Pagar e a Receber</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="showNovaContaPagar()">+ Conta a Pagar</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
   '<div class="cards-row">'+
-  '<div class="stat-card"><h3>A Pagar</h3><div class="value" style="color:#f16a6e">'+fmtC(totalPagar)+'</div><div class="sub">'+aPagar.length+' conta(s)'+(vencidas.length?(" &middot; "+vencidas.length+" vencida(s)"):"")+'</div></div>'+
-  '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:#f0a83c">'+fmtC(totalReceber)+'</div><div class="sub">'+aReceber.length+' reserva(s) em aberto</div></div>'+
-  '<div class="stat-card"><h3>Saldo Projetado</h3><div class="value" style="color:'+((totalReceber-totalPagar)>=0?"#43d18c":"#f16a6e")+'">'+fmtC(totalReceber-totalPagar)+'</div></div>'+
+  '<div class="stat-card"><h3>A Pagar</h3><div class="value" style="color:var(--neg)">'+fmtC(totalPagar)+'</div><div class="sub">'+aPagar.length+' conta(s)'+(vencidas.length?(" &middot; "+vencidas.length+" vencida(s)"):"")+'</div></div>'+
+  '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:var(--warn)">'+fmtC(totalReceber)+'</div><div class="sub">'+aReceber.length+' reserva(s) em aberto</div></div>'+
+  '<div class="stat-card"><h3>Saldo Projetado</h3><div class="value" style="color:'+((totalReceber-totalPagar)>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(totalReceber-totalPagar)+'</div></div>'+
   '</div>';
   // A PAGAR
   html+='<h3 style="margin:18px 0 10px;color:var(--text)">Contas a Pagar</h3>';
@@ -253,15 +253,15 @@ function buildContas(){
   aPagar.map(function(d){
     var venc=d.vencimento||"";var situacao,cor;
     if(!venc){situacao="Sem data";cor="var(--text-mute)";}
-    else if(venc<hoje){situacao="Vencida";cor="#f16a6e";}
-    else{var dias=Math.round((new Date(venc)-new Date(hoje))/86400000);situacao=dias===0?"Vence hoje":("Vence em "+dias+"d");cor=dias<=3?"#f0a83c":"var(--text-dim)";}
-    return'<tr><td>'+(venc?fmtD(venc):"-")+'</td><td>'+esc(d.descricao)+'</td><td>'+esc(d.categoria||"-")+'</td><td style="color:#f16a6e">'+fmtC(d.valor)+'</td><td style="color:'+cor+'">'+situacao+'</td><td><button class="btn btn-sm btn-success" onclick="marcarPagoDespesa(\''+d.id+'\')">Marcar Pago</button></td></tr>';
+    else if(venc<hoje){situacao="Vencida";cor="var(--neg)";}
+    else{var dias=Math.round((new Date(venc)-new Date(hoje))/86400000);situacao=dias===0?"Vence hoje":("Vence em "+dias+"d");cor=dias<=3?"var(--warn)":"var(--text-dim)";}
+    return'<tr><td>'+(venc?fmtD(venc):"-")+'</td><td>'+esc(d.descricao)+'</td><td>'+esc(d.categoria||"-")+'</td><td style="color:var(--neg)">'+fmtC(d.valor)+'</td><td style="color:'+cor+'">'+situacao+'</td><td><button class="btn btn-sm btn-success" onclick="marcarPagoDespesa(\''+d.id+'\')">Marcar Pago</button></td></tr>';
   }).join('')+'</table>';}
   else{html+='<p style="color:var(--text-mute);padding:10px 0">Nenhuma conta a pagar em aberto. Use "+ Conta a Pagar" para lancar.</p>';}
   // A RECEBER
   html+='<h3 style="margin:18px 0 10px;color:var(--text)">Contas a Receber (reservas em aberto)</h3>';
   if(aReceber.length){html+='<table><tr><th>Hospede</th><th>Check-in</th><th>Check-out</th><th>Saldo a Receber</th></tr>'+
-  aReceber.sort(function(a,b){return (a.checkin||"").localeCompare(b.checkin||"")}).map(function(x){return'<tr><td>'+esc(x.nome)+'</td><td>'+fmtD(x.checkin)+'</td><td>'+fmtD(x.checkout)+'</td><td style="color:#f0a83c">'+fmtC(x.saldo)+'</td></tr>'}).join('')+'</table>';}
+  aReceber.sort(function(a,b){return (a.checkin||"").localeCompare(b.checkin||"")}).map(function(x){return'<tr><td>'+esc(x.nome)+'</td><td>'+fmtD(x.checkin)+'</td><td>'+fmtD(x.checkout)+'</td><td style="color:var(--warn)">'+fmtC(x.saldo)+'</td></tr>'}).join('')+'</table>';}
   else{html+='<p style="color:var(--text-mute);padding:10px 0">Nenhuma reserva com saldo em aberto.</p>';}
   html+='</div>';
   return html;
@@ -328,7 +328,7 @@ function buildCaixa(){
   // historico de fechamentos
   var fechados=St.ga("sc").filter(function(s){return s.status==="fechado"}).sort(function(a,b){return (b.fechadoEm||"").localeCompare(a.fechadoEm||"")}).slice(0,30);
   if(fechados.length){html+='<h3 style="margin:22px 0 10px;color:var(--text)">Historico de Fechamentos</h3><table><tr><th>Abertura</th><th>Fechamento</th><th>Operador</th><th>Sistema</th><th>Contado</th><th>Diferenca</th></tr>'+
-  fechados.map(function(s){var contado=(s.contadoDinheiro||0)+(s.contadoCartao||0)+(s.contadoPix||0)+(s.contadoOutros||0);var difCor=s.diferenca===0?"#43d18c":(s.diferenca>0?"#f0a83c":"#f16a6e");var difTxt=s.diferenca===0?"OK":(s.diferenca>0?("Sobra "+fmtC(s.diferenca)):("Falta "+fmtC(-s.diferenca)));return'<tr><td>'+fmtDataHora(s.abertoEm)+'</td><td>'+fmtDataHora(s.fechadoEm)+'</td><td>'+esc(s.usuarioFechamento||s.usuarioAbertura||"-")+'</td><td>'+fmtC(s.valorSistema)+'</td><td>'+fmtC(contado)+'</td><td style="color:'+difCor+'">'+difTxt+'</td></tr>'}).join('')+'</table>';}
+  fechados.map(function(s){var contado=(s.contadoDinheiro||0)+(s.contadoCartao||0)+(s.contadoPix||0)+(s.contadoOutros||0);var difCor=s.diferenca===0?"var(--pos)":(s.diferenca>0?"var(--warn)":"var(--neg)");var difTxt=s.diferenca===0?"OK":(s.diferenca>0?("Sobra "+fmtC(s.diferenca)):("Falta "+fmtC(-s.diferenca)));return'<tr><td>'+fmtDataHora(s.abertoEm)+'</td><td>'+fmtDataHora(s.fechadoEm)+'</td><td>'+esc(s.usuarioFechamento||s.usuarioAbertura||"-")+'</td><td>'+fmtC(s.valorSistema)+'</td><td>'+fmtC(contado)+'</td><td style="color:'+difCor+'">'+difTxt+'</td></tr>'}).join('')+'</table>';}
   html+='</div>';
   return html;
 }

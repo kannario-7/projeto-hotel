@@ -65,7 +65,7 @@ function barrasH(itens, classe){
 function colunasMes(meses){
   if(!meses.length)return "";
   var max=Math.max.apply(null,meses.map(function(m){return Math.max(m.rec||0,m.des||0)}));if(!max)max=1;
-  return '<div class="chart-legend"><span><i style="background:#43d18c"></i>Receita</span><span><i style="background:#f16a6e"></i>Despesa</span></div>'+
+  return '<div class="chart-legend"><span><i style="background:var(--pos)"></i>Receita</span><span><i style="background:var(--neg)"></i>Despesa</span></div>'+
   '<div class="chartc">'+meses.map(function(m){
     var hr=Math.round((m.rec||0)/max*100),hd=Math.round((m.des||0)/max*100);
     return '<div class="chartc-col"><div class="chartc-bars"><div class="chartc-bar rec" style="height:'+hr+'%" title="Receita: '+fmtC(m.rec)+'"></div><div class="chartc-bar des" style="height:'+hd+'%" title="Despesa: '+fmtC(m.des)+'"></div></div><div class="chartc-lbl">'+esc(m.lbl)+'</div></div>';
@@ -123,7 +123,7 @@ function buildOcupacao(){
   '<div class="stat-card"><h3>Diaria Media (ADR)</h3><div class="value">'+fmtC(adr)+'</div></div>'+
   '<div class="stat-card"><h3>RevPAR</h3><div class="value">'+fmtC(revpar)+'</div><div class="sub">receita diarias/quarto disp.</div></div>'+
   '<div class="stat-card"><h3>TrevPAR</h3><div class="value">'+fmtC(trevpar)+'</div><div class="sub">receita total/quarto disp.</div></div>'+
-  '<div class="stat-card"><h3>GOPPAR</h3><div class="value" style="color:'+(goppar>=0?"#43d18c":"#f16a6e")+'">'+fmtC(goppar)+'</div><div class="sub">lucro/quarto disp.</div></div>'+
+  '<div class="stat-card"><h3>GOPPAR</h3><div class="value" style="color:'+(goppar>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(goppar)+'</div><div class="sub">lucro/quarto disp.</div></div>'+
   '<div class="stat-card"><h3>Noites Vendidas</h3><div class="value">'+noitesVendidas+'</div></div>'+
   '<div class="stat-card"><h3>Receita de Diarias</h3><div class="value">'+fmtC(receitaDiarias)+'</div></div>'+
   '</div>'+
@@ -149,7 +149,7 @@ function buildReceita(){
   var porDia={};pg.forEach(function(p){porDia[p.data]=(porDia[p.data]||0)+(p.valor||0)});
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Receita Detalhada'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
-  '<div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:#43d18c">'+fmtC(totalPago)+'</div></div>'+
+  '<div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:var(--pos)">'+fmtC(totalPago)+'</div></div>'+
   '<div class="stat-card"><h3>Diarias (reservas)</h3><div class="value">'+fmtC(recDiarias)+'</div></div>'+
   '<div class="stat-card"><h3>Servicos/Consumo</h3><div class="value">'+fmtC(recServicos)+'</div></div>'+
   '</div>';
@@ -192,7 +192,7 @@ function buildReservas(){
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Relatorio de Reservas'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Total de Reservas</h3><div class="value">'+total+'</div></div>'+
-  '<div class="stat-card"><h3>Taxa de Cancelamento</h3><div class="value" style="color:'+(taxaCancel>20?"#f16a6e":"var(--text)")+'">'+taxaCancel+'%</div></div>'+
+  '<div class="stat-card"><h3>Taxa de Cancelamento</h3><div class="value" style="color:'+(taxaCancel>20?"var(--neg)":"var(--text)")+'">'+taxaCancel+'%</div></div>'+
   '<div class="stat-card"><h3>Estadia Media</h3><div class="value">'+estadiaMedia.toFixed(1)+'</div><div class="sub">noites</div></div>'+
   '</div>'+
   '<h3 style="margin:18px 0 10px;color:var(--text)">Por Status</h3><table><tr><th>Status</th><th>Qtd</th><th>%</th></tr>'+
@@ -210,9 +210,9 @@ function buildLucro(){
   var porCat={};ds.forEach(function(d){var c=d.categoria||"Outros";porCat[c]=(porCat[c]||0)+(d.valor||0)});
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Resultado (Lucro)'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
-  '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:#43d18c">'+fmtC(receita)+'</div></div>'+
-  '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:#f16a6e">'+fmtC(despesa)+'</div></div>'+
-  '<div class="stat-card"><h3>Lucro Liquido</h3><div class="value" style="color:'+(lucro>=0?"#43d18c":"#f16a6e")+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
+  '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:var(--pos)">'+fmtC(receita)+'</div></div>'+
+  '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:var(--neg)">'+fmtC(despesa)+'</div></div>'+
+  '<div class="stat-card"><h3>Lucro Liquido</h3><div class="value" style="color:'+(lucro>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
   '</div>';
   if(Object.keys(porCat).length){html+='<h3 style="margin:18px 0 10px;color:var(--text)">Despesas por Categoria</h3><table><tr><th>Categoria</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porCat).sort(function(a,b){return porCat[b]-porCat[a]}).map(function(c){var pc=despesa?Math.round(porCat[c]/despesa*100):0;return'<tr><td>'+esc(c)+'</td><td>'+fmtC(porCat[c])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
@@ -233,9 +233,9 @@ function buildFluxoCaixa(){
   var saldo=totEnt-totSai;
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Fluxo de Caixa'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
-  '<div class="stat-card"><h3>Entradas</h3><div class="value" style="color:#43d18c">'+fmtC(totEnt)+'</div></div>'+
-  '<div class="stat-card"><h3>Saidas</h3><div class="value" style="color:#f16a6e">'+fmtC(totSai)+'</div></div>'+
-  '<div class="stat-card"><h3>Saldo do Periodo</h3><div class="value" style="color:'+(saldo>=0?"#43d18c":"#f16a6e")+'">'+fmtC(saldo)+'</div></div>'+
+  '<div class="stat-card"><h3>Entradas</h3><div class="value" style="color:var(--pos)">'+fmtC(totEnt)+'</div></div>'+
+  '<div class="stat-card"><h3>Saidas</h3><div class="value" style="color:var(--neg)">'+fmtC(totSai)+'</div></div>'+
+  '<div class="stat-card"><h3>Saldo do Periodo</h3><div class="value" style="color:'+(saldo>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(saldo)+'</div></div>'+
   '</div>';
   // grafico de colunas por mes (receita x despesa)
   var porMes={};
@@ -245,7 +245,7 @@ function buildFluxoCaixa(){
   if(mesesChaves.length){html+='<h3 style="margin:18px 0 6px;color:var(--text)">Receita x Despesa (ultimos meses)</h3>'+
   colunasMes(mesesChaves.map(function(m){return {lbl:m.slice(5)+"/"+m.slice(2,4),rec:porMes[m].rec,des:porMes[m].des}}));}
   if(chaves.length){var acum=0;html+='<h3 style="margin:18px 0 10px;color:var(--text)">Movimento Diario</h3><table><tr><th>Data</th><th>Entradas</th><th>Saidas</th><th>Saldo do dia</th><th>Saldo acumulado</th></tr>'+
-  chaves.map(function(d){var v=dias[d];var sd=v.ent-v.sai;acum+=sd;return'<tr><td>'+fmtD(d)+'</td><td style="color:#43d18c">'+fmtC(v.ent)+'</td><td style="color:#f16a6e">'+fmtC(v.sai)+'</td><td style="color:'+(sd>=0?"#43d18c":"#f16a6e")+'">'+fmtC(sd)+'</td><td style="color:'+(acum>=0?"#43d18c":"#f16a6e")+'"><b>'+fmtC(acum)+'</b></td></tr>'}).join('')+'</table>';}
+  chaves.map(function(d){var v=dias[d];var sd=v.ent-v.sai;acum+=sd;return'<tr><td>'+fmtD(d)+'</td><td style="color:var(--pos)">'+fmtC(v.ent)+'</td><td style="color:var(--neg)">'+fmtC(v.sai)+'</td><td style="color:'+(sd>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(sd)+'</td><td style="color:'+(acum>=0?"var(--pos)":"var(--neg)")+'"><b>'+fmtC(acum)+'</b></td></tr>'}).join('')+'</table>';}
   else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem movimentacoes no periodo.</p>';}
   html+='</div>'+acoesRel("fluxo-de-caixa");
   return html;
@@ -270,9 +270,9 @@ function buildDRE(){
   var html='<div class="report-container"><h3 style="margin-bottom:6px;color:var(--text)">DRE - Demonstrativo de Resultado</h3>'+
   '<p style="color:var(--text-mute);font-size:12px;margin-bottom:16px">Mes de referencia: '+fmtMes(ym)+' (comparado com '+fmtMes(ymAnt)+')</p>'+
   '<table><tr><th>Indicador</th><th>'+fmtMes(ym)+'</th><th>'+fmtMes(ymAnt)+'</th><th>Variacao</th></tr>'+
-  '<tr><td>Receita Bruta</td><td style="color:#43d18c">'+fmtC(a.rec)+'</td><td>'+fmtC(b.rec)+'</td><td>'+varPct(a.rec,b.rec)+'</td></tr>'+
-  '<tr><td>(-) Despesas</td><td style="color:#f16a6e">'+fmtC(a.des)+'</td><td>'+fmtC(b.des)+'</td><td>'+varPct(a.des,b.des)+'</td></tr>'+
-  '<tr><td><b>(=) Lucro Liquido</b></td><td style="color:'+(a.lucro>=0?"#43d18c":"#f16a6e")+'"><b>'+fmtC(a.lucro)+'</b></td><td><b>'+fmtC(b.lucro)+'</b></td><td><b>'+varPct(a.lucro,b.lucro)+'</b></td></tr>'+
+  '<tr><td>Receita Bruta</td><td style="color:var(--pos)">'+fmtC(a.rec)+'</td><td>'+fmtC(b.rec)+'</td><td>'+varPct(a.rec,b.rec)+'</td></tr>'+
+  '<tr><td>(-) Despesas</td><td style="color:var(--neg)">'+fmtC(a.des)+'</td><td>'+fmtC(b.des)+'</td><td>'+varPct(a.des,b.des)+'</td></tr>'+
+  '<tr><td><b>(=) Lucro Liquido</b></td><td style="color:'+(a.lucro>=0?"var(--pos)":"var(--neg)")+'"><b>'+fmtC(a.lucro)+'</b></td><td><b>'+fmtC(b.lucro)+'</b></td><td><b>'+varPct(a.lucro,b.lucro)+'</b></td></tr>'+
   '<tr><td>Margem Liquida</td><td>'+(a.rec?Math.round(a.lucro/a.rec*100):0)+'%</td><td>'+(b.rec?Math.round(b.lucro/b.rec*100):0)+'%</td><td>-</td></tr>'+
   '</table></div>'+acoesRel("dre");
   return html;
@@ -295,7 +295,7 @@ export function renderExtratoHospede(id){
   var totalPago=pagamentos.reduce(function(s,p){return s+(p.valor||0)},0);
   var saldo=totalReservas-totalPago;
   var html='<div style="margin:8px 0 14px;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2)"><b style="color:var(--text)">'+esc(h.nome)+'</b>'+(h.documento?' &middot; '+esc(h.documento):'')+(h.telefone?' &middot; '+esc(h.telefone):'')+'</div>';
-  html+='<div class="cards-row"><div class="stat-card"><h3>Total em Reservas</h3><div class="value">'+fmtC(totalReservas)+'</div></div><div class="stat-card"><h3>Total Pago</h3><div class="value" style="color:#43d18c">'+fmtC(totalPago)+'</div></div><div class="stat-card"><h3>Saldo</h3><div class="value" style="color:'+(saldo>0?"#f0a83c":"#43d18c")+'">'+fmtC(saldo)+'</div></div></div>';
+  html+='<div class="cards-row"><div class="stat-card"><h3>Total em Reservas</h3><div class="value">'+fmtC(totalReservas)+'</div></div><div class="stat-card"><h3>Total Pago</h3><div class="value" style="color:var(--pos)">'+fmtC(totalPago)+'</div></div><div class="stat-card"><h3>Saldo</h3><div class="value" style="color:'+(saldo>0?"var(--warn)":"var(--pos)")+'">'+fmtC(saldo)+'</div></div></div>';
   if(reservas.length){html+='<h3 style="margin:16px 0 8px;color:var(--text)">Reservas</h3><table><tr><th>Check-in</th><th>Check-out</th><th>Noites</th><th>Valor</th><th>Status</th></tr>'+
   reservas.sort(function(a,b){return (b.dataCheckin||"").localeCompare(a.dataCheckin||"")}).map(function(r){return'<tr><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td>'+(r.noites||"-")+'</td><td>'+fmtC(r.total)+'</td><td>'+getStatusBadge(r.status)+'</td></tr>'}).join('')+'</table>';}
   if(pagamentos.length){html+='<h3 style="margin:16px 0 8px;color:var(--text)">Pagamentos</h3><table><tr><th>Data</th><th>Valor</th><th>Forma</th></tr>'+

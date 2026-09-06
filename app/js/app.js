@@ -20,15 +20,17 @@ import * as config from "./modules/config.js";
 import * as admin from "./modules/admin.js";
 import * as usuarios from "./modules/usuarios.js";
 import * as impressao from "./modules/impressao.js";
+import * as tema from "./modules/tema.js";
 
 // Expõe funções no escopo global para os onclick inline do HTML
 function expose(mod){Object.keys(mod).forEach(function(k){if(typeof mod[k]==="function")window[k]=mod[k]})}
-[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,governanca,relatorios,config,admin,usuarios,impressao].forEach(expose);
+[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,governanca,relatorios,config,admin,usuarios,impressao,tema].forEach(expose);
 window.St=St;
 
 // Boot assíncrono
 ui.initModalOverlay();
 changelog.aplicarVersaoUI();
+tema.aplicarTema();
 
 // Listeners de navegação
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){a.addEventListener("click",function(){setTimeout(nav.closeSidebar,50)})});
