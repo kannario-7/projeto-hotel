@@ -122,15 +122,22 @@ var h='<div class="mapa-head"><h3>Mapa de Quartos</h3><div class="mapa-legenda">
 function cardQuarto(q,tq,reservas){
 var t=tq.filter(function(x){return x.id===q.tipoQuartoId})[0];
 var stt=q.status||"disponivel";
-var r=(stt==="ocupado"||stt==="reservado")?reservaAtivaDoQuarto(q.id,reservas):null;
+// Busca reserva ativa em QUALQUER status (nao so ocupado/reservado): assim um quarto
+// fisicamente "disponivel" mas com reserva futura confirmada NAO passa batido no mapa.
+var r=reservaAtivaDoQuarto(q.id,reservas);
 var hosp=r?St.fi("h",r.hospedeId):null;
 var nome=hosp?hosp.nome:"";
 var iniciais=nome?nome.trim().split(/\s+/).slice(0,2).map(function(p){return p[0]}).join("").toUpperCase():"";
-var label=stt==="disponivel"?"Livre":stt==="ocupado"?"Ocupado":stt==="reservado"?"Reservado":stt==="limpeza"?"Limpeza":"Manutencao";
-return '<div class="qcard qcard-'+stt+'" onclick="detalheQuarto(\''+q.id+'\')" title="Apto '+esc(q.numero)+'">'+
+// Quarto disponivel/limpeza MAS com reserva confirmada/pendente futura -> destaca como "Reservado"
+var temReservaFutura=r&&(r.status==="confirmada"||r.status==="pendente")&&(stt==="disponivel"||stt==="limpeza");
+var classe=temReservaFutura?"reservado":stt;
+var label=stt==="ocupado"?"Ocupado":stt==="limpeza"?"Limpeza":stt==="manutencao"?"Manutencao":temReservaFutura?"Reservado":stt==="reservado"?"Reservado":"Livre";
+var infoReserva=temReservaFutura?'<div class="qcard-aviso">Check-in '+fmtD(r.dataCheckin)+(r.status==="pendente"?' &middot; pendente':'')+'</div>':'';
+return '<div class="qcard qcard-'+classe+'" onclick="detalheQuarto(\''+q.id+'\')" title="Apto '+esc(q.numero)+'">'+
 '<div class="qcard-top"><span class="qcard-num">'+esc(q.numero)+'</span><span class="qcard-st">'+label+'</span></div>'+
 '<div class="qcard-tipo">'+esc(t?t.nome:"Quarto")+'</div>'+
 (nome?'<div class="qcard-hosp"><span class="qcard-avatar">'+esc(iniciais)+'</span><span class="qcard-nome">'+esc(nome)+'</span></div>':'<div class="qcard-vazio">Sem hospede</div>')+
+infoReserva+
 '</div>';}
 
 // agrupa por andar (ordenado numericamente); cada andar tem seu titulo e grade
@@ -146,12 +153,13 @@ return '<div class="mapa-wrap">'+h+'</div>'}
 export function detalheQuarto(id){var q=St.fi("q",id);if(!q)return;var tq=St.ga("tq");var t=tq.filter(function(x){return x.id===q.tipoQuartoId})[0];
 var r=reservaAtivaDoQuarto(q.id);var hosp=r?St.fi("h",r.hospedeId):null;
 var stt=q.status||"disponivel";
-var label=stt==="disponivel"?"Disponivel":stt==="ocupado"?"Ocupado":stt==="reservado"?"Reservado":stt==="limpeza"?"Em limpeza":"Em manutencao";
+var temReservaFutura=r&&(r.status==="confirmada"||r.status==="pendente")&&(stt==="disponivel"||stt==="limpeza");
+var label=temReservaFutura?"Reservado":stt==="disponivel"?"Disponivel":stt==="ocupado"?"Ocupado":stt==="reservado"?"Reservado":stt==="limpeza"?"Em limpeza":"Em manutencao";
 var body='<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">'+
 '<div class="qmodal-num">'+esc(q.numero)+'</div>'+
 '<div><div style="font-family:Sora,sans-serif;font-weight:700;color:var(--text);font-size:18px">Apto '+esc(q.numero)+'</div>'+
 '<div style="color:var(--text-mute);font-size:13px">'+esc(t?t.nome:"Quarto")+' &middot; '+(q.andar?("Andar "+q.andar):"")+'</div></div></div>';
-body+='<p style="margin-bottom:14px"><span class="badge badge-'+(stt==="disponivel"?"success":stt==="ocupado"?"info":stt==="manutencao"?"danger":"warning")+'">'+label+'</span></p>';
+body+='<p style="margin-bottom:14px"><span class="badge badge-'+(temReservaFutura?"warning":stt==="disponivel"?"success":stt==="ocupado"?"info":stt==="manutencao"?"danger":"warning")+'">'+label+'</span></p>';
 if(hosp){body+='<div class="qmodal-info"><div class="qmodal-row"><span>Hospede</span><b>'+esc(hosp.nome)+'</b></div>'+
 (hosp.documento?'<div class="qmodal-row"><span>Documento</span><b>'+esc(hosp.documento)+'</b></div>':'')+
 (hosp.telefone?'<div class="qmodal-row"><span>Telefone</span><b>'+esc(hosp.telefone)+'</b></div>':'')+

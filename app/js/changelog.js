@@ -2,8 +2,11 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.8";
+export var APP_VERSION="1.9.9";
 export var CHANGELOG=[
+{v:"1.9.9",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Quartos com reserva futura aparecem como 'Reservado' no mapa, com o hospede e a data de check-in em destaque - nao passa mais batido como livre."}
+]},
 {v:"1.9.8",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Mapa de Quartos no painel agora separado por andar, facilitando localizar os quartos."}
 ]},
