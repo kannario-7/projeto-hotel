@@ -30,6 +30,7 @@ reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).
 (r.status==="pendente"||r.status==="confirmada"?'<button class="btn btn-sm btn-primary" onclick="editarReserva(\''+r.id+'\')" style="margin-right:4px">Editar</button>':'')+
 (r.status==="pendente"?'<button class="btn btn-sm btn-success" onclick="confirmarReserva(\''+r.id+'\')" style="margin-right:4px">Confirmar</button>':'')+
 (r.status==="confirmada"||r.status==="checkin"?'<button class="btn btn-sm btn-secondary" onclick="trocarQuarto(\''+r.id+'\')" style="margin-right:4px">Trocar quarto</button>':'')+
+(r.status==="confirmada"||r.status==="checkin"||r.status==="pendente"?'<button class="btn btn-sm btn-secondary" onclick="registrarPagamento(\''+r.id+'\')" style="margin-right:4px">Pagamento</button>':'')+
 (r.status!=="cancelada"&&r.status!=="checkout"?'<button class="btn btn-sm btn-danger" onclick="cancelarReserva(\''+r.id+'\')">Cancelar</button>':'')+
 '</td></tr>'}).join('')+'</table>'}
 
@@ -41,6 +42,53 @@ var r=St.fi("r",id);var h=r?St.fi("h",r.hospedeId):null;var q=r?St.fi("q",r.quar
 St.up("r",id,{status:"cancelada"});
 auditar("reserva.cancelar","Cancelou reserva de "+(h?h.nome:"hospede")+(q?(" - Apto "+q.numero):"")+(r?(" ("+fmtD(r.dataCheckin)+" a "+fmtD(r.dataCheckout)+")"):""));
 st("Reserva cancelada.","warning");renderReservas()})}
+
+// --- PAGAMENTO / SINAL DA RESERVA ---
+// Soma o que ja foi pago de uma reserva
+function pagoDaReserva(id){return St.ga("pg").filter(function(p){return p.reservaId===id}).reduce(function(s,p){return s+(p.valor||0)},0);}
+
+export function registrarPagamento(id){
+  var r=St.fi("r",id);if(!r)return;
+  var h=St.fi("h",r.hospedeId);
+  var pago=pagoDaReserva(id);
+  var total=r.total||0;
+  var saldo=total-pago;
+  var pags=St.ga("pg").filter(function(p){return p.reservaId===id}).sort(function(a,b){return (b.data||"").localeCompare(a.data||"")});
+  var formas=(St.gc().pm)||["dinheiro","cartao","pix"];
+  var ehSinal=pago===0; // primeiro pagamento e tratado como sinal
+  var corpo='<div class="qmodal-info" style="margin-bottom:14px">'+
+      '<div class="qmodal-row"><span>Hospede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Total da reserva</span><b>'+fmtC(total)+'</b></div>'+
+      '<div class="qmodal-row"><span>Ja pago</span><b style="color:#43d18c">'+fmtC(pago)+'</b></div>'+
+      '<div class="qmodal-row"><span>Saldo a receber</span><b style="color:'+(saldo>0?"#f0a83c":"#43d18c")+'">'+fmtC(saldo>0?saldo:0)+'</b></div>'+
+    '</div>'+
+    '<div class="form-grid">'+
+    '<div class="form-group"><label>Valor do pagamento (R$) *</label><input type="number" id="pgValor" step="0.01" min="0" value="'+(saldo>0?(saldo/100).toFixed(2):"")+'"></div>'+
+    '<div class="form-group"><label>Forma</label><select id="pgForma">'+formas.map(function(f){return'<option value="'+f+'">'+esc(f.charAt(0).toUpperCase()+f.slice(1))+'</option>'}).join('')+'</select></div>'+
+    '<div class="form-group"><label>Tipo</label><select id="pgTipo"><option value="sinal"'+(ehSinal?' selected':'')+'>Sinal / entrada</option><option value="avulso"'+(!ehSinal?' selected':'')+'>Pagamento parcial</option></select></div>'+
+    '<div class="form-group"><label>Data</label><input type="date" id="pgData" value="'+td()+'"></div>'+
+    '<div class="form-group" style="grid-column:1/-1"><label>Observacoes</label><input type="text" id="pgObs" placeholder="Opcional"></div>'+
+    '</div>'+
+    (pags.length?'<h4 style="margin:14px 0 8px;color:var(--text)">Pagamentos desta reserva</h4><table><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Forma</th></tr>'+
+      pags.map(function(p){return '<tr><td>'+fmtD(p.data)+'</td><td>'+esc(rotuloTipoPg(p.tipo))+'</td><td>'+fmtC(p.valor)+'</td><td>'+esc((p.forma||"").charAt(0).toUpperCase()+(p.forma||"").slice(1))+'</td></tr>';}).join('')+'</table>':'');
+  sm("Pagamento - "+(h?esc(h.nome):"Reserva"),corpo,'<button class="btn btn-secondary" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="salvarPagamentoReserva(\''+id+'\')">Registrar pagamento</button>');
+}
+function rotuloTipoPg(t){return t==="sinal"?"Sinal":t==="final"?"Saldo (check-out)":"Parcial";}
+
+export async function salvarPagamentoReserva(id){
+  var r=St.fi("r",id);if(!r)return;
+  var val=document.getElementById("pgValor"),forma=document.getElementById("pgForma"),tipo=document.getElementById("pgTipo"),data=document.getElementById("pgData"),obs=document.getElementById("pgObs");
+  var v=Math.round(parseFloat(val&&val.value?val.value:0)*100);
+  if(!v||v<=0)return st("Informe um valor valido.","error"),false;
+  var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Registrando...";}
+  var res=await St.inErr("pg",{reservaId:id,hospedeId:r.hospedeId,valor:v,forma:(forma?forma.value:"dinheiro"),data:(data&&data.value?data.value:td()),tipo:(tipo?tipo.value:"avulso"),observacoes:(obs?obs.value.trim():"")});
+  if(btn){btn.disabled=false;btn.textContent="Registrar pagamento";}
+  if(!res.ok)return st("Nao foi possivel registrar o pagamento. Tente novamente.","error"),false;
+  var h=St.fi("h",r.hospedeId);
+  auditar("pagamento.registrar","Pagamento de "+fmtC(v)+" ("+(tipo?tipo.value:"avulso")+") - "+(h?h.nome:"hospede"));
+  st("Pagamento registrado!","success");
+  cm();renderReservas();
+}
 
 // --- TROCA DE QUARTO ---
 // Abre modal para mover a reserva para outro quarto, mostrando apenas os quartos livres no periodo.

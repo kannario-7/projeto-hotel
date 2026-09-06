@@ -29,12 +29,15 @@ var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
 var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
 var total=diarias+totalServicos+taxaImp;
 var temServicos=servicos.length>0;
+// abate pagamentos ja feitos (sinal/parcial) - cobra so o saldo
+var jaPago=St.ga("pg").filter(function(p){return p.reservaId===id}).reduce(function(s,p){return s+(p.valor||0)},0);
+var saldo=total-jaPago; if(saldo<0)saldo=0;
 
 // guarda os dados para impressao premium
 faturaAtual={ id:id, hospede:(h?h.nome:""), documento:(h?h.documento:""), quarto:(q?q.numero:""),
   checkin:r.dataCheckin, checkout:hoje, noites:noitesReais, tipo:(tq?tq.nome:""),
   diarias:diarias, servicos:servicos.map(function(o){var sv=St.fi("sv",o.servicoId);return {nome:sv?sv.nome:"-",qtd:o.quantidade,unit:o.precoUnit,total:o.total};}),
-  taxa:taxa, taxaImp:taxaImp, total:total };
+  taxa:taxa, taxaImp:taxaImp, total:total, jaPago:jaPago, saldo:saldo };
 
 var fatura='<div style="background:var(--surface-2);padding:20px;border-radius:12px;margin-bottom:16px">'+
 '<h4 style="margin-bottom:12px;color:var(--text)">Fatura - '+(h?esc(h.nome):"")+' (Apto '+(q?q.numero:"")+')</h4>'+
@@ -44,8 +47,11 @@ var fatura='<div style="background:var(--surface-2);padding:20px;border-radius:1
 (temServicos?'<h5 style="margin:8px 0 4px;color:var(--text)">Consumo Detalhado</h5><table><tr><th>Servico</th><th>Qtd</th><th>Valor Unit.</th><th>Subtotal</th></tr>'+
 servicos.map(function(o){var sv=St.fi("sv",o.servicoId);return'<tr><td>'+(sv?esc(sv.nome):"-")+'</td><td>'+o.quantidade+'</td><td>'+fmtC(o.precoUnit)+'</td><td>'+fmtC(o.total)+'</td></tr>'}).join('')+'</table>':'')+
 '<table style="margin-top:8px"><tr><td>Taxa ('+taxa+'%):</td><td>'+fmtC(taxaImp)+'</td></tr>'+
-'<tr style="font-weight:700"><td>Total:</td><td>'+fmtC(total)+'</td></tr></table></div>'+
-'<div class="form-group"><label>Forma de Pagamento *</label><select id="coPag">'+
+'<tr style="font-weight:700"><td>Total:</td><td>'+fmtC(total)+'</td></tr>'+
+(jaPago>0?'<tr style="color:#43d18c"><td>Ja pago (sinal/parcial):</td><td>- '+fmtC(jaPago)+'</td></tr><tr style="font-weight:800"><td>Saldo a pagar:</td><td>'+fmtC(saldo)+'</td></tr>':'')+
+'</table></div>'+
+(saldo<=0?'<div class="alert alert-info" style="margin-bottom:12px">Esta reserva ja esta totalmente paga. Nenhum valor adicional sera cobrado.</div>':'')+
+'<div class="form-group"><label>Forma de Pagamento'+(saldo<=0?'':' *')+'</label><select id="coPag">'+
 config.pm.map(function(p){return'<option value="'+p+'">'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</option>'}).join('')+'</select></div>'+
 '<div class="form-group"><label>Observacoes</label><textarea id="coObs" rows="2" placeholder="Observacoes do checkout"></textarea></div>';
 
@@ -62,7 +68,9 @@ export function imprimirFatura(){
     '<tr><td>Diarias</td><td>'+f.noites+' noite(s) - '+esc(f.tipo)+'</td><td>'+fmtC(f.diarias)+'</td></tr>'+
     f.servicos.map(function(s){return '<tr><td>'+esc(s.nome)+'</td><td>'+s.qtd+' x '+fmtC(s.unit)+'</td><td>'+fmtC(s.total)+'</td></tr>';}).join('')+
     '<tr><td>Taxa de servico</td><td>'+f.taxa+'%</td><td>'+fmtC(f.taxaImp)+'</td></tr>'+
-    '<tr style="font-weight:800"><td>TOTAL</td><td></td><td>'+fmtC(f.total)+'</td></tr></table>';
+    '<tr style="font-weight:800"><td>TOTAL</td><td></td><td>'+fmtC(f.total)+'</td></tr>'+
+    (f.jaPago>0?'<tr><td>Ja pago (sinal/parcial)</td><td></td><td>- '+fmtC(f.jaPago)+'</td></tr><tr style="font-weight:800"><td>SALDO PAGO</td><td></td><td>'+fmtC(f.saldo)+'</td></tr>':'')+
+    '</table>';
   imprimirDocumento("Fatura de Hospedagem", "Hospede: "+f.hospede+(f.documento?(" - "+f.documento):""), corpo);
 }
 
@@ -77,17 +85,21 @@ var servicos=St.ga("os").filter(function(o){return o.reservaId===id});
 var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
 var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
 var total=diarias+totalServicos+taxaImp;
+// abate o que ja foi pago (sinal/parcial): cobra so o saldo
+var jaPago=St.ga("pg").filter(function(p){return p.reservaId===id}).reduce(function(s,p){return s+(p.valor||0)},0);
+var saldo=total-jaPago; if(saldo<0)saldo=0;
 var pag=document.getElementById("coPag"),obs=document.getElementById("coObs");
-var pagamento={reservaId:id,hospedeId:r.hospedeId,valor:total,forma:(pag?pag.value:"dinheiro"),data:hoje,observacoes:(obs?obs.value.trim():"")};
 var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Finalizando...";}
-// PRIMEIRO grava o pagamento AGUARDANDO o banco. Se falhar, aborta sem marcar checkout
-// (evita quarto liberado / reserva fechada sem o pagamento ter sido registrado).
-var resPg=await St.inErr("pg",pagamento);
-if(!resPg.ok){
-  if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}
-  return st("Nao foi possivel registrar o pagamento. Check-out NAO concluido. Tente novamente.","error"),false;
+// So grava pagamento se houver saldo a cobrar. Se ja pago integralmente, apenas fecha a reserva.
+if(saldo>0){
+  var pagamento={reservaId:id,hospedeId:r.hospedeId,valor:saldo,forma:(pag?pag.value:"dinheiro"),data:hoje,tipo:"final",observacoes:(obs?obs.value.trim():"")};
+  var resPg=await St.inErr("pg",pagamento);
+  if(!resPg.ok){
+    if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}
+    return st("Nao foi possivel registrar o pagamento. Check-out NAO concluido. Tente novamente.","error"),false;
+  }
 }
-// Pagamento confirmado: agora atualiza reserva e quarto.
+// Atualiza reserva (total cheio, para o historico) e quarto.
 var resR=await St.upErr("r",id,{status:"checkout",dataCheckout:hoje,total:total});
 if(!resR.ok){
   if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}
@@ -95,6 +107,6 @@ if(!resR.ok){
 }
 St.up("q",r.quartoId,{status:"limpeza"});
 var hsp=St.fi("h",r.hospedeId),qt=St.fi("q",r.quartoId);
-auditar("checkout.finalizar","Check-out de "+(hsp?hsp.nome:"hospede")+(qt?(" - Apto "+qt.numero):"")+" - Total "+fmtC(total)+" ("+(pag?pag.value:"dinheiro")+")");
-st("Check-out realizado! Total: "+fmtC(total),"success");
+auditar("checkout.finalizar","Check-out de "+(hsp?hsp.nome:"hospede")+(qt?(" - Apto "+qt.numero):"")+" - Total "+fmtC(total)+(jaPago>0?(" (sinal "+fmtC(jaPago)+", saldo "+fmtC(saldo)+")"):"")+" ("+(pag?pag.value:"dinheiro")+")");
+st(saldo>0?("Check-out realizado! Saldo cobrado: "+fmtC(saldo)):"Check-out realizado! (ja estava pago)","success");
 cm();renderCheckout();}
