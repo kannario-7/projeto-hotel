@@ -35,6 +35,29 @@ document.addEventListener("click",function(e){var m=document.getElementById("mai
 document.querySelectorAll("#maisMenu a.mais-item").forEach(function(a){a.addEventListener("click",nav.fecharMaisMenu)});
 window.addEventListener("hashchange",function(){nav.renderPage();nav.closeSidebar()});
 
+// Acessibilidade das abas (.tab sao <div> recriados dinamicamente):
+// delegacao global torna-as focaveis (tabindex/role) e ativaveis por teclado (Enter/Espaco).
+document.addEventListener("keydown",function(e){
+  var t=e.target;
+  if(t&&t.classList&&t.classList.contains("tab")&&(e.key==="Enter"||e.key===" "||e.key==="Spacebar")){
+    e.preventDefault(); t.click();
+  }
+});
+// Marca as abas (.tab) com atributos de acessibilidade assim que aparecem no DOM.
+// Como as telas trocam innerHTML, um MutationObserver cobre todas as tabs (novas e recriadas).
+function marcarTabsA11y(raiz){
+  (raiz||document).querySelectorAll(".tab").forEach(function(el){
+    if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","0");
+    if(!el.hasAttribute("role"))el.setAttribute("role","tab");
+    el.setAttribute("aria-selected", el.classList.contains("active")?"true":"false");
+  });
+}
+var _obsA11y=new MutationObserver(function(muts){
+  for(var i=0;i<muts.length;i++){ if(muts[i].addedNodes&&muts[i].addedNodes.length){ marcarTabsA11y(document); break; } }
+});
+_obsA11y.observe(document.body,{childList:true,subtree:true});
+marcarTabsA11y(document);
+
 // Boot: trata convite -> senão restaura sessão
 var hash = window.location.hash || "";
 if(hash.indexOf("#convite=")===0){

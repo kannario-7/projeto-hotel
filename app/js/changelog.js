@@ -2,8 +2,11 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.5";
+export var APP_VERSION="1.9.6";
 export var CHANGELOG=[
+{v:"1.9.6",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Acessibilidade: as abas podem ser usadas pelo teclado (Tab para navegar, Enter para abrir) e as janelas ja focam o primeiro campo ao abrir."}
+]},
 {v:"1.9.5",data:"2026-08-30",mudancas:[
 {t:"correcao",d:"Lucro consistente: o Lucro nos Relatorios e o Resultado no Financeiro agora usam a mesma regra (so despesas pagas contam), acabando com a diferenca de valores entre as telas."}
 ]},

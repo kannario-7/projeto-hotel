@@ -4,7 +4,15 @@ import { getHotelId } from "./store.js";
 import { suporteEnviar, suporteListar, suporteMarcarLidas, avaliarSuporte, avaliacoesSuporte, suporteStatus, suporteDefinirStatus } from "./db.js";
 
 export function st(m,t){var n=document.createElement("div");n.className="toast "+(t||"info");n.innerHTML=(t==="success"?"✓":t==="error"?"✗":"ℹ")+" "+esc(m);document.getElementById("toastContainer").appendChild(n);setTimeout(function(){n.remove()},3500)}
-export function sm(t,b,f){document.getElementById("modalTitle").textContent=t;document.getElementById("modalBody").innerHTML=b||"";document.getElementById("modalFooter").innerHTML=f||"";document.getElementById("modalOverlay").classList.add("show")}
+export function sm(t,b,f){document.getElementById("modalTitle").textContent=t;document.getElementById("modalBody").innerHTML=b||"";document.getElementById("modalFooter").innerHTML=f||"";
+var ov=document.getElementById("modalOverlay");
+var box=ov.querySelector(".modal"); if(box){ box.setAttribute("role","dialog"); box.setAttribute("aria-modal","true"); }
+ov.classList.add("show");
+// acessibilidade: foca o primeiro campo do modal ao abrir (ou o proprio dialogo)
+setTimeout(function(){
+  var alvo=document.querySelector("#modalBody input:not([type=hidden]),#modalBody select,#modalBody textarea");
+  if(alvo){try{alvo.focus();}catch(e){}}
+},60);}
 export function cm(){document.getElementById("modalOverlay").classList.remove("show");document.getElementById("modalBody").innerHTML="";document.getElementById("modalFooter").innerHTML=""}
 export function closeModal(){cm()}
 export function openModal(t,b,f){sm(t,b,f)}
