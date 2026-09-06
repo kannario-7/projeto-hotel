@@ -2,8 +2,11 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.4";
+export var APP_VERSION="1.9.5";
 export var CHANGELOG=[
+{v:"1.9.5",data:"2026-08-30",mudancas:[
+{t:"correcao",d:"Lucro consistente: o Lucro nos Relatorios e o Resultado no Financeiro agora usam a mesma regra (so despesas pagas contam), acabando com a diferenca de valores entre as telas."}
+]},
 {v:"1.9.4",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Formas de pagamento personalizadas: adicione (ex: PicPay, Vale-refeicao) e remova as suas proprias formas em Configuracoes > Pagamento."},
 {t:"melhoria",d:"Mais formas pre-definidas (Transferencia, Link de pagamento, Voucher/Cortesia) e remocao da opcao generica 'Cartao' (use Debito ou Credito)."}

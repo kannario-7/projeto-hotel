@@ -1,6 +1,7 @@
 // Módulo: Financeiro completo (Resumo/DRE, Receitas, Despesas, Caixa, exportacao)
 import { esc, fmtC, fmtD, td, reais, cap, baixarCSV } from "../utils.js";
 import { St, auditar } from "../store.js";
+import { despesasEfetivadas } from "./financeiro-core.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { imprimirDocumento } from "./impressao.js";
@@ -63,8 +64,8 @@ function noPeriodo(lista){return lista.filter(function(x){
 function labelPeriodo(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi?fmtD(periodo.fi):"inicio")+' a '+(periodo.ff?fmtD(periodo.ff):"hoje");return' &middot; todo o periodo';}
 
 // ---- RESUMO / DRE ----
-// despesas efetivadas (pagas) - contas a pagar em aberto nao entram no resultado realizado
-function despesasPagas(){return St.ga("ds").filter(function(d){return d.pago!==false;});}
+// despesas efetivadas (pagas) - regra unica no financeiro-core (contas a pagar em aberto nao entram no resultado)
+function despesasPagas(){return despesasEfetivadas();}
 
 function buildVisaoGeral(){
   var pg=noPeriodo(St.ga("pg")), ds=noPeriodo(despesasPagas()), reservas=St.ga("r");
