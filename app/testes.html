@@ -16,6 +16,7 @@ h1{font-size:20px} h2{font-size:15px;margin:18px 0 6px;color:#a99bff}
 <div id="out"></div>
 <script type="module">
 import { St, _seedCache, calcularDiarias, precoDiariaNaData, checkDisponivel, quartosLivres } from "./js/store.js";
+import { ocupacaoTipoNoDia, sugerirTarifas } from "./js/modules/tarifas-core.js";
 import { somaPagamentos, somaDespesas, despesasEfetivadas, aReceberDeReservas, agrupaPorForma, agrupaPorMes } from "./js/modules/financeiro-core.js";
 
 var pass=0, fail=0, html="";
@@ -73,6 +74,38 @@ eq(agrupaPorMes(pg,despesasEfetivadas(ds))["2027-01"],{rec:100000,des:10000},"ag
 grupo("Saldo de reserva (sinal + parcial)");
 var pgs=[{valor:30000,reservaId:"rX"},{valor:70000,reservaId:"rX"}];
 eq(pgs.reduce(function(s,p){return s+p.valor},0),100000,"sinal 300 + saldo 700 = 1000 (nao duplica)");
+
+// ============ ASSISTENTE DE TARIFAS (sugestao por ocupacao) ============
+grupo("Assistente de tarifas (sugestao, nao aplica)");
+// tipo "std" com 2 quartos, diaria base 20000. Dia 2027-06-10 lotado (2/2); 2027-06-11 vazio.
+_seedCache({
+  tq:[{id:"std",nome:"Standard",precoDiaria:20000,ativo:true}],
+  q:[{id:"q1",tipoQuartoId:"std",ativo:true},{id:"q2",tipoQuartoId:"std",ativo:true}],
+  r:[
+    {id:"a",quartoId:"q1",status:"confirmada",dataCheckin:"2027-06-10",dataCheckout:"2027-06-11"},
+    {id:"b",quartoId:"q2",status:"checkin",dataCheckin:"2027-06-10",dataCheckout:"2027-06-11"}
+  ],
+  tf:[]
+});
+eq(ocupacaoTipoNoDia(St.ga("q"),St.ga("r"),"std","2027-06-10").taxa,1,"ocupacao 2/2 no dia lotado = 100%");
+eq(ocupacaoTipoNoDia(St.ga("q"),St.ga("r"),"std","2027-06-11").taxa,0,"ocupacao 0/2 no dia seguinte = 0%");
+// hoje = 2027-06-10: dia 0 lotado (alta -> +15% = 23000). horizonte curto p/ o teste.
+var sug=sugerirTarifas(St.ga("q"),St.ga("r"),St.ga("tq"),{hoje:"2027-06-10",dias:2,diasUltimaHora:2,limiarBaixa:0.4});
+var alta=sug.find(function(s){return s.data==="2027-06-10";});
+eq(alta?alta.precoSugerido:0,23000,"dia lotado -> sugere +15% (200 -> 230)");
+eq(alta?alta.motivo:"","alta","motivo do dia lotado = alta");
+var ultima=sug.find(function(s){return s.data==="2027-06-11";});
+eq(ultima?ultima.precoSugerido:0,18000,"dia proximo vazio -> sugere -10% (200 -> 180)");
+eq(ultima?ultima.motivo:"","ultima_hora","motivo do dia vazio proximo = ultima_hora");
+// dia normal (ocupacao media, fora da janela de ultima hora) nao gera sugestao:
+_seedCache({
+  tq:[{id:"std",nome:"Standard",precoDiaria:20000,ativo:true}],
+  q:[{id:"q1",tipoQuartoId:"std",ativo:true},{id:"q2",tipoQuartoId:"std",ativo:true}],
+  r:[{id:"a",quartoId:"q1",status:"confirmada",dataCheckin:"2027-07-20",dataCheckout:"2027-07-21"}], // 1/2 = 50%
+  tf:[]
+});
+var sug2=sugerirTarifas(St.ga("q"),St.ga("r"),St.ga("tq"),{hoje:"2027-07-10",dias:30,diasUltimaHora:3,limiarBaixa:0.4});
+eq(sug2.filter(function(s){return s.data==="2027-07-20";}).length,0,"dia 50% distante nao gera sugestao");
 
 // ============ RESUMO ============
 var r=document.getElementById("resumo");

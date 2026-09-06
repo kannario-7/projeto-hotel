@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.2.0";
+export var APP_VERSION="2.3.0";
 export var CHANGELOG=[
+{v:"2.3.0",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Assistente de precos (Configuracoes > Tarifas): analisa a ocupacao dos proximos dias e sugere ajustes de diaria - acrescimo quando a demanda esta alta e desconto de ultima hora para datas proximas ainda vazias."},
+{t:"melhoria",d:"As sugestoes nunca alteram o preco sozinhas: voce revisa cada recomendacao e cria a tarifa com um clique (o valor ja vem preenchido, e da para editar antes de salvar)."}
+]},
 {v:"2.2.0",data:"2026-09-06",mudancas:[
 {t:"novo",d:"Permissoes por operador: em Configuracoes > Usuarios, o administrador escolhe exatamente quais modulos cada pessoa acessa (Reservas, Financeiro, Relatorios, etc.), pelo botao Permissoes ou ao criar/convidar. O Painel fica sempre disponivel."},
 {t:"melhoria",d:"O menu agora esconde os modulos sem acesso tambem no celular (barra inferior e menu Mais), nao so no computador. Administrador e dono continuam com acesso total."}

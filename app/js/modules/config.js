@@ -1,9 +1,11 @@
 // Módulo: Configurações
-import { esc, fmtC, mascCep, mascTel } from "../utils.js";
+import { esc, fmtC, fmtD, td } from "../utils.js";
+import { mascCep, mascTel } from "../utils.js";
 import { St, carregarTudo, getHotelId, auditar, carregarAuditoria } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { renderUsuariosHotel } from "./usuarios.js";
+import { sugerirTarifas } from "./tarifas-core.js";
 import { supabase } from "../supabase.js";
 
 export function renderConfig(){var el=document.getElementById("pageContent");
@@ -261,7 +263,53 @@ function formConfigTarifas(tq){
     html+='<p style="color:var(--text-mute)">Nenhuma tarifa especial cadastrada. Vale o preco padrao de cada tipo de quarto.</p>';
   }
   html+='<div class="form-actions"><button class="btn btn-primary" onclick="showNovaTarifa()">+ Nova tarifa</button></div></div>';
+  // Assistente de precos (sugestoes por ocupacao) — renderizado a parte
+  html+='<div class="form-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px"><h3 style="color:var(--text)">Assistente de precos</h3><button class="btn btn-sm btn-secondary" onclick="renderSugestoesTarifa()">Atualizar</button></div>'+
+    '<p style="color:var(--text-mute);font-size:13px;margin-bottom:14px">Analisa a ocupacao dos proximos dias e <b>sugere</b> ajustes de diaria. Nada e alterado automaticamente: voce revisa e cria a tarifa se quiser.</p>'+
+    '<div id="tarifasSugestoes"><p style="color:var(--text-mute)">Clique em "Atualizar" para gerar as sugestoes.</p></div></div>';
   return html;
+}
+
+// Gera e exibe as sugestoes de tarifa (assistente). Nao altera nada.
+export function renderSugestoesTarifa(){
+  var alvo=document.getElementById("tarifasSugestoes"); if(!alvo)return;
+  var quartos=St.ga("q"), reservas=St.ga("r"), tipos=St.ga("tq");
+  if(!tipos.filter(function(t){return t.ativo!==false;}).length || !quartos.filter(function(q){return q.ativo!==false;}).length){
+    alvo.innerHTML='<p style="color:var(--text-mute)">Cadastre tipos de quarto e quartos para receber sugestoes.</p>'; return;
+  }
+  var sugestoes=sugerirTarifas(quartos, reservas, tipos, { hoje: td() });
+  if(!sugestoes.length){
+    alvo.innerHTML='<p style="color:var(--text-mute)">Sem sugestoes no momento. A ocupacao dos proximos dias esta equilibrada.</p>'; return;
+  }
+  // ordena: maiores acrescimos primeiro, depois por data
+  sugestoes.sort(function(a,b){ return (b.delta-a.delta) || a.data.localeCompare(b.data); });
+  var linhas=sugestoes.slice(0,40).map(function(s){
+    var pct=Math.round(s.taxa*100);
+    var badge=s.motivo==="alta"
+      ? '<span class="badge badge-danger">Demanda alta '+pct+'%</span>'
+      : '<span class="badge badge-info">Ultima hora '+pct+'%</span>';
+    var setaCor=s.delta>0?"var(--pos)":"var(--warn)";
+    return '<tr><td>'+esc(s.tipoNome)+'</td><td>'+fmtD(s.data)+'</td><td>'+badge+'</td>'+
+      '<td>'+fmtC(s.precoBase)+' <span style="color:'+setaCor+'">&rarr; '+fmtC(s.precoSugerido)+'</span></td>'+
+      '<td><button class="btn btn-sm btn-primary" onclick="aplicarSugestaoTarifa(\''+s.tipoId+'\',\''+s.data+'\','+s.precoSugerido+')">Criar tarifa</button></td></tr>';
+  }).join('');
+  alvo.innerHTML='<table><tr><th>Tipo</th><th>Data</th><th>Situacao</th><th>Diaria</th><th>Acao</th></tr>'+linhas+'</table>';
+}
+
+// Abre o form de nova tarifa por periodo ja pre-preenchido com a sugestao (operador aprova/edita e salva).
+export function aplicarSugestaoTarifa(tipoId, dataISO, precoCentavos){
+  showNovaTarifa();
+  setTimeout(function(){
+    var tipo=document.getElementById("tfTipo"), regra=document.getElementById("tfRegra"),
+        ini=document.getElementById("tfInicio"), fim=document.getElementById("tfFim"),
+        preco=document.getElementById("tfPreco"), nome=document.getElementById("tfNome");
+    if(tipo)tipo.value=tipoId;
+    if(regra){ regra.value="periodo"; if(typeof tarifaToggleRegra==="function")tarifaToggleRegra(); }
+    if(ini)ini.value=dataISO;
+    if(fim)fim.value=dataISO;
+    if(preco)preco.value=(precoCentavos/100).toFixed(2);
+    if(nome&&!nome.value)nome.value="Ajuste por demanda";
+  },60);
 }
 
 function formTarifa(t){
