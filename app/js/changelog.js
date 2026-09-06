@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.3";
+export var APP_VERSION="1.9.4";
 export var CHANGELOG=[
+{v:"1.9.4",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Formas de pagamento personalizadas: adicione (ex: PicPay, Vale-refeicao) e remova as suas proprias formas em Configuracoes > Pagamento."},
+{t:"melhoria",d:"Mais formas pre-definidas (Transferencia, Link de pagamento, Voucher/Cortesia) e remocao da opcao generica 'Cartao' (use Debito ou Credito)."}
+]},
 {v:"1.9.3",data:"2026-08-30",mudancas:[
 {t:"correcao",d:"Aba Atividades: as acoes agora aparecem com nome legivel (ex: 'Pagamento registrado', 'Tarifa criada') em vez do codigo interno."}
 ]},

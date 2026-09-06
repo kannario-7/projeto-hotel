@@ -372,7 +372,14 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .pay-opt input:checked+.pay-box{background:var(--accent);border-color:var(--accent)}
 .pay-opt input:checked+.pay-box svg{opacity:1;transform:scale(1)}
 .pay-opt input:focus-visible+.pay-box{box-shadow:0 0 0 3px var(--accent-soft)}
-.pay-opt .pay-label{color:var(--text);font-size:15px}
+.pay-opt .pay-label{color:var(--text);font-size:15px;flex:1}
+/* botao de excluir forma personalizada */
+.pay-del{margin-left:auto;background:none;border:none;color:var(--text-mute);font-size:20px;line-height:1;cursor:pointer;padding:0 6px;border-radius:6px;transition:color .15s,background .15s}
+.pay-del:hover{color:#f16a6e;background:rgba(241,106,110,.12)}
+/* linha de adicionar forma personalizada */
+.pay-add{display:flex;gap:8px;margin:12px 0 4px}
+.pay-add input{flex:1}
+@media(max-width:768px){.pay-add{flex-direction:column}}
 
 /* Icones SVG do changelog (substituem emojis nas tags e banner) */
 .chg-tag{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}

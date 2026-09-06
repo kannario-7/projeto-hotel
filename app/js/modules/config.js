@@ -330,19 +330,66 @@ export function excluirTarifa(id){
   });
 }
 
+// Formas de pagamento pre-definidas (sem o generico "cartao"; use Debito/Credito)
+var FORMAS_PADRAO=["dinheiro","debito","credito","pix","boleto","cheque","transferencia","link","voucher"];
+function rotuloForma(p){
+  var mapa={dinheiro:"Dinheiro",debito:"Debito",credito:"Credito",pix:"Pix",boleto:"Boleto",cheque:"Cheque",transferencia:"Transferencia",link:"Link de pagamento",voucher:"Voucher / Cortesia"};
+  return mapa[p]||(p.charAt(0).toUpperCase()+p.slice(1));
+}
+
 function formConfigPagamento(c){var check='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+var pm=c.pm||[];
+// personalizadas = o que esta em pm mas nao e forma padrao (ex: PicPay, Vale-refeicao)
+var custom=pm.filter(function(p){return FORMAS_PADRAO.indexOf(p)<0;});
 return'<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Formas de Pagamento</h3>'+
-'<p style="color:var(--text-mute);margin-bottom:16px">Selecione as formas de pagamento aceitas pelo hotel:</p>'+
+'<p style="color:var(--text-mute);margin-bottom:16px">Selecione as formas aceitas pelo hotel. Voce tambem pode adicionar formas personalizadas.</p>'+
 '<div class="pay-list">'+
-["dinheiro","cartao","debito","credito","pix","boleto","cheque"].map(function(p){return'<label class="pay-opt"><input type="checkbox" value="'+p+'" '+(c.pm&&c.pm.includes(p)?'checked':'')+'><span class="pay-box">'+check+'</span><span class="pay-label">'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</span></label>'}).join('')+
+FORMAS_PADRAO.map(function(p){return'<label class="pay-opt"><input type="checkbox" value="'+esc(p)+'" '+(pm.indexOf(p)>=0?'checked':'')+'><span class="pay-box">'+check+'</span><span class="pay-label">'+esc(rotuloForma(p))+'</span></label>'}).join('')+
+custom.map(function(p){return'<label class="pay-opt"><input type="checkbox" value="'+esc(p)+'" checked><span class="pay-box">'+check+'</span><span class="pay-label">'+esc(p.charAt(0).toUpperCase()+p.slice(1))+'</span><button type="button" class="pay-del" title="Excluir forma personalizada" onclick="excluirFormaPagamento(event,\''+esc(p).replace(/'/g,"\\'")+'\')">&times;</button></label>'}).join('')+
 '</div>'+
+'<div class="pay-add"><input type="text" id="cfgNovaForma" placeholder="Adicionar forma (ex: PicPay, Vale-refeicao)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();adicionarFormaPagamento()}"><button type="button" class="btn btn-secondary" onclick="adicionarFormaPagamento()">+ Adicionar</button></div>'+
 '<div class="form-actions"><button class="btn btn-primary" onclick="salvarFormasPagamento()">Salvar</button></div></div>'+
 '<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Dados do Sistema</h3>'+
 '<button class="btn btn-danger" onclick="restaurarDados()">Apagar dados do hotel</button>'+
 '<p style="color:var(--text-mute);font-size:12px;margin-top:8px">Apaga todos os dados operacionais deste hotel (reservas, hospedes, quartos, etc.). Protegido por senha-mestra do dono.</p></div>'}
 
-export function salvarFormasPagamento(){var cfg=St.gc();cfg.pm=[];
-document.querySelectorAll("#configContent input[type=checkbox]").forEach(function(cb){if(cb.checked)cfg.pm.push(cb.value)});
+// Le as formas atualmente marcadas na tela (padrao + personalizadas)
+function coletarFormasSelecionadas(){
+  var arr=[];
+  document.querySelectorAll("#configContent .pay-list input[type=checkbox]").forEach(function(cb){if(cb.checked)arr.push(cb.value)});
+  return arr;
+}
+
+// Adiciona uma forma personalizada: grava na config e re-renderiza a aba (ja marcada)
+export function adicionarFormaPagamento(){
+  var inp=document.getElementById("cfgNovaForma");
+  var nome=(inp&&inp.value?inp.value:"").trim().toLowerCase();
+  if(!nome)return st("Digite o nome da forma de pagamento.","error"),false;
+  var cfg=St.gc();
+  var atuais=coletarFormasSelecionadas(); // preserva o que ja esta marcado antes de re-renderizar
+  if(atuais.indexOf(nome)>=0 || FORMAS_PADRAO.indexOf(nome)>=0)return st("Essa forma ja existe.","warning"),false;
+  atuais.push(nome);
+  cfg.pm=atuais;
+  St.sc(cfg);
+  auditar("config.forma_pagamento","Adicionou forma de pagamento: "+nome);
+  st("Forma adicionada!","success");
+  document.getElementById("configContent").innerHTML=formConfigPagamento(St.gc());
+}
+
+// Exclui uma forma personalizada
+export function excluirFormaPagamento(ev,nome){
+  if(ev)ev.preventDefault();
+  var cfg=St.gc();
+  var atuais=coletarFormasSelecionadas().filter(function(p){return p!==nome;});
+  cfg.pm=atuais;
+  St.sc(cfg);
+  auditar("config.forma_pagamento","Removeu forma de pagamento: "+nome);
+  st("Forma removida.","warning");
+  document.getElementById("configContent").innerHTML=formConfigPagamento(St.gc());
+}
+
+export function salvarFormasPagamento(){var cfg=St.gc();
+cfg.pm=coletarFormasSelecionadas();
 if(!cfg.pm.length)return st("Selecione ao menos uma forma.","error"),false;
 St.sc(cfg);st("Formas de pagamento salvas!","success");}
 
