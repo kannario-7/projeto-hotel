@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.4.2";
+export var APP_VERSION="2.5.0";
 export var CHANGELOG=[
+{v:"2.5.0",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Relatorio por turno: em Relatorios > Por Turno, veja quanto foi recebido em cada turno (manha, tarde, noite) e por cada operador no periodo, com total, quantidade de pagamentos e ticket medio."},
+{t:"melhoria",d:"O turno de cada pagamento e definido pela hora em que foi registrado. Exportacao em CSV e impressao disponiveis."}
+]},
 {v:"2.4.2",data:"2026-09-06",mudancas:[
 {t:"novo",d:"Excluir usuario: em Configuracoes > Usuarios, o administrador do hotel pode remover permanentemente um usuario (alem de apenas desativar). Util para limpar cadastros duplicados ou antigos."}
 ]},

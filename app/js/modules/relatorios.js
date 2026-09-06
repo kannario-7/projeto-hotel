@@ -24,6 +24,7 @@ el.innerHTML='<div class="page-header"><div><h2>Relatorios</h2><p>Relatorios e e
 '<div class="tab" onclick="mudarRelatorio(this,\'proximas\')">Chegadas</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'extrato\')">Extrato do Hospede</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'vip\')">Hospedes Fieis</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'turno\')">Por Turno</div>'+
 '</div>'+
 '<p style="color:var(--text-mute);font-size:12px;margin:10px 2px 0">Relatorios de analise e ocupacao. Para receitas, despesas e lucro, use o modulo <b>Financeiro</b>.</p>'+
 '<div id="relatorioContent">'+render(abaAtual)+'</div>';}
@@ -45,7 +46,69 @@ function render(tipo){
   if(tipo==="extrato")return buildExtrato();
   if(tipo==="proximas")return buildChegadas();
   if(tipo==="vip")return buildVIP();
+  if(tipo==="turno")return buildPorTurno();
   return "";
+}
+
+// Classifica um pagamento em turno pela HORA de criadoEm. Sem criadoEm -> "Sem horario".
+function turnoDoPagamento(p){
+  if(!p.criadoEm) return "Sem horario";
+  var h=new Date(p.criadoEm).getHours();
+  if(h>=6 && h<14) return "Manha";
+  if(h>=14 && h<22) return "Tarde";
+  return "Noite";
+}
+var ORDEM_TURNO=["Manha","Tarde","Noite","Sem horario"];
+
+// Filtra pagamentos pelo periodo usando a data do pagamento (campo .data), aceitando os que tem criadoEm.
+function pagamentosNoPeriodo(){
+  return St.ga("pg").filter(function(p){
+    var v=p.data; if(!v)return false;
+    if(periodo.fi && v<periodo.fi) return false;
+    if(periodo.ff && v>periodo.ff) return false;
+    return true;
+  });
+}
+
+// ---- POR TURNO / OPERADOR (produtividade) ----
+function buildPorTurno(){
+  var pg=pagamentosNoPeriodo();
+  var totalGeral=pg.reduce(function(s,p){return s+(p.valor||0);},0);
+  if(!pg.length){
+    return '<div class="report-container"><h3 style="color:var(--text)">Produtividade por turno'+labelPer()+'</h3>'+
+      '<p style="padding:16px 0;color:var(--text-mute)">Nenhum pagamento no periodo. Os dados de turno/operador passam a ser registrados a cada pagamento e check-out.</p></div>';
+  }
+  // agrupa por turno
+  var porTurno={}; ORDEM_TURNO.forEach(function(t){porTurno[t]={total:0,qtd:0};});
+  var porOperador={};
+  pg.forEach(function(p){
+    var t=turnoDoPagamento(p);
+    porTurno[t].total+=(p.valor||0); porTurno[t].qtd++;
+    var op=p.usuarioNome||"Nao identificado";
+    if(!porOperador[op])porOperador[op]={total:0,qtd:0};
+    porOperador[op].total+=(p.valor||0); porOperador[op].qtd++;
+  });
+  // so mostra turnos com movimento
+  var turnos=ORDEM_TURNO.filter(function(t){return porTurno[t].qtd>0;});
+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Produtividade por turno'+labelPer()+'</h3></div>';
+  // cards de resumo por turno
+  html+='<div class="cards-row">'+turnos.map(function(t){
+    var d=porTurno[t]; var ticket=d.qtd?Math.round(d.total/d.qtd):0;
+    return '<div class="stat-card"><h3>'+esc(t)+'</h3><div class="value">'+fmtC(d.total)+'</div><div class="sub">'+d.qtd+' pagamento(s) &middot; ticket '+fmtC(ticket)+'</div></div>';
+  }).join('')+'</div>';
+  // grafico por turno
+  html+=barrasH(turnos.map(function(t){return {label:t, valor:porTurno[t].total, exib:fmtC(porTurno[t].total)};}));
+  // tabela por operador
+  var ops=Object.keys(porOperador).sort(function(a,b){return porOperador[b].total-porOperador[a].total;});
+  html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por operador</h3><table><tr><th>Operador</th><th>Recebido</th><th>Pagamentos</th><th>Ticket medio</th><th>%</th></tr>'+
+    ops.map(function(op){var d=porOperador[op];var ticket=d.qtd?Math.round(d.total/d.qtd):0;var pc=totalGeral?Math.round(d.total/totalGeral*100):0;
+      return '<tr><td>'+esc(op)+'</td><td>'+fmtC(d.total)+'</td><td>'+d.qtd+'</td><td>'+fmtC(ticket)+'</td><td>'+pc+'%</td></tr>';
+    }).join('')+'</table>';
+  html+='<p style="color:var(--text-mute);font-size:12px;margin-top:10px">O turno e definido pela hora em que o pagamento foi registrado. Pagamentos antigos, sem horario, aparecem como "Sem horario".</p>';
+  html+=acoesRel("por-turno");
+  html+='</div>';
+  return html;
 }
 
 function noPer(lista,campo){campo=campo||"data";return lista.filter(function(x){var v=x[campo];if(!v)return false;if(periodo.fi&&v<periodo.fi)return false;if(periodo.ff&&v>periodo.ff)return false;return true;});}
@@ -325,6 +388,13 @@ export function exportarRelatorioCSV(nome){
   else if(abaAtual==="lucro"){var pgL=noPer(St.ga("pg")),dsL=noPer(despesasEfetivadas());var rec=pgL.reduce(function(s,p){return s+(p.valor||0)},0),des=dsL.reduce(function(s,d){return s+(d.valor||0)},0);linhas.push(["Indicador","Valor"],["Receita",reais(rec)],["Despesa",reais(des)],["Lucro",reais(rec-des)]);}
   else if(abaAtual==="reservas"){var r=reservasNoPeriodo();var ps={};r.forEach(function(x){ps[x.status]=(ps[x.status]||0)+1});linhas.push(["Status","Quantidade"]);Object.keys(ps).forEach(function(s){linhas.push([s,ps[s]]);});}
   else if(abaAtual==="tipos"){var tq=St.ga("tq"),rr=reservasNoPeriodo().filter(function(x){return ["confirmada","checkin","checkout"].indexOf(x.status)>=0});var stx={};tq.forEach(function(t){stx[t.id]={nome:t.nome,reservas:0,noites:0,receita:0}});rr.forEach(function(x){var tid=x.tipoQuartoId||(St.fi("q",x.quartoId)||{}).tipoQuartoId;if(tid&&stx[tid]){stx[tid].reservas++;stx[tid].noites+=(x.noites||0);stx[tid].receita+=(x.total||0);}});linhas.push(["Tipo","Reservas","Noites","Receita"]);Object.keys(stx).forEach(function(k){var s=stx[k];linhas.push([s.nome,s.reservas,s.noites,reais(s.receita)]);});}
+  else if(abaAtual==="turno"){
+    var pgT=pagamentosNoPeriodo();
+    var opT={};
+    pgT.forEach(function(p){var op=p.usuarioNome||"Nao identificado";var t=turnoDoPagamento(p);var k=op+" | "+t;if(!opT[k])opT[k]={op:op,t:t,total:0,qtd:0};opT[k].total+=(p.valor||0);opT[k].qtd++;});
+    linhas.push(["Operador","Turno","Recebido","Pagamentos"]);
+    Object.keys(opT).forEach(function(k){var d=opT[k];linhas.push([d.op,d.t,reais(d.total),d.qtd]);});
+  }
   else{ // ocupacao e demais: exporta resumo simples
     var quartos=St.ga("q").filter(function(q){return q.ativo!==false});var rO=reservasNoPeriodo().filter(function(x){return ["confirmada","checkin","checkout"].indexOf(x.status)>=0});var noites=rO.reduce(function(s,x){return s+(x.noites||0)},0);linhas.push(["Indicador","Valor"],["Total de quartos",quartos.length],["Noites vendidas",noites]);
   }
