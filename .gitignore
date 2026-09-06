@@ -2,3 +2,10 @@ node_modules/
 .vercel/
 .DS_Store
 *.log
+
+# Segredos (NUNCA commitar) - senha do banco / connection string do Supabase
+.env
+.env.*
+!.env.example
+supabase/.temp/
+.supabase/
