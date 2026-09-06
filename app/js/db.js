@@ -24,7 +24,7 @@ function paraBanco(k, o, hotelId){
   if(o.id) b.id = o.id;
   switch(k){
     case "tq": b.nome=o.nome; b.capacidade=o.capacidade; b.preco_diaria=o.precoDiaria; b.ativo=o.ativo!==false; break;
-    case "q": b.numero=o.numero; b.andar=o.andar; b.tipo_quarto_id=o.tipoQuartoId||null; b.status=o.status; b.ativo=o.ativo!==false; if(o.limpezaResponsavel!==undefined)b.limpeza_responsavel=o.limpezaResponsavel||null; if(o.limpezaAtualizadoEm!==undefined)b.limpeza_atualizado_em=o.limpezaAtualizadoEm||null; break;
+    case "q": b.numero=o.numero; b.andar=o.andar; b.tipo_quarto_id=o.tipoQuartoId||null; b.status=o.status; b.ativo=o.ativo!==false; if(o.limpezaResponsavel!==undefined)b.limpeza_responsavel=o.limpezaResponsavel||null; if(o.limpezaAtualizadoEm!==undefined)b.limpeza_atualizado_em=o.limpezaAtualizadoEm||null; if(o.icalUrls!==undefined)b.ical_urls=o.icalUrls||[]; break;
     case "h": b.nome=o.nome; b.documento=o.documento; b.telefone=o.telefone; b.email=o.email; b.endereco=o.endereco; b.observacoes=o.observacoes; b.ativo=o.ativo!==false; if(o.consentimentoEm!==undefined)b.consentimento_em=o.consentimentoEm; break;
     case "sv": b.nome=o.nome; b.preco=o.preco; b.categoria=o.categoria; b.unidade=o.unidade; b.ativo=o.ativo!==false; break;
     case "r": b.hospede_id=o.hospedeId||null; b.quarto_id=o.quartoId||null; b.tipo_quarto_id=o.tipoQuartoId||null; b.data_checkin=o.dataCheckin; b.data_checkout=o.dataCheckout; b.noites=o.noites; b.total=o.total; b.status=o.status; break;
@@ -43,7 +43,7 @@ function paraApp(k, b){
   var o = { id: b.id };
   switch(k){
     case "tq": o.nome=b.nome; o.capacidade=b.capacidade; o.precoDiaria=b.preco_diaria; o.ativo=b.ativo; break;
-    case "q": o.numero=b.numero; o.andar=b.andar; o.tipoQuartoId=b.tipo_quarto_id; o.status=b.status; o.ativo=b.ativo; o.limpezaResponsavel=b.limpeza_responsavel; o.limpezaAtualizadoEm=b.limpeza_atualizado_em; o.icalToken=b.ical_token; break;
+    case "q": o.numero=b.numero; o.andar=b.andar; o.tipoQuartoId=b.tipo_quarto_id; o.status=b.status; o.ativo=b.ativo; o.limpezaResponsavel=b.limpeza_responsavel; o.limpezaAtualizadoEm=b.limpeza_atualizado_em; o.icalToken=b.ical_token; o.icalUrls=b.ical_urls||[]; break;
     case "h": o.nome=b.nome; o.documento=b.documento; o.telefone=b.telefone; o.email=b.email; o.endereco=b.endereco; o.observacoes=b.observacoes; o.ativo=b.ativo; o.consentimentoEm=b.consentimento_em; break;
     case "sv": o.nome=b.nome; o.preco=b.preco; o.categoria=b.categoria; o.unidade=b.unidade; o.ativo=b.ativo; break;
     case "r": o.hospedeId=b.hospede_id; o.quartoId=b.quarto_id; o.tipoQuartoId=b.tipo_quarto_id; o.dataCheckin=b.data_checkin; o.dataCheckout=b.data_checkout; o.noites=b.noites; o.total=b.total; o.status=b.status; break;

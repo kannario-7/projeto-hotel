@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.6.0";
+export var APP_VERSION="2.7.0";
 export var CHANGELOG=[
+{v:"2.7.0",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Importar calendarios (Airbnb/Booking): em Quartos > Calendario, cole os links de calendario dos seus anuncios e clique em Sincronizar. As datas vendidas nas plataformas ficam bloqueadas automaticamente no HospedaPrime, evitando reserva em dobro."},
+{t:"melhoria",d:"Os bloqueios importados aparecem no mapa e na disponibilidade como datas ocupadas, sem virar receita nem exigir check-in. Reservas reais nunca sao alteradas pela sincronizacao."}
+]},
 {v:"2.6.0",data:"2026-09-06",mudancas:[
 {t:"novo",d:"Integracao de calendario (Airbnb/Booking): cada quarto agora tem um link de calendario (em Quartos > Calendario). Cole esse link no Airbnb ou Booking e eles bloqueiam automaticamente as datas ja ocupadas no HospedaPrime, ajudando a evitar reserva em dobro."},
 {t:"melhoria",d:"O link compartilha apenas as datas ocupadas - nunca o nome do hospede nem valores. A sincronizacao das plataformas e periodica (pode levar algumas horas)."}

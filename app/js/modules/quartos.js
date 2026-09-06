@@ -24,16 +24,69 @@ el.innerHTML+=html;}
 export function showManutencaoQuarto(id){St.up("q",id,{status:"manutencao"});st("Quarto em manutencao.","warning");renderQuartos()}
 export function liberarQuarto(id){St.up("q",id,{status:"disponivel"});st("Quarto disponivel.","success");renderQuartos()}
 
-// Link de calendario (iCal) do quarto: cola-se no Airbnb/Booking para bloquearem as datas ocupadas aqui.
+// Central de calendario (iCal) do quarto: exportar (nosso link) + importar (links das OTAs) + sincronizar.
 export function mostrarLinkIcal(id){
   var q=St.fi("q",id); if(!q)return;
-  if(!q.icalToken)return st("Este quarto ainda nao tem link de calendario. Rode a atualizacao do banco (schema-28).","error");
+  if(!q.icalToken)return st("Este quarto ainda nao tem calendario. Rode a atualizacao do banco (schema-28).","error");
   var link=location.origin+"/api/ical?t="+q.icalToken;
+  var urls=Array.isArray(q.icalUrls)?q.icalUrls:[];
+  var linhasImport=urls.map(function(u,i){
+    var val=(u&&u.url)?u.url:u;
+    return '<div style="display:flex;gap:6px;margin-bottom:6px"><input type="text" class="icalExtUrl" value="'+esc(val)+'" placeholder="https://...ics" style="flex:1"><button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">x</button></div>';
+  }).join('');
   sm("Calendario do Apto "+esc(q.numero),
-    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">Cole este link no <b>Airbnb</b> ou <b>Booking</b> (em "Importar calendario" / "Sincronizar calendarios"). Eles vao bloquear automaticamente as datas ja ocupadas neste quarto.</p>'+
-    '<div class="form-group"><input type="text" id="icalLink" value="'+esc(link)+'" readonly></div>'+
-    '<p style="color:var(--text-mute);font-size:12px">Sincroniza apenas as <b>datas ocupadas</b> (nao inclui preco nem dados do hospede). As plataformas atualizam periodicamente, entao pode haver algumas horas de defasagem.</p>',
-    '<button class="btn btn-secondary" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="copiarLinkIcal()">Copiar link</button>');
+    '<h4 style="color:var(--text);margin:0 0 6px">1. Exportar (bloquear no Airbnb/Booking)</h4>'+
+    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">Cole este link no Airbnb/Booking (Importar calendario). Eles bloqueiam as datas ocupadas aqui.</p>'+
+    '<div class="form-group" style="display:flex;gap:6px"><input type="text" id="icalLink" value="'+esc(link)+'" readonly style="flex:1"><button type="button" class="btn btn-secondary" onclick="copiarLinkIcal()">Copiar</button></div>'+
+    '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0">'+
+    '<h4 style="color:var(--text);margin:0 0 6px">2. Importar (bloquear aqui o que foi vendido la)</h4>'+
+    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">Cole aqui os links de calendario (.ics) do Airbnb/Booking <b>deste quarto</b>. Ao sincronizar, as datas vendidas la ficam bloqueadas aqui.</p>'+
+    '<div id="icalExtBox">'+linhasImport+'</div>'+
+    '<button type="button" class="btn btn-sm btn-secondary" onclick="addIcalUrlLinha()">+ Adicionar link</button>'+
+    '<p style="color:var(--text-mute);font-size:12px;margin-top:10px">Sincroniza apenas datas ocupadas (nao preco/hospede). Atualizacao periodica.</p>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>'+
+    '<button class="btn btn-secondary" onclick="salvarIcalUrls(\''+id+'\')">Salvar links</button>'+
+    '<button class="btn btn-primary" onclick="sincronizarIcal(\''+id+'\')">Salvar e sincronizar agora</button>');
+}
+export function addIcalUrlLinha(){
+  var box=document.getElementById("icalExtBox"); if(!box)return;
+  var div=document.createElement("div");
+  div.style="display:flex;gap:6px;margin-bottom:6px";
+  div.innerHTML='<input type="text" class="icalExtUrl" placeholder="https://...ics" style="flex:1"><button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">x</button>';
+  box.appendChild(div);
+}
+function lerIcalUrls(){
+  var out=[];
+  document.querySelectorAll(".icalExtUrl").forEach(function(el){ var v=el.value.trim(); if(v) out.push({url:v}); });
+  return out;
+}
+export async function salvarIcalUrls(id){
+  var urls=lerIcalUrls();
+  var res=await St.upErr("q",id,{icalUrls:urls});
+  if(!res.ok)return st("Nao foi possivel salvar os links.","error"),false;
+  st("Links de calendario salvos.","success");
+  return true;
+}
+export async function sincronizarIcal(id){
+  var q=St.fi("q",id); if(!q)return;
+  var ok=await salvarIcalUrls(id); if(ok===false)return;
+  var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Sincronizando...";}
+  try{
+    var resp=await fetch(location.origin+"/api/sync-ical?t="+q.icalToken);
+    var data=await resp.json();
+    if(data && data.ok){
+      st((data.criados||0)+" data(s) bloqueada(s)"+(data.pulados?(", "+data.pulados+" ignorada(s) por conflito"):"")+".","success");
+      // recarrega os dados para o mapa refletir os bloqueios
+      if(window.St && window.location){ /* re-render simples: fecha modal e re-renderiza quartos */ }
+      cm(); renderQuartos();
+    } else {
+      st("Nao foi possivel sincronizar. Verifique os links.","error");
+      if(btn){btn.disabled=false;btn.textContent="Salvar e sincronizar agora";}
+    }
+  }catch(e){
+    st("Erro ao sincronizar. Tente novamente.","error");
+    if(btn){btn.disabled=false;btn.textContent="Salvar e sincronizar agora";}
+  }
 }
 export function copiarLinkIcal(){
   var el=document.getElementById("icalLink"); if(!el)return;

@@ -301,7 +301,7 @@ function diaSemana(iso){var p=iso.split("-");return DIAS_SEMANA[new Date(Number(
 function reservaNoDia(quartoId, dia, reservas){
   return reservas.find(function(r){
     return r.quartoId===quartoId &&
-      ["pendente","confirmada","checkin"].indexOf(r.status)>=0 &&
+      ["pendente","confirmada","checkin","bloqueio"].indexOf(r.status)>=0 &&
       r.dataCheckin<=dia && r.dataCheckout>dia;
   })||null;
 }

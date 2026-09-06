@@ -108,8 +108,8 @@ prox.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return
 }
 
 export function reservaAtivaDoQuarto(quartoId,reservas){reservas=reservas||St.ga("r");
-var pri={checkin:0,confirmada:1,pendente:2};
-var cands=reservas.filter(function(r){return r.quartoId===quartoId&&["checkin","confirmada","pendente"].indexOf(r.status)>=0});
+var pri={checkin:0,confirmada:1,pendente:2,bloqueio:3};
+var cands=reservas.filter(function(r){return r.quartoId===quartoId&&["checkin","confirmada","pendente","bloqueio"].indexOf(r.status)>=0});
 cands.sort(function(a,b){return (pri[a.status]-pri[b.status])||a.dataCheckin.localeCompare(b.dataCheckin)});
 return cands[0]||null}
 
