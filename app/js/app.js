@@ -47,22 +47,34 @@ document.addEventListener("keydown",function(e){
     e.preventDefault(); t.click();
   }
 });
-// Atalhos da busca global: Ctrl+K / Cmd+K em qualquer lugar; tecla "/" quando nao se esta digitando.
+// Atalhos da busca global: Ctrl+K / Cmd+K focam o campo fixo; tecla "/" tambem, quando nao se esta digitando.
 // So dispara com o app logado (tela de login nao tem busca).
 document.addEventListener("keydown",function(e){
   var logado=document.body.classList.contains("logged");
   if(!logado) return;
-  var jaAberta=document.getElementById("buscaInput");
-  var digitando=(function(){var a=document.activeElement;if(!a)return false;var tag=(a.tagName||"").toLowerCase();return tag==="input"||tag==="textarea"||tag==="select"||a.isContentEditable;})();
+  var campoBusca=document.getElementById("buscaInput");
+  var a=document.activeElement;
+  var digitando=(function(){if(!a)return false;var tag=(a.tagName||"").toLowerCase();return tag==="input"||tag==="textarea"||tag==="select"||a.isContentEditable;})();
   if((e.ctrlKey||e.metaKey) && (e.key==="k"||e.key==="K")){
     e.preventDefault();
-    if(!jaAberta && typeof busca.abrirBusca==="function") busca.abrirBusca();
+    if(typeof busca.abrirBusca==="function") busca.abrirBusca();
     return;
   }
-  if(e.key==="/" && !digitando && !jaAberta){
+  if(e.key==="/" && !digitando){
     e.preventDefault();
     if(typeof busca.abrirBusca==="function") busca.abrirBusca();
+    return;
   }
+  // ESC no campo de busca fecha o painel de resultados
+  if(e.key==="Escape" && a===campoBusca){
+    if(typeof busca.fecharPainelBusca==="function") busca.fecharPainelBusca();
+    if(campoBusca) campoBusca.blur();
+  }
+});
+// Clique fora do topbar de busca fecha o painel de resultados
+document.addEventListener("click",function(e){
+  var tb=document.getElementById("topbar");
+  if(tb && !tb.contains(e.target)){ if(typeof busca.fecharPainelBusca==="function") busca.fecharPainelBusca(); }
 });
 // Marca as abas (.tab) com atributos de acessibilidade assim que aparecem no DOM.
 // Como as telas trocam innerHTML, um MutationObserver cobre todas as tabs (novas e recriadas).

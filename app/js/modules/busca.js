@@ -1,11 +1,11 @@
-// Busca global (command palette).
+// Busca global — barra fixa no topo do conteudo (sempre visivel).
 // Pesquisa client-side no cache ja carregado (St.ga) sobre hospedes, reservas e quartos.
-// Acionada por Ctrl+K, tecla "/" ou pelos botoes na sidebar/menu Mais.
-// Cada resultado navega para a acao certa reaproveitando funcoes ja existentes
-// (detalheQuarto, editarHospede) e um detalhe de reserva proprio.
+// O campo fica no topbar (index.html); ao digitar, um painel de resultados aparece logo abaixo.
+// Acionadores extras: Ctrl+K / tecla "/" focam o campo; cada resultado navega para a acao certa
+// reaproveitando funcoes existentes (detalheQuarto, editarHospede) e um detalhe de reserva proprio.
 import { esc, fmtC, fmtD } from "../utils.js";
 import { St, getStatusBadge } from "../store.js";
-import { sm, cm } from "../ui.js";
+import { sm } from "../ui.js";
 import { navTo } from "../nav.js";
 
 var LIMITE_GRUPO = 8; // maximo de itens por categoria
@@ -14,8 +14,7 @@ var LIMITE_GRUPO = 8; // maximo de itens por categoria
 var ICO = {
   hospede:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
   reserva:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-  quarto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>',
-  lupa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+  quarto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>'
 };
 
 function norm(s){ return (s==null?"":(""+s)).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
@@ -73,16 +72,36 @@ function grupo(nome, itensHtml){
   return '<div class="busca-grupo"><div class="busca-grupo-tit">'+esc(nome)+'</div>'+itensHtml+'</div>';
 }
 
-// Renderiza os resultados dentro do container da busca
+function painel(){ return document.getElementById("buscaResultados"); }
+function mostrarPainel(){ var p=painel(); if(p) p.style.display="block"; }
+export function fecharPainelBusca(){ var p=painel(); if(p) p.style.display="none"; }
+
+// Abre o painel se ja houver um termo digitado (usado no onfocus do campo)
+export function abrirPainelBusca(){
+  var i=document.getElementById("buscaInput");
+  if(i && i.value.trim().length>=2){ renderResultadosBusca(i.value); }
+}
+
+// Renderiza os resultados no painel dropdown; controla exibicao e o botao limpar
 export function renderResultadosBusca(termo){
-  var alvo = document.getElementById("buscaResultados");
+  var alvo = painel();
   if(!alvo) return;
   var t = (termo||"").trim();
+
+  // botao de limpar aparece quando ha texto
+  var btnLimpar = document.getElementById("buscaLimpar");
+  if(btnLimpar) btnLimpar.style.display = t.length ? "" : "none";
+
   if(t.length < 2){
-    alvo.innerHTML = '<div class="busca-vazio">Digite ao menos 2 caracteres para buscar por hospede, reserva ou quarto.</div>';
+    // com 0-1 caractere, esconde o painel (nao polui a tela)
+    fecharPainelBusca();
+    alvo.innerHTML = "";
     return;
   }
+
   var r = buscarGlobal(t);
+  mostrarPainel();
+
   if(r.total === 0){
     alvo.innerHTML = '<div class="busca-vazio">Nada encontrado para <b>'+esc(t)+'</b>.</div>';
     return;
@@ -90,7 +109,6 @@ export function renderResultadosBusca(termo){
 
   var html = "";
 
-  // Hospedes
   if(r.hospedes.length){
     html += grupo("Hospedes", r.hospedes.map(function(h){
       var sub = [h.documento, h.telefone].filter(Boolean).map(esc).join(" &middot; ");
@@ -98,7 +116,6 @@ export function renderResultadosBusca(termo){
     }).join(''));
   }
 
-  // Reservas
   if(r.reservas.length){
     html += grupo("Reservas", r.reservas.map(function(res){
       var h = St.fi("h", res.hospedeId), q = St.fi("q", res.quartoId);
@@ -108,7 +125,6 @@ export function renderResultadosBusca(termo){
     }).join(''));
   }
 
-  // Quartos
   if(r.quartos.length){
     var tq = St.ga("tq");
     html += grupo("Quartos", r.quartos.map(function(q){
@@ -121,44 +137,39 @@ export function renderResultadosBusca(termo){
   alvo.innerHTML = html;
 }
 
-// Abre o command palette
+// Foca o campo de busca (Ctrl+K / "/" / botoes). Se estiver escondido no mobile, rola ate ele.
 export function abrirBusca(){
-  var corpo = '<div class="busca-box">'+
-    '<div class="busca-input-wrap">'+ICO.lupa+
-      '<input type="text" id="buscaInput" placeholder="Buscar hospede, reserva ou quarto..." autocomplete="off" oninput="renderResultadosBusca(this.value)">'+
-    '</div>'+
-    '<div class="busca-resultados" id="buscaResultados"><div class="busca-vazio">Digite ao menos 2 caracteres para buscar por hospede, reserva ou quarto.</div></div>'+
-  '</div>';
-  sm("Busca", corpo, "");
-  // marca o modal para estilizar como palette (alinhado ao topo)
-  var ov = document.getElementById("modalOverlay");
-  if(ov){ var m = ov.querySelector(".modal"); if(m) m.classList.add("busca-modal"); }
-  setTimeout(function(){ var i=document.getElementById("buscaInput"); if(i)i.focus(); }, 70);
+  var i = document.getElementById("buscaInput");
+  if(!i) return;
+  try{ i.scrollIntoView({block:"nearest"}); }catch(e){}
+  i.focus();
+  i.select();
 }
 
-// Fecha a busca e limpa a classe do palette (para nao afetar proximos modais)
-function fecharBusca(){
-  var ov = document.getElementById("modalOverlay");
-  if(ov){ var m = ov.querySelector(".modal"); if(m) m.classList.remove("busca-modal"); }
-  cm();
+// Limpa o campo e esconde o painel
+export function limparBusca(){
+  var i = document.getElementById("buscaInput");
+  if(i){ i.value=""; i.focus(); }
+  fecharPainelBusca();
+  var btnLimpar = document.getElementById("buscaLimpar");
+  if(btnLimpar) btnLimpar.style.display = "none";
 }
 
 // ---- Navegacao a partir de um resultado ----
 export function buscaAbrirHospede(id){
-  fecharBusca();
+  fecharPainelBusca();
   navTo("#h");
-  // abre o cadastro do hospede (mostra todos os dados) apos a tela renderizar
   setTimeout(function(){ if(typeof window.editarHospede==="function") window.editarHospede(id); }, 80);
 }
 
 export function buscaAbrirQuarto(id){
-  fecharBusca();
+  fecharPainelBusca();
   navTo("#d"); // o detalhe de quarto vive no painel
   setTimeout(function(){ if(typeof window.detalheQuarto==="function") window.detalheQuarto(id); }, 80);
 }
 
 export function buscaAbrirReserva(id){
-  fecharBusca();
+  fecharPainelBusca();
   navTo("#r");
   setTimeout(function(){ mostrarDetalheReserva(id); }, 80);
 }

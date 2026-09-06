@@ -565,15 +565,21 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .theme-toggle:hover{color:var(--text);background:var(--surface-3)}
 .theme-toggle svg{display:block}
 
-/* Busca global (command palette) */
-.modal.busca-modal{max-width:600px;width:92%;align-self:flex-start;margin-top:8vh}
-.modal-overlay .modal.busca-modal{}
-.busca-box{display:flex;flex-direction:column;gap:0}
-.busca-input-wrap{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border)}
-.busca-input-wrap svg{width:20px;height:20px;color:var(--text-mute);flex:none}
-.busca-input-wrap input{border:none;background:none;padding:0;font-size:16px;color:var(--text);flex:1}
-.busca-input-wrap input:focus{outline:none;box-shadow:none;background:none}
-.busca-resultados{max-height:56vh;overflow-y:auto;padding:8px}
+/* Busca global — barra fixa no topo do conteudo + painel de resultados */
+.topbar{position:sticky;top:0;z-index:800;margin:-32px -32px 24px;padding:14px 32px;background:var(--bg);border-bottom:1px solid var(--border)}
+/* so aparece com o usuario logado (fora da tela de login) */
+body:not(.logged) .topbar{display:none}
+.topbar-busca{position:relative;display:flex;align-items:center;gap:10px;max-width:640px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;transition:border-color .15s,box-shadow .15s}
+.topbar-busca:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.topbar-busca>svg{width:19px;height:19px;color:var(--text-mute);flex:none}
+.topbar-busca input{border:none;background:none;padding:0;font-size:15px;color:var(--text);flex:1;font-family:inherit}
+.topbar-busca input:focus{outline:none;box-shadow:none;background:none}
+.topbar-busca input::placeholder{color:var(--text-mute)}
+.topbar-kbd{flex:none;font-size:11px;font-weight:600;color:var(--text-mute);background:var(--surface-3);border:1px solid var(--border);border-radius:6px;padding:2px 7px;letter-spacing:.5px}
+.topbar-limpar{flex:none;background:none;border:none;color:var(--text-mute);font-size:20px;line-height:1;cursor:pointer;padding:0 2px;border-radius:6px}
+.topbar-limpar:hover{color:var(--text)}
+/* painel de resultados: flutua logo abaixo do campo */
+.busca-resultados{position:absolute;left:32px;right:32px;max-width:640px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 16px 40px var(--shadow-strong);max-height:64vh;overflow-y:auto;padding:8px;z-index:850}
 .busca-vazio{padding:26px 18px;text-align:center;color:var(--text-mute);font-size:14px;line-height:1.5}
 .busca-grupo{margin-bottom:6px}
 .busca-grupo-tit{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text-mute);padding:10px 12px 6px}
@@ -585,4 +591,8 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .busca-item-tit{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .busca-item-sub{font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .busca-item-sub .badge{transform:scale(.9)}
-@media(max-width:768px){.modal.busca-modal{margin-top:0;align-self:center}.busca-resultados{max-height:60vh}}
+@media(max-width:768px){
+  .topbar{margin:-20px -14px 18px;padding:12px 14px}
+  .topbar-kbd{display:none}
+  .busca-resultados{left:14px;right:14px;max-width:none;max-height:70vh}
+}

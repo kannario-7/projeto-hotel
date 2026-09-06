@@ -2,10 +2,14 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.0.1";
+export var APP_VERSION="2.0.2";
 export var CHANGELOG=[
+{v:"2.0.2",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Busca sempre a mao: agora ela fica numa barra fixa no topo de todas as telas. Basta comecar a digitar para ver hospedes, reservas e quartos - sem abrir menus."},
+{t:"melhoria",d:"Os resultados aparecem logo abaixo da barra; clique para ir direto ao destino. O atalho Ctrl+K (ou a tecla /) foca a busca de qualquer lugar."}
+]},
 {v:"2.0.1",data:"2026-08-30",mudancas:[
-{t:"novo",d:"Busca global: encontre rapidamente hospedes, reservas e quartos em um so lugar. Abra pelo botao de lupa no menu, pelo item Buscar ou pelo atalho Ctrl+K (tecla / tambem abre)."},
+{t:"novo",d:"Busca global: encontre rapidamente hospedes, reservas e quartos em um so lugar. Abra pelo atalho Ctrl+K (tecla / tambem abre)."},
 {t:"melhoria",d:"Cada resultado leva direto ao destino: o hospede abre o cadastro, a reserva mostra os detalhes e o quarto abre no painel."}
 ]},
 {v:"2.0.0",data:"2026-08-30",mudancas:[
