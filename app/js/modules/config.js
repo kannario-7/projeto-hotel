@@ -31,6 +31,12 @@ document.getElementById("configContent").innerHTML=html;
 if(aba==="hotel")setTimeout(initFormHotel,0);}
 
 // ---- Aba Atividades (trilha de auditoria) ----
+// Fallback legivel para acoes ainda nao mapeadas: "dominio.acao_x" -> "Dominio acao x"
+function rotularAcao(a){
+  if(!a)return"Acao";
+  var txt=String(a).replace(/[._]/g," ").trim();
+  return txt.charAt(0).toUpperCase()+txt.slice(1);
+}
 var ACAO_LABEL={
   "reserva.cancelar":{t:"Reserva cancelada",c:"#f16a6e"},
   "reserva.trocar_quarto":{t:"Troca de quarto",c:"#f5b53d"},
@@ -40,7 +46,11 @@ var ACAO_LABEL={
   "caixa.fechar":{t:"Caixa fechado",c:"#3aa0d1"},
   "hotel.apagar_dados":{t:"Dados apagados",c:"#f16a6e"},
   "usuario.desativar":{t:"Usuario desativado",c:"#f16a6e"},
-  "usuario.ativar":{t:"Usuario ativado",c:"#43d18c"}
+  "usuario.ativar":{t:"Usuario ativado",c:"#43d18c"},
+  "pagamento.registrar":{t:"Pagamento registrado",c:"#43d18c"},
+  "tarifa.criar":{t:"Tarifa criada",c:"#8b5cf6"},
+  "tarifa.editar":{t:"Tarifa editada",c:"#f5b53d"},
+  "tarifa.excluir":{t:"Tarifa excluida",c:"#f16a6e"}
 };
 function quandoRel(iso){
   if(!iso)return"";
@@ -60,7 +70,7 @@ export async function renderAtividades(){
   try{ itens=await carregarAuditoria(200); }catch(e){ itens=[]; }
   if(!itens.length){ box.innerHTML='<div class="form-container"><p style="color:var(--text-mute)">Nenhuma atividade registrada ainda. As acoes importantes (cancelamentos, check-in/out, caixa) aparecerao aqui.</p></div>'; return; }
   var linhas=itens.map(function(a){
-    var meta=ACAO_LABEL[a.acao]||{t:a.acao,c:"var(--text-mute)"};
+    var meta=ACAO_LABEL[a.acao]||{t:rotularAcao(a.acao),c:"var(--text-mute)"};
     return '<tr>'+
       '<td style="white-space:nowrap"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+meta.c+';margin-right:7px"></span>'+esc(meta.t)+'</td>'+
       '<td>'+esc(a.detalhe||"")+'</td>'+

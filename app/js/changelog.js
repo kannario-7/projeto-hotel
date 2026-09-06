@@ -2,8 +2,11 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.2";
+export var APP_VERSION="1.9.3";
 export var CHANGELOG=[
+{v:"1.9.3",data:"2026-08-30",mudancas:[
+{t:"correcao",d:"Aba Atividades: as acoes agora aparecem com nome legivel (ex: 'Pagamento registrado', 'Tarifa criada') em vez do codigo interno."}
+]},
 {v:"1.9.2",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Sinal e pagamento parcial: registre a entrada (sinal) na reserva e pagamentos ao longo da estadia; cada reserva mostra total, ja pago e saldo."},
 {t:"melhoria",d:"No check-out, o sistema abate automaticamente o que ja foi pago e cobra apenas o saldo, com o abatimento discriminado na fatura."}
