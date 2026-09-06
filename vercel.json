@@ -1,6 +1,9 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "crons": [
+    { "path": "/api/cron-ical", "schedule": "0 5 * * *" }
+  ],
   "redirects": [
     { "source": "/", "destination": "/app", "permanent": false }
   ],
