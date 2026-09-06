@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.0.2";
+export var APP_VERSION="2.0.3";
 export var CHANGELOG=[
+{v:"2.0.3",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Aviso de entrada vencida sem check-in: o painel destaca quando uma reserva ja passou da data de entrada e o check-in nao foi registrado, para a recepcao verificar com o hospede e regularizar."},
+{t:"melhoria",d:"O aviso de check-out de hoje passou a contar apenas hospedes que ja fizeram check-in, separando de vez as duas situacoes. No Mapa de Quartos, entradas atrasadas aparecem marcadas como 'atrasado'."}
+]},
 {v:"2.0.2",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Busca sempre a mao: agora ela fica numa barra fixa no topo de todas as telas. Basta comecar a digitar para ver hospedes, reservas e quartos - sem abrir menus."},
 {t:"melhoria",d:"Os resultados aparecem logo abaixo da barra; clique para ir direto ao destino. O atalho Ctrl+K (ou a tecla /) foca a busca de qualquer lugar."}

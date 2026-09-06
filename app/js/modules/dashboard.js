@@ -50,7 +50,11 @@ var reservas=St.ga("r"),quartos=St.ga("q"),hospedes=St.ga("h"),servicos=St.ga("s
 var ativas=reservas.filter(function(r){return["confirmada","pendente","checkin"].includes(r.status)});
 var pendentes=reservas.filter(function(r){return r.status==="pendente"});
 var checkinsHoje=reservas.filter(function(r){return r.dataCheckin===hoje&&["confirmada","pendente","checkin"].includes(r.status)});
-var checkoutsHoje=reservas.filter(function(r){return r.dataCheckout===hoje&&["checkin","confirmada"].includes(r.status)});
+// Check-out de hoje = quem esta efetivamente hospedado (fez check-in) e a saida e hoje.
+var checkoutsHoje=reservas.filter(function(r){return r.dataCheckout===hoje&&r.status==="checkin"});
+// Entrada vencida sem check-in: reserva pendente/confirmada cuja data de entrada JA PASSOU
+// (hospede pode ter chegado e ninguem registrou o check-in). Merece contato/regularizacao.
+var entradasVencidas=reservas.filter(function(r){return ["pendente","confirmada"].includes(r.status)&&r.dataCheckin<hoje});
 var ocupados=quartos.filter(function(q){return q.status==="ocupado"}).length;
 var manutencao=quartos.filter(function(q){return q.status==="manutencao"}).length;
 var limpeza=quartos.filter(function(q){return q.status==="limpeza"}).length;
@@ -86,6 +90,7 @@ el.innerHTML='<div class="page-header"><div><h2>Painel de Controle</h2><p>Visao 
 var alertas='<div class="alerts">';
 alertas+=avisoPlanoHTML();
 alertas+=avisoCadastroHTML();
+if(entradasVencidas.length>0)alertas+='<div class="alert alert-danger">'+aIco("danger")+'<span><b>'+entradasVencidas.length+' reserva(s) com entrada vencida sem check-in registrado.</b> O hospede pode ter chegado sem o check-in ser lancado - verifique com o hospede e regularize. <a onclick="navTo(\'#ci\')" style="color:var(--accent-2);text-decoration:underline;cursor:pointer">Ir para Check-in</a></span></div>';
 if(checkoutsHoje.length>0)alertas+='<div class="alert alert-warning">'+aIco("warning")+'<span>'+checkoutsHoje.length+' hospede(s) precisam fazer check-out hoje.</span></div>';
 if(pendentes.length>0)alertas+='<div class="alert alert-info">'+aIco("info")+'<span>'+pendentes.length+' reserva(s) pendente(s) aguardando confirmacao.</span></div>';
 if(ocupados/totalQuartos>0.8)alertas+='<div class="alert alert-warning">'+aIco("warning")+'<span>Ocupacao acima de 80%! Considere verificar disponibilidade.</span></div>';
@@ -128,11 +133,13 @@ var r=reservaAtivaDoQuarto(q.id,reservas);
 var hosp=r?St.fi("h",r.hospedeId):null;
 var nome=hosp?hosp.nome:"";
 var iniciais=nome?nome.trim().split(/\s+/).slice(0,2).map(function(p){return p[0]}).join("").toUpperCase():"";
-// Quarto disponivel/limpeza MAS com reserva confirmada/pendente futura -> destaca como "Reservado"
+// Quarto disponivel/limpeza MAS com reserva confirmada/pendente -> destaca como "Reservado"
 var temReservaFutura=r&&(r.status==="confirmada"||r.status==="pendente")&&(stt==="disponivel"||stt==="limpeza");
+// Entrada ja venceu e ninguem registrou o check-in: sinaliza como ATRASADO (chama atencao)
+var entradaAtrasada=temReservaFutura&&r.dataCheckin<td();
 var classe=temReservaFutura?"reservado":stt;
 var label=stt==="ocupado"?"Ocupado":stt==="limpeza"?"Limpeza":stt==="manutencao"?"Manutencao":temReservaFutura?"Reservado":stt==="reservado"?"Reservado":"Livre";
-var infoReserva=temReservaFutura?'<div class="qcard-aviso">Check-in '+fmtD(r.dataCheckin)+(r.status==="pendente"?' &middot; pendente':'')+'</div>':'';
+var infoReserva=temReservaFutura?'<div class="qcard-aviso"'+(entradaAtrasada?' style="color:var(--neg)"':'')+'>Check-in '+fmtD(r.dataCheckin)+(entradaAtrasada?' &middot; atrasado':(r.status==="pendente"?' &middot; pendente':''))+'</div>':'';
 return '<div class="qcard qcard-'+classe+'" onclick="detalheQuarto(\''+q.id+'\')" title="Apto '+esc(q.numero)+'">'+
 '<div class="qcard-top"><span class="qcard-num">'+esc(q.numero)+'</span><span class="qcard-st">'+label+'</span></div>'+
 '<div class="qcard-tipo">'+esc(t?t.nome:"Quarto")+'</div>'+
