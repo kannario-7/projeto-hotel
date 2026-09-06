@@ -2,13 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.11.0";
+export var APP_VERSION="1.9.2";
 export var CHANGELOG=[
-{v:"1.11.0",data:"2026-08-30",mudancas:[
+{v:"1.9.2",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Sinal e pagamento parcial: registre a entrada (sinal) na reserva e pagamentos ao longo da estadia; cada reserva mostra total, ja pago e saldo."},
 {t:"melhoria",d:"No check-out, o sistema abate automaticamente o que ja foi pago e cobra apenas o saldo, com o abatimento discriminado na fatura."}
 ]},
-{v:"1.10.0",data:"2026-08-30",mudancas:[
+{v:"1.9.1",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Tarifas por temporada e por dia da semana: em Configuracoes > Tarifas, defina precos de alta/baixa temporada, feriados ou fins de semana por tipo de quarto."},
 {t:"melhoria",d:"Reservas e check-out calculam automaticamente o valor de cada noite conforme a tarifa vigente; sem regra, vale o preco padrao do tipo."}
 ]},
