@@ -118,8 +118,8 @@ var h='<div class="mapa-head"><h3>Mapa de Quartos</h3><div class="mapa-legenda">
 '<span class="lg"><i class="dot dot-limpeza"></i>Limpeza</span>'+
 '<span class="lg"><i class="dot dot-manutencao"></i>Manutencao</span>'+
 '</div></div>';
-h+='<div class="mapa-grid">';
-h+=ativos.map(function(q){
+// monta o card de um quarto
+function cardQuarto(q,tq,reservas){
 var t=tq.filter(function(x){return x.id===q.tipoQuartoId})[0];
 var stt=q.status||"disponivel";
 var r=(stt==="ocupado"||stt==="reservado")?reservaAtivaDoQuarto(q.id,reservas):null;
@@ -131,8 +131,16 @@ return '<div class="qcard qcard-'+stt+'" onclick="detalheQuarto(\''+q.id+'\')" t
 '<div class="qcard-top"><span class="qcard-num">'+esc(q.numero)+'</span><span class="qcard-st">'+label+'</span></div>'+
 '<div class="qcard-tipo">'+esc(t?t.nome:"Quarto")+'</div>'+
 (nome?'<div class="qcard-hosp"><span class="qcard-avatar">'+esc(iniciais)+'</span><span class="qcard-nome">'+esc(nome)+'</span></div>':'<div class="qcard-vazio">Sem hospede</div>')+
-'</div>'}).join('');
-h+='</div>';
+'</div>';}
+
+// agrupa por andar (ordenado numericamente); cada andar tem seu titulo e grade
+var porAndar={};
+ativos.forEach(function(q){var a=(q.andar!=null&&q.andar!=="")?q.andar:"-";(porAndar[a]=porAndar[a]||[]).push(q);});
+var andares=Object.keys(porAndar).sort(function(a,b){return (parseInt(a)||0)-(parseInt(b)||0);});
+andares.forEach(function(a){
+  h+='<div class="mapa-andar-tit">Andar '+esc(a)+'</div>';
+  h+='<div class="mapa-grid">'+porAndar[a].map(function(q){return cardQuarto(q,tq,reservas);}).join('')+'</div>';
+});
 return '<div class="mapa-wrap">'+h+'</div>'}
 
 export function detalheQuarto(id){var q=St.fi("q",id);if(!q)return;var tq=St.ga("tq");var t=tq.filter(function(x){return x.id===q.tipoQuartoId})[0];

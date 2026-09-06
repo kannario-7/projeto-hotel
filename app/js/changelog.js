@@ -2,8 +2,11 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.7";
+export var APP_VERSION="1.9.8";
 export var CHANGELOG=[
+{v:"1.9.8",data:"2026-08-30",mudancas:[
+{t:"melhoria",d:"Mapa de Quartos no painel agora separado por andar, facilitando localizar os quartos."}
+]},
 {v:"1.9.7",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Limpeza (governanca): nova tela com a fila de quartos aguardando limpeza, tempo de espera, atribuicao de camareira e botao para marcar como limpo."},
 {t:"melhoria",d:"Apos o check-out, o quarto entra automaticamente na fila de limpeza; ao marcar como limpo, volta a ficar disponivel."}
