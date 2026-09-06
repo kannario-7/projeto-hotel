@@ -21,10 +21,11 @@ import * as admin from "./modules/admin.js";
 import * as usuarios from "./modules/usuarios.js";
 import * as impressao from "./modules/impressao.js";
 import * as tema from "./modules/tema.js";
+import * as busca from "./modules/busca.js";
 
 // Expõe funções no escopo global para os onclick inline do HTML
 function expose(mod){Object.keys(mod).forEach(function(k){if(typeof mod[k]==="function")window[k]=mod[k]})}
-[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,governanca,relatorios,config,admin,usuarios,impressao,tema].forEach(expose);
+[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,governanca,relatorios,config,admin,usuarios,impressao,tema,busca].forEach(expose);
 window.St=St;
 
 // Boot assíncrono
@@ -44,6 +45,23 @@ document.addEventListener("keydown",function(e){
   var t=e.target;
   if(t&&t.classList&&t.classList.contains("tab")&&(e.key==="Enter"||e.key===" "||e.key==="Spacebar")){
     e.preventDefault(); t.click();
+  }
+});
+// Atalhos da busca global: Ctrl+K / Cmd+K em qualquer lugar; tecla "/" quando nao se esta digitando.
+// So dispara com o app logado (tela de login nao tem busca).
+document.addEventListener("keydown",function(e){
+  var logado=document.body.classList.contains("logged");
+  if(!logado) return;
+  var jaAberta=document.getElementById("buscaInput");
+  var digitando=(function(){var a=document.activeElement;if(!a)return false;var tag=(a.tagName||"").toLowerCase();return tag==="input"||tag==="textarea"||tag==="select"||a.isContentEditable;})();
+  if((e.ctrlKey||e.metaKey) && (e.key==="k"||e.key==="K")){
+    e.preventDefault();
+    if(!jaAberta && typeof busca.abrirBusca==="function") busca.abrirBusca();
+    return;
+  }
+  if(e.key==="/" && !digitando && !jaAberta){
+    e.preventDefault();
+    if(typeof busca.abrirBusca==="function") busca.abrirBusca();
   }
 });
 // Marca as abas (.tab) com atributos de acessibilidade assim que aparecem no DOM.

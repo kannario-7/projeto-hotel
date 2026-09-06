@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.0.0";
+export var APP_VERSION="2.0.1";
 export var CHANGELOG=[
+{v:"2.0.1",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Busca global: encontre rapidamente hospedes, reservas e quartos em um so lugar. Abra pelo botao de lupa no menu, pelo item Buscar ou pelo atalho Ctrl+K (tecla / tambem abre)."},
+{t:"melhoria",d:"Cada resultado leva direto ao destino: o hospede abre o cadastro, a reserva mostra os detalhes e o quarto abre no painel."}
+]},
 {v:"2.0.0",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Novo visual do HospedaPrime: identidade clara e quente (tons de areia e terracota), mais leve e agradavel para o uso do dia a dia."},
 {t:"novo",d:"Modo escuro: alterne entre claro e escuro pelo botao no rodape do menu lateral (ou em Mais, no celular). A escolha fica salva para os proximos acessos."},

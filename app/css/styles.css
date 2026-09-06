@@ -564,3 +564,25 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .theme-toggle{flex:none;padding:6px;border-radius:8px;color:var(--text-dim)}
 .theme-toggle:hover{color:var(--text);background:var(--surface-3)}
 .theme-toggle svg{display:block}
+
+/* Busca global (command palette) */
+.modal.busca-modal{max-width:600px;width:92%;align-self:flex-start;margin-top:8vh}
+.modal-overlay .modal.busca-modal{}
+.busca-box{display:flex;flex-direction:column;gap:0}
+.busca-input-wrap{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.busca-input-wrap svg{width:20px;height:20px;color:var(--text-mute);flex:none}
+.busca-input-wrap input{border:none;background:none;padding:0;font-size:16px;color:var(--text);flex:1}
+.busca-input-wrap input:focus{outline:none;box-shadow:none;background:none}
+.busca-resultados{max-height:56vh;overflow-y:auto;padding:8px}
+.busca-vazio{padding:26px 18px;text-align:center;color:var(--text-mute);font-size:14px;line-height:1.5}
+.busca-grupo{margin-bottom:6px}
+.busca-grupo-tit{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;color:var(--text-mute);padding:10px 12px 6px}
+.busca-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:10px 12px;border-radius:10px;font-family:inherit;transition:background .12s}
+.busca-item:hover,.busca-item:focus-visible{background:var(--surface-3);outline:none}
+.busca-item-ico{flex:none;width:34px;height:34px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center}
+.busca-item-ico svg{width:18px;height:18px}
+.busca-item-txt{display:flex;flex-direction:column;min-width:0;flex:1}
+.busca-item-tit{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.busca-item-sub{font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.busca-item-sub .badge{transform:scale(.9)}
+@media(max-width:768px){.modal.busca-modal{margin-top:0;align-self:center}.busca-resultados{max-height:60vh}}
