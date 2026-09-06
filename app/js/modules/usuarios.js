@@ -1,7 +1,7 @@
 // Módulo: Usuários do hotel (multi-usuário) — dentro de Configurações
 import { esc } from "../utils.js";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "../supabase.js";
-import { st, sm, cm, closeModal } from "../ui.js";
+import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser, MODULOS, PADRAO_PERMISSOES } from "../auth.js";
 import { getHotelId, auditar } from "../store.js";
 
@@ -45,7 +45,9 @@ export async function renderUsuariosHotel(){
     var nomeEsc=(""+(p.nome||"")).replace(/'/g,"\\'");
     var podeGerir=(meu&&meu.papel==="admin"&&p.id!==meu.id);
     var btnPerm=(podeGerir&&p.papel!=="admin"&&p.is_owner!==true)?'<button class="btn btn-sm btn-secondary" onclick="editarPermissoes(\''+p.id+'\')" style="margin-right:4px">Permissoes</button>':'';
-    var acoes=podeGerir?(btnPerm+'<button class="btn btn-sm '+(p.ativo!==false?'btn-danger':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>'):'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'voce':'')+'</span>';
+    // Excluir permanente: so admin, e nunca o dono do SaaS
+    var btnExcluir=(podeGerir&&p.is_owner!==true)?'<button class="btn btn-sm btn-danger" onclick="excluirUsuarioHotel(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-left:4px">Excluir</button>':'';
+    var acoes=podeGerir?(btnPerm+'<button class="btn btn-sm '+(p.ativo!==false?'btn-secondary':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>'+btnExcluir):'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'voce':'')+'</span>';
     return '<tr><td>'+esc(p.nome)+'</td><td>'+esc(p.papel)+'</td><td>'+esc(p.turno||"-")+'</td><td>'+(p.ativo!==false?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>')+'</td>'+(meu&&meu.papel==="admin"?'<td>'+acoes+'</td>':'')+'</tr>';
   }).join('')+'</table>';
   if(convites&&convites.length){
@@ -124,6 +126,25 @@ export async function toggleUsuarioHotel(id, ativoAtual, nome){
   auditar(ativoAtual?"usuario.desativar":"usuario.ativar",(ativoAtual?"Desativou":"Ativou")+" o usuario "+(nome||id));
   st(!ativoAtual?"Usuario ativado!":"Usuario desativado.", !ativoAtual?"success":"warning");
   renderUsuariosHotel();
+}
+
+// Exclui (apaga) o perfil do usuario do hotel. So admin do hotel ou dono (RLS reforca no banco).
+export async function excluirUsuarioHotel(id, nome){
+  var meu=getCurrentUser();
+  if(!meu||(meu.papel!=="admin"&&!meu.isOwner))return st("Apenas o administrador do hotel pode excluir usuarios.","error");
+  if(id===meu.id)return st("Voce nao pode excluir a si mesmo.","error");
+  confirmar({
+    titulo:"Excluir usuario?",
+    msg:'"'+(nome||"Usuario")+'" perdera o acesso ao hotel e sera removido da lista. Esta acao nao pode ser desfeita. (A conta de login em si nao e removida por aqui.)',
+    okLabel:"Sim, excluir",tipo:"danger"
+  }, async function(){
+    var { error, count } = await supabase.from("perfis").delete({ count:"exact" }).eq("id", id);
+    if(error)return st("Nao foi possivel excluir: "+error.message,"error");
+    if(count===0)return st("Exclusao bloqueada. Rode o schema-27 no banco ou verifique suas permissoes.","error");
+    auditar("usuario.excluir","Excluiu o usuario "+(nome||id));
+    st("Usuario excluido.","warning");
+    renderUsuariosHotel();
+  });
 }
 
 // Abre o modal de permissoes de um usuario existente (so admin)

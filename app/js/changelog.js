@@ -2,8 +2,11 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.4.1";
+export var APP_VERSION="2.4.2";
 export var CHANGELOG=[
+{v:"2.4.2",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Excluir usuario: em Configuracoes > Usuarios, o administrador do hotel pode remover permanentemente um usuario (alem de apenas desativar). Util para limpar cadastros duplicados ou antigos."}
+]},
 {v:"2.4.1",data:"2026-09-06",mudancas:[
 {t:"melhoria",d:"Seguranca reforcada: o acesso a Financeiro, Caixa e Funcionarios agora e protegido tambem no servidor, nao so na tela. Quem nao tem permissao para esses modulos nao consegue acessar esses dados de forma alguma."},
 {t:"melhoria",d:"Atualizacao automatica: apos 30 minutos sem uso, o sistema recarrega sozinho para trazer os dados e permissoes mais recentes (nunca interrompe quando ha algo aberto ou sendo preenchido)."}
