@@ -21,44 +21,44 @@ export var CHANGELOG=[
 {t:"melhoria",d:"Check-out e caixa mais seguros: o sistema confirma a gravacao no banco antes de concluir e avisa caso algo falhe, evitando pagamento ou fechamento perdido em silencio."},
 {t:"melhoria",d:"Hoteis com muito historico: carregamento completo dos dados (reservas, pagamentos, consumos) sem cortar em silencio - relatorios ficam corretos."}
 ]},
-{v:"1.6.2",data:"2026-08-30",mudancas:[
+{v:"1.6.2",data:"2026-08-29",mudancas:[
 {t:"novo",d:"Trocar quarto de uma reserva: botao 'Trocar quarto' nas reservas confirmadas e em andamento, mostrando apenas os quartos livres no periodo."},
 {t:"melhoria",d:"Se o novo quarto for de outro tipo, o valor da reserva e recalculado automaticamente; no check-in, o quarto antigo vai para limpeza e o novo fica ocupado."}
 ]},
-{v:"1.6.1",data:"2026-08-30",mudancas:[
+{v:"1.6.1",data:"2026-08-29",mudancas:[
 {t:"novo",d:"Atendimento com status: o suporte pode Finalizar um atendimento e Reabrir quando precisar; cada conversa mostra se esta Aberta, Respondida ou Finalizada."},
 {t:"melhoria",d:"Filtro de conversas no Painel do Dono (todas, abertas ou finalizadas) para organizar o suporte."},
 {t:"melhoria",d:"A avaliacao do atendimento agora aparece para o cliente quando o suporte finaliza o atendimento."}
 ]},
-{v:"1.6.0",data:"2026-08-30",mudancas:[
+{v:"1.6.0",data:"2026-08-29",mudancas:[
 {t:"novo",d:"Avaliacao do atendimento: depois que o suporte responde, o cliente pode dar de 1 a 5 estrelas e deixar um comentario."},
 {t:"novo",d:"Painel do Dono mostra a nota media e os comentarios de cada hotel, alem de quando o hotel acessou o sistema pela ultima vez."}
 ]},
-{v:"1.5.2",data:"2026-08-30",mudancas:[
+{v:"1.5.2",data:"2026-08-29",mudancas:[
 {t:"melhoria",d:"Chat de suporte agora abre em tela cheia (janela ampla no computador, tela inteira no celular): muito mais espaco para conversar e facil de usar no telefone."},
 {t:"melhoria",d:"WhatsApp e E-mail viraram botoes rapidos no topo do chat; campo de mensagem com botao de enviar redondo."}
 ]},
-{v:"1.5.1",data:"2026-08-30",mudancas:[
+{v:"1.5.1",data:"2026-08-29",mudancas:[
 {t:"melhoria",d:"Chat de suporte atualiza sozinho: novas mensagens aparecem em segundos, sem precisar dar F5 ou reabrir a conversa."},
 {t:"melhoria",d:"No Painel do Dono, o contador de mensagens nao lidas se atualiza automaticamente."}
 ]},
-{v:"1.5.0",data:"2026-09-02",mudancas:[
+{v:"1.5.0",data:"2026-08-29",mudancas:[
 {t:"novo",d:"Suporte pelo chat dentro do sistema: envie sua mensagem e receba a resposta por aqui, sem sair do sistema."},
 {t:"melhoria",d:"Chat de suporte com visual novo: baloes de conversa, avatar, horario e separacao por dia (Hoje/Ontem)."},
 {t:"melhoria",d:"O botao de WhatsApp continua disponivel no suporte como alternativa."}
 ]},
-{v:"1.4.0",data:"2026-09-02",mudancas:[
+{v:"1.4.0",data:"2026-08-29",mudancas:[
 {t:"melhoria",d:"Financeiro reorganizado: aba Visao Geral reune os numeros principais e o balancete numa tela so."},
 {t:"melhoria",d:"Relatorios mais enxutos e focados em analise (ocupacao, KPIs, reservas e hospedes); o financeiro fica no proprio modulo Financeiro."},
 {t:"melhoria",d:"Menos abas repetidas: cada informacao tem um lugar so."}
 ]},
-{v:"1.3.0",data:"2026-09-02",mudancas:[
+{v:"1.3.0",data:"2026-08-28",mudancas:[
 {t:"novo",d:"Relatorios com graficos visuais de barras e colunas."},
 {t:"novo",d:"Metricas hoteleiras TrevPAR e GOPPAR na ocupacao."},
 {t:"novo",d:"Balancete de Resultados: visao consolidada do financeiro em uma tela."},
 {t:"melhoria",d:"Impressao profissional em todas as areas (relatorios e fatura), com os dados do seu hotel."}
 ]},
-{v:"1.2.0",data:"2026-09-02",mudancas:[
+{v:"1.2.0",data:"2026-08-28",mudancas:[
 {t:"novo",d:"Financeiro completo: resumo com lucro liquido, ticket medio e contas a receber."},
 {t:"novo",d:"Controle de despesas por categoria e comparativo mensal."},
 {t:"novo",d:"Fechamento de caixa por turno: abra e feche o caixa com conferencia de dinheiro, cartao e PIX, com calculo automatico de sobra ou falta."},
@@ -67,7 +67,7 @@ export var CHANGELOG=[
 {t:"novo",d:"Impressao de relatorios em documento profissional, com os dados do seu hotel."},
 {t:"melhoria",d:"Exportacao de relatorios e financeiro em CSV (Excel)."}
 ]},
-{v:"1.1.0",data:"2026-09-02",mudancas:[
+{v:"1.1.0",data:"2026-08-28",mudancas:[
 {t:"novo",d:"Cadastro completo do hotel: endereco com busca por CEP e selecao de cidade/estado, e preenchimento automatico de dados pelo CNPJ."},
 {t:"novo",d:"Cadastro de hospedes com CPF/CNPJ e busca de endereco por CEP."},
 {t:"novo",d:"Busca de hospede por nome ou documento na hora de criar a reserva, e cadastro rapido de hospede sem sair da tela."},
@@ -79,21 +79,21 @@ export var CHANGELOG=[
 {t:"melhoria",d:"As janelas nao fecham mais por clique acidental; ESC fecha e Enter faz login."},
 {t:"melhoria",d:"Formas de pagamento com visual novo."}
 ]},
-{v:"1.0.0",data:"2026-09-02",mudancas:[
+{v:"1.0.0",data:"2026-08-28",mudancas:[
 {t:"novo",d:"Lancamento oficial do HospedaPrime! Sistema pronto para o dia a dia do seu hotel."},
 {t:"melhoria",d:"Estabilidade e seguranca reforcadas para uso em producao."},
 {t:"melhoria",d:"Seus dados protegidos e isolados na nuvem, com acesso de qualquer dispositivo."}
 ]},
-{v:"0.9.9-beta",data:"2026-09-01",mudancas:[
+{v:"0.9.9-beta",data:"2026-08-27",mudancas:[
 {t:"novo",d:"Login com e-mail e senha e cadastro do seu hotel."},
 {t:"novo",d:"Dados agora ficam salvos na nuvem, acessiveis de qualquer dispositivo."},
 {t:"melhoria",d:"Cada hotel tem seus dados totalmente separados e seguros."}
 ]},
-{v:"0.9.8-beta",data:"2026-08-31",mudancas:[
+{v:"0.9.8-beta",data:"2026-08-26",mudancas:[
 {t:"melhoria",d:"O sistema agora se chama HospedaPrime."},
 {t:"melhoria",d:"Codigo reorganizado internamente para evoluir com mais seguranca."}
 ]},
-{v:"0.9.7-beta",data:"2026-08-30",mudancas:[
+{v:"0.9.7-beta",data:"2026-08-25",mudancas:[
 {t:"melhoria",d:"Navegacao unificada: no celular e no computador o botao Mais abre o mesmo menu moderno."},
 {t:"melhoria",d:"Barra de navegacao inferior estilo app tambem no computador, com menu Mais para os demais modulos."},
 {t:"novo",d:"Barra de navegacao inferior no celular, estilo app, com destaque no item ativo."},
@@ -103,7 +103,7 @@ export var CHANGELOG=[
 {t:"melhoria",d:"Cartoes, tabelas, formularios e janelas repaginados no novo tema."},
 {t:"melhoria",d:"Melhor contraste e leitura em telas com pouca luz."}
 ]},
-{v:"0.9.6-beta",data:"2026-08-29",mudancas:[
+{v:"0.9.6-beta",data:"2026-08-24",mudancas:[
 {t:"melhoria",d:"Avisos do painel com visual moderno, icones destacados e melhor leitura."},
 {t:"novo",d:"Mapa de quartos no painel: veja ocupados, reservados e livres num relance."},
 {t:"novo",d:"Quartos ocupados exibem o nome do hospede; clique para ver os detalhes."},
@@ -113,29 +113,29 @@ export var CHANGELOG=[
 {t:"melhoria",d:"Visual das janelas atualizado com efeito de desfoque e animacao."},
 {t:"melhoria",d:"Filtro de reservas selecionado fica destacado para melhor visualizacao."}
 ]},
-{v:"0.9.5-beta",data:"2026-08-28",mudancas:[
+{v:"0.9.5-beta",data:"2026-08-23",mudancas:[
 {t:"melhoria",d:"Interface modernizada com visual mais elegante e cores refinadas."},
 {t:"melhoria",d:"Cartoes e tabelas com efeitos suaves ao passar o mouse."},
 {t:"melhoria",d:"Animacoes de transicao ao navegar entre as telas."}
 ]},
-{v:"0.9.4-beta",data:"2026-08-27",mudancas:[
+{v:"0.9.4-beta",data:"2026-08-22",mudancas:[
 {t:"novo",d:"Painel de Novidades: historico organizado de todas as atualizacoes do sistema."},
 {t:"novo",d:"Selo de versao visivel na tela de login e no menu lateral."},
 {t:"melhoria",d:"Novidades agrupadas por tipo para facilitar a leitura."}
 ]},
-{v:"0.9.3-beta",data:"2026-08-26",mudancas:[
+{v:"0.9.3-beta",data:"2026-08-21",mudancas:[
 {t:"correcao",d:"Botoes X e Cancelar agora fecham corretamente todas as janelas."},
 {t:"melhoria",d:"Fechar janelas tocando na area escura fora da caixa."}
 ]},
-{v:"0.9.2-beta",data:"2026-08-25",mudancas:[
+{v:"0.9.2-beta",data:"2026-08-20",mudancas:[
 {t:"melhoria",d:"Sistema ja inicia com dados de exemplo para facilitar a experiencia."},
 {t:"melhoria",d:"Acesso ao sistema simplificado."}
 ]},
-{v:"0.9.1-beta",data:"2026-08-24",mudancas:[
+{v:"0.9.1-beta",data:"2026-08-19",mudancas:[
 {t:"melhoria",d:"Layout responsivo para celular com menu lateral deslizante."},
 {t:"correcao",d:"Correcao do menu mobile que bloqueava o toque nos itens."}
 ]},
-{v:"0.9.0-beta",data:"2026-08-23",mudancas:[
+{v:"0.9.0-beta",data:"2026-08-18",mudancas:[
 {t:"novo",d:"Primeira versao do sistema publicada online."}
 ]}
 ];
