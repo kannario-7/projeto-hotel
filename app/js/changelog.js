@@ -2,8 +2,13 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.3.0";
+export var APP_VERSION="2.4.0";
 export var CHANGELOG=[
+{v:"2.4.0",data:"2026-09-06",mudancas:[
+{t:"novo",d:"Reservas online (pagina publica): ative em Configuracoes > Hotel e compartilhe o link. Seus clientes consultam a disponibilidade, veem o preco e solicitam a reserva pela internet, sem precisar ligar."},
+{t:"novo",d:"As solicitacoes chegam como reservas pendentes para voce confirmar. O sistema so mostra ao publico o nome do hotel, os tipos de quarto e a disponibilidade - dados de hospedes e financeiro nunca sao expostos."},
+{t:"melhoria",d:"A pagina publica respeita a mesma protecao contra reserva duplicada, entao dois clientes nao conseguem reservar o mesmo quarto no mesmo periodo."}
+]},
 {v:"2.3.0",data:"2026-09-06",mudancas:[
 {t:"novo",d:"Assistente de precos (Configuracoes > Tarifas): analisa a ocupacao dos proximos dias e sugere ajustes de diaria - acrescimo quando a demanda esta alta e desconto de ultima hora para datas proximas ainda vazias."},
 {t:"melhoria",d:"As sugestoes nunca alteram o preco sozinhas: voce revisa cada recomendacao e cria a tarifa com um clique (o valor ja vem preenchido, e da para editar antes de salvar)."}

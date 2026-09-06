@@ -135,13 +135,20 @@ export async function carregarConfig(hotelId){
   var { data } = await supabase.from("hoteis").select("*").eq("id", hotelId).single();
   if(!data) return null;
   return { hn:data.nome, hcnpj:data.cnpj, htel:data.telefone, hemail:data.email, tax:data.taxa_servico, hci:data.checkin_horario, hco:data.checkout_horario, pm:data.formas_pagamento||["dinheiro","cartao","debito","credito","pix"],
-    hrazao:data.razao_social, htipodoc:data.tipo_doc, hcep:data.cep, hend:data.endereco, hnum:data.numero, hcompl:data.complemento, hbairro:data.bairro, hcidade:data.cidade, huf:data.uf };
+    hrazao:data.razao_social, htipodoc:data.tipo_doc, hcep:data.cep, hend:data.endereco, hnum:data.numero, hcompl:data.complemento, hbairro:data.bairro, hcidade:data.cidade, huf:data.uf,
+    slug:data.slug, reservasPublicas:data.reservas_publicas_ativas===true };
 }
 export async function salvarConfig(hotelId, c){
   await supabase.from("hoteis").update({ nome:c.hn, cnpj:c.hcnpj, telefone:c.htel, email:c.hemail, taxa_servico:c.tax, checkin_horario:c.hci, checkout_horario:c.hco,
     razao_social:c.hrazao||null, tipo_doc:c.htipodoc||null, cep:c.hcep||null, endereco:c.hend||null, numero:c.hnum||null, complemento:c.hcompl||null, bairro:c.hbairro||null, cidade:c.hcidade||null, uf:c.huf||null }).eq("id", hotelId);
 }
 export async function supabaseRpcPlano(){ return await supabase.rpc("meu_plano_status"); }
+
+// Liga/desliga o motor de reservas publico do hotel (opt-in). Retorna {ok, error}.
+export async function definirReservasPublicas(hotelId, ativo){
+  var { error } = await supabase.from("hoteis").update({ reservas_publicas_ativas: ativo===true }).eq("id", hotelId);
+  return { ok: !error, error: error||null };
+}
 
 // --- Suporte (mensagens cliente <-> dono) ---
 // Envia uma mensagem. autor: 'cliente' ou 'suporte'. hotelId destino.
