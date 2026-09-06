@@ -141,6 +141,10 @@ export function calcularDiarias(tipoId, checkinISO, checkoutISO){
   return { total:total, noites:detalhe.length, detalhe:detalhe, variou:Object.keys(precos).length>1 };
 }
 
+// USO EM TESTES: popula o cache em memoria SEM tocar no banco (para a suite de testes local).
+// Nunca e chamado em producao. Aceita { tq:[...], r:[...], pg:[...], ds:[...], tf:[...], ... }.
+export function _seedCache(obj){ cache = Object.assign({ tq:[], q:[], h:[], sv:[], r:[], os:[], pg:[], fa:[], ds:[], sc:[], tf:[] }, obj||{}); }
+
 // Popula dados de exemplo para um hotel recém-criado (uma vez)
 export async function seedHotel(hotelId){
   var tp=[["Standard",2,19900],["Superior",3,29900],["Deluxe",3,44900],["Suite Master",4,69900]];

@@ -1,0 +1,83 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<title>HospedaPrime - Testes dos calculos criticos</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;background:#0b1220;color:#e6edf7;padding:24px;line-height:1.5}
+h1{font-size:20px} h2{font-size:15px;margin:18px 0 6px;color:#a99bff}
+.ok{color:#43d18c} .xx{color:#f16a6e;font-weight:700}
+.linha{font-family:ui-monospace,Consolas,monospace;font-size:13px;padding:1px 0}
+#resumo{font-size:16px;font-weight:700;margin:12px 0;padding:10px 14px;border-radius:8px;display:inline-block}
+.pass{background:rgba(67,209,140,.15);border:1px solid #43d18c}
+.fail{background:rgba(241,106,110,.15);border:1px solid #f16a6e}
+</style></head><body>
+<h1>HospedaPrime — Testes dos calculos criticos</h1>
+<p style="color:#8b98ad">Abra esta pagina (via servidor local) para validar os calculos antes de publicar. Nao afeta o banco.</p>
+<div id="resumo">Rodando...</div>
+<div id="out"></div>
+<script type="module">
+import { St, _seedCache, calcularDiarias, precoDiariaNaData, checkDisponivel, quartosLivres } from "./js/store.js";
+import { somaPagamentos, somaDespesas, despesasEfetivadas, aReceberDeReservas, agrupaPorForma, agrupaPorMes } from "./js/modules/financeiro-core.js";
+
+var pass=0, fail=0, html="";
+function grupo(t){ html+='<h2>'+t+'</h2>'; }
+function eq(got, exp, msg){
+  var ok=JSON.stringify(got)===JSON.stringify(exp);
+  if(ok)pass++; else fail++;
+  html+='<div class="linha '+(ok?"ok":"xx")+'">'+(ok?"OK  ":"XX  ")+msg+' = '+JSON.stringify(got)+(ok?"":" (esperado "+JSON.stringify(exp)+")")+'</div>';
+}
+
+// ============ TARIFAS (calcularDiarias / precoDiariaNaData) ============
+grupo("Tarifas por temporada e dia da semana");
+_seedCache({
+  tq:[{id:"std",nome:"Standard",precoDiaria:20000}],
+  tf:[
+    {id:"t1",tipoQuartoId:"std",tipoRegra:"periodo",dataInicio:"2027-12-20",dataFim:"2027-12-31",preco:35000,prioridade:0,ativo:true},
+    {id:"t2",tipoQuartoId:"std",tipoRegra:"semana",diasSemana:[5,6],preco:26000,prioridade:0,ativo:true}
+  ]
+});
+eq(precoDiariaNaData("std","2027-11-03"),20000,"quarta comum -> preco base");
+eq(precoDiariaNaData("std","2027-11-05"),26000,"sexta -> tarifa fim de semana");
+eq(precoDiariaNaData("std","2027-12-24"),35000,"sexta na alta temporada -> temporada vence fim de semana");
+var c=calcularDiarias("std","2027-11-03","2027-11-06"); // qua200+qui200+sex260
+eq(c.total,66000,"3 noites 03-06/11 (200+200+260)");
+eq(c.noites,3,"noites=3");
+eq(c.variou,true,"tarifa variou no periodo");
+var c2=calcularDiarias("std","2027-12-22","2027-12-25"); // 3x350
+eq(c2.total,105000,"3 noites em alta temporada (3x350)");
+
+// ============ DISPONIBILIDADE / OVERBOOKING (front) ============
+grupo("Disponibilidade de quartos");
+_seedCache({
+  q:[{id:"q1",tipoQuartoId:"std",status:"disponivel",ativo:true},{id:"q2",tipoQuartoId:"std",status:"disponivel",ativo:true}],
+  r:[{id:"r1",quartoId:"q1",status:"confirmada",dataCheckin:"2027-05-10",dataCheckout:"2027-05-15"}]
+});
+eq(checkDisponivel("q1","2027-05-12","2027-05-14",null),false,"q1 ocupado no periodo sobreposto -> indisponivel");
+eq(checkDisponivel("q1","2027-05-15","2027-05-17",null),true,"q1 livre a partir do checkout (encostado nao conflita)");
+eq(checkDisponivel("q1","2027-05-12","2027-05-14","r1"),true,"ignorando a propria reserva -> disponivel");
+eq(quartosLivres("2027-05-12","2027-05-14",null).map(function(q){return q.id;}),["q2"],"quartosLivres retorna so q2 no periodo ocupado");
+
+// ============ FINANCEIRO CORE (agregacoes + regra despesa paga) ============
+grupo("Financeiro (agregacoes e regra de despesa)");
+var pg=[{valor:80000,data:"2027-01-05",forma:"pix",reservaId:"r1"},{valor:20000,data:"2027-01-07",forma:"dinheiro",reservaId:"r1"}];
+var ds=[{valor:10000,pago:true,data:"2027-01-05"},{valor:50000,pago:false,data:"2027-01-10"}];
+eq(somaPagamentos(pg),100000,"soma pagamentos = 1000,00");
+eq(despesasEfetivadas(ds).length,1,"despesa em aberto (pago=false) NAO conta como efetivada");
+eq(somaDespesas(despesasEfetivadas(ds)),10000,"soma despesas efetivadas = 100,00 (ignora os 500 em aberto)");
+eq(somaPagamentos(pg)-somaDespesas(despesasEfetivadas(ds)),90000,"lucro = 900,00 (mesma base em relatorios e financeiro)");
+var reservas=[{id:"r1",status:"confirmada",total:120000}];
+eq(aReceberDeReservas(reservas,pg),20000,"a receber = 200,00 (total 1200 - pago 1000)");
+eq(agrupaPorForma(pg),{pix:80000,dinheiro:20000},"agrupa por forma");
+eq(agrupaPorMes(pg,despesasEfetivadas(ds))["2027-01"],{rec:100000,des:10000},"agrupa por mes (des = efetivadas)");
+
+// ============ SALDO / SINAL ============
+grupo("Saldo de reserva (sinal + parcial)");
+var pgs=[{valor:30000,reservaId:"rX"},{valor:70000,reservaId:"rX"}];
+eq(pgs.reduce(function(s,p){return s+p.valor},0),100000,"sinal 300 + saldo 700 = 1000 (nao duplica)");
+
+// ============ RESUMO ============
+var r=document.getElementById("resumo");
+r.textContent=(fail===0? "TODOS PASSARAM: " : "FALHAS: ")+pass+" OK, "+fail+" falhas";
+r.className=fail===0?"pass":"fail";
+document.getElementById("out").innerHTML=html;
+</script>
+</body></html>
