@@ -1,6 +1,6 @@
 // Módulo: Check-out
 import { esc, fmtC, fmtD, td, dB } from "../utils.js";
-import { St, auditar } from "../store.js";
+import { St, auditar, calcularDiarias } from "../store.js";
 import { st, sm, cm, closeModal } from "../ui.js";
 import { imprimirDocumento } from "./impressao.js";
 
@@ -20,7 +20,10 @@ export function realizarCheckout(id){var r=St.fi("r",id);if(!r)return;
 var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);
 var hoje=td(),noitesReais=Math.max(1,dB(r.dataCheckin,hoje));
 var tq=St.fi("tq",r.tipoQuartoId);
-var diarias=tq?noitesReais*tq.precoDiaria:0;
+var fimReal=hoje>r.dataCheckin?hoje:r.dataCheckout;
+var calcCheckout=calcularDiarias(r.tipoQuartoId, r.dataCheckin, fimReal);
+var diarias=calcCheckout.total||(tq?noitesReais*tq.precoDiaria:0);
+if(calcCheckout.noites)noitesReais=calcCheckout.noites;
 var servicos=St.ga("os").filter(function(o){return o.reservaId===id});
 var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
 var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);
@@ -66,7 +69,10 @@ export function imprimirFatura(){
 export async function finalizarCheckout(id){var r=St.fi("r",id);if(!r)return;
 var hoje=td(),noitesReais=Math.max(1,dB(r.dataCheckin,hoje));
 var tq=St.fi("tq",r.tipoQuartoId);
-var diarias=tq?noitesReais*tq.precoDiaria:0;
+var fimReal=hoje>r.dataCheckin?hoje:r.dataCheckout;
+var calcCheckout=calcularDiarias(r.tipoQuartoId, r.dataCheckin, fimReal);
+var diarias=calcCheckout.total||(tq?noitesReais*tq.precoDiaria:0);
+if(calcCheckout.noites)noitesReais=calcCheckout.noites;
 var servicos=St.ga("os").filter(function(o){return o.reservaId===id});
 var totalServicos=servicos.reduce(function(s,o){return s+(o.total||0)},0);
 var config=St.gc(),taxa=config.tax||0,taxaImp=Math.round(diarias*taxa/100);

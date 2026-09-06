@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.0";
+export var APP_VERSION="1.10.0";
 export var CHANGELOG=[
+{v:"1.10.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Tarifas por temporada e por dia da semana: em Configuracoes > Tarifas, defina precos de alta/baixa temporada, feriados ou fins de semana por tipo de quarto."},
+{t:"melhoria",d:"Reservas e check-out calculam automaticamente o valor de cada noite conforme a tarifa vigente; sem regra, vale o preco padrao do tipo."}
+]},
 {v:"1.9.0",data:"2026-08-30",mudancas:[
 {t:"novo",d:"Trilha de atividades: em Configuracoes > Atividades, veja o registro de quem fez o que (cancelamentos, check-in/out, caixa, troca de quarto) com data e usuario."},
 {t:"melhoria",d:"Mais transparencia e controle para hoteis com varios funcionarios."}

@@ -14,7 +14,8 @@ export const TABELAS = {
   pg: "pagamentos",
   fa: "funcionarios",
   ds: "despesas",
-  sc: "sessoes_caixa"
+  sc: "sessoes_caixa",
+  tf: "tarifas"
 };
 
 // Conversão de campos app -> banco por tabela
@@ -32,6 +33,7 @@ function paraBanco(k, o, hotelId){
     case "fa": b.nome=o.nome; b.cargo=o.cargo; b.telefone=o.telefone; b.email=o.email; b.turno=o.turno; b.salario=o.salario; b.ativo=o.ativo!==false; break;
     case "ds": b.descricao=o.descricao; b.categoria=o.categoria; b.valor=o.valor; b.forma=o.forma; b.data=o.data; b.observacoes=o.observacoes; if(o.vencimento!==undefined)b.vencimento=o.vencimento||null; if(o.pago!==undefined)b.pago=o.pago; if(o.pagoEm!==undefined)b.pago_em=o.pagoEm||null; break;
     case "sc": b.usuario_abertura=o.usuarioAbertura; b.usuario_fechamento=o.usuarioFechamento; b.aberto_em=o.abertoEm; b.fechado_em=o.fechadoEm; b.valor_abertura=o.valorAbertura; b.contado_dinheiro=o.contadoDinheiro; b.contado_cartao=o.contadoCartao; b.contado_pix=o.contadoPix; b.contado_outros=o.contadoOutros; b.valor_sistema=o.valorSistema; b.diferenca=o.diferenca; b.observacoes=o.observacoes; b.status=o.status; break;
+    case "tf": b.tipo_quarto_id=o.tipoQuartoId||null; b.nome=o.nome; b.tipo_regra=o.tipoRegra; b.data_inicio=o.dataInicio||null; b.data_fim=o.dataFim||null; b.dias_semana=o.diasSemana||null; b.preco=o.preco; b.prioridade=o.prioridade||0; b.ativo=o.ativo!==false; break;
   }
   return b;
 }
@@ -50,6 +52,7 @@ function paraApp(k, b){
     case "fa": o.nome=b.nome; o.cargo=b.cargo; o.telefone=b.telefone; o.email=b.email; o.turno=b.turno; o.salario=b.salario; o.ativo=b.ativo; break;
     case "ds": o.descricao=b.descricao; o.categoria=b.categoria; o.valor=b.valor; o.forma=b.forma; o.data=b.data; o.observacoes=b.observacoes; o.vencimento=b.vencimento; o.pago=b.pago; o.pagoEm=b.pago_em; break;
     case "sc": o.usuarioAbertura=b.usuario_abertura; o.usuarioFechamento=b.usuario_fechamento; o.abertoEm=b.aberto_em; o.fechadoEm=b.fechado_em; o.valorAbertura=b.valor_abertura; o.contadoDinheiro=b.contado_dinheiro; o.contadoCartao=b.contado_cartao; o.contadoPix=b.contado_pix; o.contadoOutros=b.contado_outros; o.valorSistema=b.valor_sistema; o.diferenca=b.diferenca; o.observacoes=b.observacoes; o.status=b.status; break;
+    case "tf": o.tipoQuartoId=b.tipo_quarto_id; o.nome=b.nome; o.tipoRegra=b.tipo_regra; o.dataInicio=b.data_inicio; o.dataFim=b.data_fim; o.diasSemana=b.dias_semana; o.preco=b.preco; o.prioridade=b.prioridade; o.ativo=b.ativo; break;
   }
   return o;
 }

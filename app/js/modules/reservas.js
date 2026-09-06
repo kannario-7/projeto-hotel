@@ -1,6 +1,6 @@
 // Módulo: Reservas
 import { esc, fmtC, fmtD, td, dB, mascDocAuto, mascTel, isValidCPF } from "../utils.js";
-import { St, getStatusBadge, quartosDisponiveis, quartosLivres, checkDisponivel, auditar } from "../store.js";
+import { St, getStatusBadge, quartosDisponiveis, quartosLivres, checkDisponivel, auditar, calcularDiarias } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { ehErroOverbooking } from "../db.js";
 
@@ -89,9 +89,9 @@ export function previewTrocaQuarto(id){
   if(!q){aviso.textContent="";return;}
   var tNovo=St.fi("tq",q.tipoQuartoId),tAtual=St.fi("tq",r.tipoQuartoId);
   if(!tNovo||!tAtual||tNovo.id===tAtual.id){aviso.innerHTML='<span style="color:#43d18c">Mesmo tipo de quarto: o valor da reserva nao muda.</span>';return;}
-  var novoTotal=r.noites*tNovo.precoDiaria;
+  var calc=calcularDiarias(tNovo.id, r.dataCheckin, r.dataCheckout);
   aviso.innerHTML='Muda de <b>'+esc(tAtual.nome)+'</b> para <b>'+esc(tNovo.nome)+'</b>. '+
-    'Novo valor da reserva: <b>'+fmtC(novoTotal)+'</b> ('+r.noites+' noite(s) &times; '+fmtC(tNovo.precoDiaria)+').';
+    'Novo valor da reserva: <b>'+fmtC(calc.total)+'</b> ('+(calc.noites||r.noites)+' noite(s)'+(calc.variou?', tarifa variavel':'')+').';
 }
 
 export async function salvarTrocaQuarto(id){
@@ -105,8 +105,8 @@ export async function salvarTrocaQuarto(id){
     return st("Esse quarto ja foi ocupado nesse periodo. Escolha outro.","error"),false;
   }
   var tNovo=St.fi("tq",novo.tipoQuartoId);
-  var noites=r.noites||1;
-  var novoTotal=tNovo?noites*tNovo.precoDiaria:r.total;
+  var calcT=calcularDiarias(novo.tipoQuartoId, r.dataCheckin, r.dataCheckout);
+  var novoTotal=calcT.total||r.total;
   var quartoAntigoId=r.quartoId;
   var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Trocando...";}
   // Atualiza a reserva aguardando o banco (a trava de overbooking pode barrar por concorrencia)
@@ -222,8 +222,9 @@ if(["pendente","confirmada"].indexOf(statusNovo)>=0 && !checkDisponivel(q.value,
   return st("Esse quarto ja esta reservado nesse periodo. Escolha outro quarto ou datas.","error"),false;
 }
 var qo=St.fi("q",q.value),tq=St.fi("tq",qo?qo.tipoQuartoId:null);
-var noites=dB(ci.value,co.value),total=noites*(tq?tq.precoDiaria:0);
-var dados={hospedeId:h.value,quartoId:q.value,tipoQuartoId:t.value,dataCheckin:ci.value,dataCheckout:co.value,noites:noites,total:total,status:statusNovo,servicosIds:[]};
+var calc=calcularDiarias(qo?qo.tipoQuartoId:t.value, ci.value, co.value);
+var noites=calc.noites||dB(ci.value,co.value),total=calc.total;
+var dados={hospedeId:h.value,quartoId:q.value,tipoQuartoId:(qo?qo.tipoQuartoId:t.value),dataCheckin:ci.value,dataCheckout:co.value,noites:noites,total:total,status:statusNovo,servicosIds:[]};
 var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Salvando...";}
 var res = id ? await St.upErr("r",id,dados) : await St.inErr("r",dados);
 if(btn){btn.disabled=false;btn.textContent="Salvar";}

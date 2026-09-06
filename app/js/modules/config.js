@@ -13,6 +13,7 @@ el.innerHTML='<div class="page-header"><div><h2>Configuracoes</h2><p>Configurar 
 '<div class="tab active" onclick="mudarConfigTab(this,\'hotel\')">Hotel</div>'+
 '<div class="tab" onclick="mudarConfigTab(this,\'tp\')">Tipos de Quarto</div>'+
 '<div class="tab" onclick="mudarConfigTab(this,\'pg\')">Pagamento</div>'+
+'<div class="tab" onclick="mudarConfigTab(this,\'tf\')">Tarifas</div>'+
 '<div class="tab" onclick="mudarConfigTab(this,\'us\')">Usuarios</div>'+
 '<div class="tab" onclick="mudarConfigTab(this,\'at\')">Atividades</div>'+
 '</div><div id="configContent">'+formConfigHotel(config)+'</div>';
@@ -24,6 +25,7 @@ if(aba==="us"){document.getElementById("configContent").innerHTML="";renderUsuar
 if(aba==="at"){document.getElementById("configContent").innerHTML='<p style="color:var(--text-mute)">Carregando atividades...</p>';renderAtividades();return;}
 if(aba==="hotel")html=formConfigHotel(config);
 else if(aba==="tp")html=formConfigTipoQuarto(tq);
+else if(aba==="tf")html=formConfigTarifas(tq);
 else if(aba==="pg")html=formConfigPagamento(config);
 document.getElementById("configContent").innerHTML=html;
 if(aba==="hotel")setTimeout(initFormHotel,0);}
@@ -216,6 +218,104 @@ export function excluirTipoQuarto(id){
   confirmar({titulo:"Excluir o tipo \""+t.nome+"\"?",msg:"O tipo de quarto sera removido. Reservas antigas que o referenciam sao mantidas.",okLabel:"Sim, excluir",tipo:"danger"},function(){
     St.up("tq",id,{ativo:false});
     st("Tipo de quarto excluido.","warning");
+    renderConfig();
+  });
+}
+
+// ================= ABA TARIFAS (temporada / fim de semana) =================
+var DIAS_SEM=[["0","Dom"],["1","Seg"],["2","Ter"],["3","Qua"],["4","Qui"],["5","Sex"],["6","Sab"]];
+function nomeTipo(id){var t=St.fi("tq",id);return t?t.nome:"Tipo";}
+function descRegra(t){
+  if(t.tipoRegra==="periodo"){ return "Temporada: "+ (t.dataInicio?t.dataInicio.split("-").reverse().join("/"):"?") + " a " + (t.dataFim?t.dataFim.split("-").reverse().join("/"):"?"); }
+  var ds=(t.diasSemana||[]).map(function(d){var x=DIAS_SEM[d];return x?x[1]:d;}).join(", ");
+  return "Dias da semana: "+(ds||"-");
+}
+
+function formConfigTarifas(tq){
+  tq=(tq||St.ga("tq")).filter(function(t){return t.ativo!==false;});
+  var tarifas=St.ga("tf");
+  var html='<div class="form-container"><h3 style="margin-bottom:6px;color:var(--text)">Tarifas por temporada e dia da semana</h3>'+
+    '<p style="color:var(--text-mute);font-size:13px;margin-bottom:16px">Defina precos diferentes por periodo (alta/baixa temporada, feriados) ou por dias da semana. Sem regra, vale o preco padrao do tipo de quarto.</p>';
+  if(!tq.length){ html+='<p style="color:var(--text-mute)">Cadastre tipos de quarto antes de criar tarifas.</p></div>'; return html; }
+  if(tarifas.length){
+    html+='<table><tr><th>Tipo</th><th>Regra</th><th>Quando</th><th>Preco</th><th>Acoes</th></tr>'+
+    tarifas.sort(function(a,b){return (a.tipoQuartoId||"").localeCompare(b.tipoQuartoId||"");}).map(function(t){
+      return '<tr><td>'+esc(nomeTipo(t.tipoQuartoId))+'</td>'+
+        '<td>'+esc(t.nome||(t.tipoRegra==="periodo"?"Temporada":"Fim de semana"))+'</td>'+
+        '<td>'+esc(descRegra(t))+'</td>'+
+        '<td>'+fmtC(t.preco)+'</td>'+
+        '<td><button class="btn btn-sm btn-primary" onclick="editarTarifa(\''+t.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirTarifa(\''+t.id+'\')">Excluir</button></td></tr>';
+    }).join('')+'</table>';
+  } else {
+    html+='<p style="color:var(--text-mute)">Nenhuma tarifa especial cadastrada. Vale o preco padrao de cada tipo de quarto.</p>';
+  }
+  html+='<div class="form-actions"><button class="btn btn-primary" onclick="showNovaTarifa()">+ Nova tarifa</button></div></div>';
+  return html;
+}
+
+function formTarifa(t){
+  var tipos=St.ga("tq").filter(function(x){return x.ativo!==false;});
+  var regra=t?t.tipoRegra:"periodo";
+  var dias=t&&t.diasSemana?t.diasSemana:[5,6]; // padrao sex/sab
+  return '<div class="form-group"><label>Tipo de quarto *</label><select id="tfTipo">'+
+      tipos.map(function(x){return '<option value="'+x.id+'"'+(t&&t.tipoQuartoId===x.id?' selected':'')+'>'+esc(x.nome)+' (padrao '+fmtC(x.precoDiaria)+')</option>';}).join('')+
+    '</select></div>'+
+    '<div class="form-group"><label>Nome (opcional)</label><input type="text" id="tfNome" placeholder="Ex: Alta temporada, Feriado, Fim de semana" value="'+(t&&t.nome?esc(t.nome):"")+'"></div>'+
+    '<div class="form-group"><label>Tipo de regra *</label><select id="tfRegra" onchange="tarifaToggleRegra()">'+
+      '<option value="periodo"'+(regra==="periodo"?' selected':'')+'>Por periodo (datas)</option>'+
+      '<option value="semana"'+(regra==="semana"?' selected':'')+'>Por dias da semana</option>'+
+    '</select></div>'+
+    '<div id="tfBoxPeriodo" style="display:'+(regra==="periodo"?"block":"none")+'"><div class="form-grid">'+
+      '<div class="form-group"><label>Inicio</label><input type="date" id="tfInicio" value="'+(t&&t.dataInicio?t.dataInicio:"")+'"></div>'+
+      '<div class="form-group"><label>Fim</label><input type="date" id="tfFim" value="'+(t&&t.dataFim?t.dataFim:"")+'"></div>'+
+    '</div></div>'+
+    '<div id="tfBoxSemana" style="display:'+(regra==="semana"?"block":"none")+'"><label style="display:block;margin-bottom:6px;color:var(--text-dim);font-size:13px">Dias da semana</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+      DIAS_SEM.map(function(d){var on=dias.indexOf(Number(d[0]))>=0;return '<label class="tf-diachip"><input type="checkbox" class="tfDia" value="'+d[0]+'"'+(on?' checked':'')+'> '+d[1]+'</label>';}).join('')+
+    '</div></div>'+
+    '<div class="form-group"><label>Preco da diaria nesta regra (R$) *</label><input type="number" id="tfPreco" step="0.01" min="0" value="'+(t&&t.preco?(t.preco/100).toFixed(2):"")+'"></div>'+
+    '<div class="form-group"><label>Prioridade (maior vence em caso de conflito)</label><input type="number" id="tfPrioridade" step="1" value="'+(t&&t.prioridade!=null?t.prioridade:0)+'"></div>';
+}
+
+export function showNovaTarifa(){
+  if(!St.ga("tq").filter(function(x){return x.ativo!==false;}).length)return st("Cadastre um tipo de quarto primeiro.","error");
+  sm("Nova tarifa",formTarifa(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarTarifa()">Salvar</button>');
+}
+export function editarTarifa(id){
+  var t=St.fi("tf",id);if(!t)return;
+  sm("Editar tarifa",formTarifa(t),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarTarifa(\''+id+'\')">Salvar</button>');
+}
+export function tarifaToggleRegra(){
+  var r=document.getElementById("tfRegra");if(!r)return;
+  var per=document.getElementById("tfBoxPeriodo"),sem=document.getElementById("tfBoxSemana");
+  if(per)per.style.display=r.value==="periodo"?"block":"none";
+  if(sem)sem.style.display=r.value==="semana"?"block":"none";
+}
+export function salvarTarifa(id){
+  var tipo=document.getElementById("tfTipo"),nome=document.getElementById("tfNome"),regra=document.getElementById("tfRegra"),preco=document.getElementById("tfPreco"),prio=document.getElementById("tfPrioridade");
+  if(!tipo||!tipo.value)return st("Selecione o tipo de quarto.","error"),false;
+  var p=Math.round(parseFloat(preco&&preco.value?preco.value:0)*100);
+  if(!p||p<=0)return st("Informe um preco valido.","error"),false;
+  var dados={tipoQuartoId:tipo.value,nome:(nome?nome.value.trim():""),tipoRegra:regra.value,preco:p,prioridade:parseInt(prio&&prio.value?prio.value:0)||0,ativo:true};
+  if(regra.value==="periodo"){
+    var ci=document.getElementById("tfInicio"),cf=document.getElementById("tfFim");
+    if(!ci||!ci.value||!cf||!cf.value)return st("Informe inicio e fim da temporada.","error"),false;
+    if(ci.value>cf.value)return st("A data final deve ser depois da inicial.","error"),false;
+    dados.dataInicio=ci.value;dados.dataFim=cf.value;dados.diasSemana=null;
+  } else {
+    var dias=Array.prototype.slice.call(document.querySelectorAll(".tfDia:checked")).map(function(c){return parseInt(c.value);});
+    if(!dias.length)return st("Selecione ao menos um dia da semana.","error"),false;
+    dados.diasSemana=dias;dados.dataInicio=null;dados.dataFim=null;
+  }
+  if(id){St.up("tf",id,dados);st("Tarifa atualizada!","success");auditar("tarifa.editar","Editou tarifa de "+nomeTipo(tipo.value));}
+  else{St.in("tf",dados);st("Tarifa cadastrada!","success");auditar("tarifa.criar","Criou tarifa de "+nomeTipo(tipo.value)+" - "+fmtC(p));}
+  cm();renderConfig();
+}
+export function excluirTarifa(id){
+  var t=St.fi("tf",id);if(!t)return;
+  confirmar({titulo:"Excluir tarifa?",msg:"Esta regra de preco sera removida. As diarias voltam a usar o preco padrao (ou outra regra).",okLabel:"Sim, excluir",tipo:"danger"},function(){
+    St.rm("tf",id);
+    auditar("tarifa.excluir","Excluiu tarifa de "+nomeTipo(t.tipoQuartoId));
+    st("Tarifa excluida.","warning");
     renderConfig();
   });
 }

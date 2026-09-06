@@ -5,7 +5,7 @@ import { esc } from "./utils.js";
 import * as db from "./db.js";
 
 // Cache em memória dos dados do hotel atual
-var cache = { tq:[], q:[], h:[], sv:[], r:[], os:[], pg:[], fa:[], ds:[], sc:[] };
+var cache = { tq:[], q:[], h:[], sv:[], r:[], os:[], pg:[], fa:[], ds:[], sc:[], tf:[] };
 var config = { pm:["dinheiro","cartao","debito","credito","pix"], hci:"14:00", hco:"12:00", tax:10, hn:"", hcnpj:"", htel:"", hemail:"" };
 var hotelIdAtual = null;
 
@@ -93,6 +93,53 @@ export function checkDisponivel(quartoId,checkin,checkout,excluirId){return!St.g
 export function quartosDisponiveis(tipoId,checkin,checkout,excluirId){return St.ga("q").filter(function(q){return q.ativo!==false&&q.tipoQuartoId===tipoId&&(q.status==="disponivel"||q.status==="limpeza")&&checkDisponivel(q.id,checkin,checkout,excluirId)})}
 // Quartos livres para o periodo, de QUALQUER tipo (usado na troca de quarto). Ignora quartos ocupados/manutencao e o proprio (excluirId).
 export function quartosLivres(checkin,checkout,excluirId){return St.ga("q").filter(function(q){return q.ativo!==false&&(q.status==="disponivel"||q.status==="limpeza")&&checkDisponivel(q.id,checkin,checkout,excluirId)})}
+
+// ---- TARIFAS: preco de uma diaria numa data especifica ----
+// Prioridade: regra de periodo (temporada) vigente > regra de dia-da-semana > preco base do tipo.
+// Entre regras que batem, vence a de maior "prioridade" (depois a de maior preco como desempate).
+export function precoDiariaNaData(tipoId, dataISO){
+  var tipo=St.fi("tq",tipoId);
+  var base=tipo?(tipo.precoDiaria||0):0;
+  var regras=St.ga("tf").filter(function(t){return t.ativo!==false && t.tipoQuartoId===tipoId;});
+  if(!regras.length) return base;
+  var p=dataISO.split("-"); var dow=new Date(Number(p[0]),Number(p[1])-1,Number(p[2])).getDay(); // 0=Dom..6=Sab
+  var candidatas=regras.filter(function(t){
+    if(t.tipoRegra==="periodo"){ return t.dataInicio && t.dataFim && dataISO>=t.dataInicio && dataISO<=t.dataFim; }
+    if(t.tipoRegra==="semana"){ return Array.isArray(t.diasSemana) && t.diasSemana.indexOf(dow)>=0; }
+    return false;
+  });
+  if(!candidatas.length) return base;
+  // periodo tem preferencia sobre semana; depois prioridade; depois maior preco
+  candidatas.sort(function(a,b){
+    var pa=a.tipoRegra==="periodo"?1:0, pb=b.tipoRegra==="periodo"?1:0;
+    if(pb!==pa) return pb-pa;
+    if((b.prioridade||0)!==(a.prioridade||0)) return (b.prioridade||0)-(a.prioridade||0);
+    return (b.preco||0)-(a.preco||0);
+  });
+  return candidatas[0].preco;
+}
+
+// Soma as diarias de [checkin, checkout) aplicando a tarifa vigente de cada noite.
+// Retorna { total, noites, detalhe:[{data, preco}], variou:boolean }.
+export function calcularDiarias(tipoId, checkinISO, checkoutISO){
+  var detalhe=[], total=0;
+  if(!checkinISO || !checkoutISO || checkoutISO<=checkinISO){
+    return { total:0, noites:0, detalhe:[], variou:false };
+  }
+  var d=checkinISO;
+  var guarda=0; // protecao contra loop (max ~2 anos)
+  while(d<checkoutISO && guarda<800){
+    var preco=precoDiariaNaData(tipoId, d);
+    detalhe.push({ data:d, preco:preco });
+    total+=preco;
+    // proximo dia
+    var p=d.split("-"); var nx=new Date(Number(p[0]),Number(p[1])-1,Number(p[2])+1);
+    d=nx.getFullYear()+"-"+String(nx.getMonth()+1).padStart(2,"0")+"-"+String(nx.getDate()).padStart(2,"0");
+    guarda++;
+  }
+  var precos={}; detalhe.forEach(function(x){precos[x.preco]=true;});
+  return { total:total, noites:detalhe.length, detalhe:detalhe, variou:Object.keys(precos).length>1 };
+}
 
 // Popula dados de exemplo para um hotel recém-criado (uma vez)
 export async function seedHotel(hotelId){
