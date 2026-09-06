@@ -10,6 +10,7 @@ import { renderCheckout } from "./modules/checkout.js";
 import { renderFinanceiro } from "./modules/financeiro.js";
 import { renderServicos } from "./modules/servicos.js";
 import { renderFuncionarios } from "./modules/funcionarios.js";
+import { renderGovernanca } from "./modules/governanca.js";
 import { renderRelatorios } from "./modules/relatorios.js";
 import { renderConfig } from "./modules/config.js";
 import { renderAdmin } from "./modules/admin.js";
@@ -34,6 +35,7 @@ case"co":renderCheckout();break;
 case"f":renderFinanceiro();break;
 case"s":renderServicos();break;
 case"fu":renderFuncionarios();break;
+case"gov":renderGovernanca();break;
 case"rl":renderRelatorios();break;
 case"cg":renderConfig();break;
 default:renderDashboard();}}

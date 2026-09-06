@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="1.9.6";
+export var APP_VERSION="1.9.7";
 export var CHANGELOG=[
+{v:"1.9.7",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Limpeza (governanca): nova tela com a fila de quartos aguardando limpeza, tempo de espera, atribuicao de camareira e botao para marcar como limpo."},
+{t:"melhoria",d:"Apos o check-out, o quarto entra automaticamente na fila de limpeza; ao marcar como limpo, volta a ficar disponivel."}
+]},
 {v:"1.9.6",data:"2026-08-30",mudancas:[
 {t:"melhoria",d:"Acessibilidade: as abas podem ser usadas pelo teclado (Tab para navegar, Enter para abrir) e as janelas ja focam o primeiro campo ao abrir."}
 ]},

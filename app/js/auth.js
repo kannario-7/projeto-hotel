@@ -196,7 +196,7 @@ if(t==="recepcao"){if(m==="f"||m==="fu"||m==="cg"||m==="rl")return false;if(m===
 return false}
 export function filtrarSidebar(){var u=getCurrentUser();if(!u)return;
 var ta=getTurnoAtual(),foraTurno=u.turno&&u.turno!==""&&u.turno!==ta;
-var acessos={admin:true,operador:{d:true,r:true,h:true,q:true,ci:true,co:true,f:true,s:true,fu:false,rl:"view",cg:false},recepcao:{d:true,r:true,h:true,q:"view",ci:true,co:true,f:false,s:true,fu:false,rl:false,cg:false}};
+var acessos={admin:true,operador:{d:true,r:true,h:true,q:true,ci:true,co:true,f:true,s:true,gov:true,fu:false,rl:"view",cg:false},recepcao:{d:true,r:true,h:true,q:"view",ci:true,co:true,f:false,s:true,gov:true,fu:false,rl:false,cg:false}};
 var perm=foraTurno?{d:true}:acessos[u.papel];
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){var mod=a.getAttribute("href").slice(1);if(mod==="admin")return;if(perm===true||perm[mod])a.style.display="flex";else a.style.display="none"});
 var ol=document.getElementById("ownerLink");if(ol)ol.style.display=u.isOwner?"flex":"none";

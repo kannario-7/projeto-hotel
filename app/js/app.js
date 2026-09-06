@@ -14,6 +14,7 @@ import * as checkout from "./modules/checkout.js";
 import * as financeiro from "./modules/financeiro.js";
 import * as servicos from "./modules/servicos.js";
 import * as funcionarios from "./modules/funcionarios.js";
+import * as governanca from "./modules/governanca.js";
 import * as relatorios from "./modules/relatorios.js";
 import * as config from "./modules/config.js";
 import * as admin from "./modules/admin.js";
@@ -22,7 +23,7 @@ import * as impressao from "./modules/impressao.js";
 
 // Expõe funções no escopo global para os onclick inline do HTML
 function expose(mod){Object.keys(mod).forEach(function(k){if(typeof mod[k]==="function")window[k]=mod[k]})}
-[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,relatorios,config,admin,usuarios,impressao].forEach(expose);
+[utils,ui,changelog,auth,nav,dashboard,reservas,hospedes,quartos,checkin,checkout,financeiro,servicos,funcionarios,governanca,relatorios,config,admin,usuarios,impressao].forEach(expose);
 window.St=St;
 
 // Boot assíncrono

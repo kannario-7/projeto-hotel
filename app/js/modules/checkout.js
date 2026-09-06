@@ -105,7 +105,7 @@ if(!resR.ok){
   if(btn){btn.disabled=false;btn.textContent="Confirmar Check-out";}
   return st("Pagamento registrado, mas houve erro ao fechar a reserva. Verifique e tente de novo.","error"),false;
 }
-St.up("q",r.quartoId,{status:"limpeza"});
+St.up("q",r.quartoId,{status:"limpeza",limpezaResponsavel:null,limpezaAtualizadoEm:new Date().toISOString()});
 var hsp=St.fi("h",r.hospedeId),qt=St.fi("q",r.quartoId);
 auditar("checkout.finalizar","Check-out de "+(hsp?hsp.nome:"hospede")+(qt?(" - Apto "+qt.numero):"")+" - Total "+fmtC(total)+(jaPago>0?(" (sinal "+fmtC(jaPago)+", saldo "+fmtC(saldo)+")"):"")+" ("+(pag?pag.value:"dinheiro")+")");
 st(saldo>0?("Check-out realizado! Saldo cobrado: "+fmtC(saldo)):"Check-out realizado! (ja estava pago)","success");
