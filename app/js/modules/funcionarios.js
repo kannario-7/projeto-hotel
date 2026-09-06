@@ -2,6 +2,7 @@
 import { esc } from "../utils.js";
 import { St } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
+import { lerCampos, crudExcluir, crudSalvar } from "./crud.js";
 
 export function renderFuncionarios(){var el=document.getElementById("pageContent");
 var funcionarios=St.ga("fa");
@@ -25,12 +26,13 @@ return'<div class="form-grid">'+
 '<div class="form-group"><label>Salario (R$)</label><input type="number" id="ffSal" value="'+(f&&f.salario?(f.salario/100).toFixed(2):'')+'" step="0.01" min="0"></div>'+
 '</div>';}
 
-export function salvarFuncionario(id){var n=document.getElementById("ffNome"),c=document.getElementById("ffCargo"),t=document.getElementById("ffTel"),e=document.getElementById("ffEmail"),tu=document.getElementById("ffTurno"),s=document.getElementById("ffSal");
-if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
-var salario=s&&s.value?Math.round(parseFloat(s.value)*100):0;
-var dados={nome:n.value.trim(),cargo:(c?c.value:""),telefone:(t?t.value.trim():""),email:(e?e.value.trim():""),turno:(tu?tu.value:""),salario:salario,ativo:true};
-if(id){St.up("fa",id,dados);st("Funcionario atualizado!","success")}
-else{St.in("fa",dados);st("Funcionario cadastrado!","success")}
-cm();renderFuncionarios()}
+export function salvarFuncionario(id){
+  var d=lerCampos({nome:"ffNome",cargo:"ffCargo",telefone:"ffTel",email:"ffEmail",turno:"ffTurno",salario:"ffSal"},{money:["salario"]});
+  if(!d.nome)return st("Nome obrigatorio.","error"),false;
+  d.ativo=true;
+  crudSalvar("fa",id,d,{toastNovo:"Funcionario cadastrado!",toastEditar:"Funcionario atualizado!"},function(){cm();renderFuncionarios();});
+}
 
-export function excluirFuncionario(id){confirmar({titulo:"Excluir funcionario?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("fa",id);st("Funcionario excluido.","warning");renderFuncionarios()})}
+export function excluirFuncionario(id){
+  crudExcluir("fa",id,{titulo:"Excluir funcionario?",toast:"Funcionario excluido."},renderFuncionarios);
+}

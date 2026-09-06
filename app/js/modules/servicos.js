@@ -2,6 +2,7 @@
 import { esc, fmtC, fmtD, td } from "../utils.js";
 import { St } from "../store.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
+import { lerCampos, crudExcluir, crudSalvar } from "./crud.js";
 
 export function renderServicos(){var el=document.getElementById("pageContent");
 var servicos=St.ga("sv"),reservas=St.ga("r"),hospedes=St.ga("h"),os=St.ga("os");
@@ -35,15 +36,17 @@ return'<div class="form-grid">'+
 '<div class="form-group"><label>Unidade</label><input type="text" id="sfUn" value="'+(s?esc(s.unidade||"unidade"):'unidade')+'"></div>'+
 '</div>';}
 
-export function salvarServico(id){var n=document.getElementById("sfNome"),p=document.getElementById("sfPreco"),c=document.getElementById("sfCat"),u=document.getElementById("sfUn");
-if(!n||!n.value.trim())return st("Nome obrigatorio.","error"),false;
-var preco=Math.round(parseFloat(p?p.value:0)*100);
-var dados={nome:n.value.trim(),preco:preco,categoria:(c?c.value.trim():""),unidade:(u?u.value.trim():"unidade"),ativo:true};
-if(id){St.up("sv",id,dados);st("Servico atualizado!","success")}
-else{St.in("sv",dados);st("Servico cadastrado!","success")}
-cm();renderServicos()}
+export function salvarServico(id){
+  var d=lerCampos({nome:"sfNome",preco:"sfPreco",categoria:"sfCat",unidade:"sfUn"},{money:["preco"]});
+  if(!d.nome)return st("Nome obrigatorio.","error"),false;
+  if(!d.unidade)d.unidade="unidade";
+  d.ativo=true;
+  crudSalvar("sv",id,d,{toastNovo:"Servico cadastrado!",toastEditar:"Servico atualizado!"},function(){cm();renderServicos();});
+}
 
-export function excluirServico(id){confirmar({titulo:"Excluir servico?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){St.rm("sv",id);st("Servico excluido.","warning");renderServicos()})}
+export function excluirServico(id){
+  crudExcluir("sv",id,{titulo:"Excluir servico?",toast:"Servico excluido."},renderServicos);
+}
 
 export function showNovoConsumo(reservaId){sm("Novo Consumo",formConsumo(reservaId),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarConsumo()">Salvar</button>')}
 
