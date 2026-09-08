@@ -129,7 +129,7 @@ O app deixou de ser um único HTML monolítico. Agora está modularizado:
 - `store.js` agora usa cache em memória sincronizado com o Supabase.
 
 ### Etapa 3 — Site de vendas + guias (CONCLUÍDA — parcial)
-- Landing page (`landing.html` + `landing.css`) com hero, recursos, planos e CTA.
+- Landing page (`index.html` + `landing.css`) com hero, recursos, planos e CTA.
 - Página de guias/FAQ (`guias.html`).
 - App movido para `/app`; rotas no `vercel.json` (`/` = landing, `/app` = sistema).
 

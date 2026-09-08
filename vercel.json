@@ -4,9 +4,6 @@
   "crons": [
     { "path": "/api/cron-ical", "schedule": "0 5 * * *" }
   ],
-  "redirects": [
-    { "source": "/", "destination": "/app", "permanent": false }
-  ],
   "rewrites": [
     { "source": "/app", "destination": "/app/index.html" }
   ],
