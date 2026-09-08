@@ -9,7 +9,26 @@
 --display:"Plus Jakarta Sans",sans-serif;
 --shadow:0 1px 2px rgba(20,20,28,.04),0 8px 24px rgba(20,20,28,.06);
 --shadow-lg:0 2px 4px rgba(20,20,28,.05),0 20px 50px rgba(20,20,28,.10);
+--nav-bg:rgba(247,247,245,.8);
+--cta-bg:#14141C;--cta-text:#F7F7F5;--cta-sub:#B8B8C2;
 }
+
+/* ===== TEMA ESCURO ===== */
+[data-theme="dark"]{
+--bg:#14141C;--surface:#1C1C26;--surface-2:#22222E;--border:#2E2E3A;--border-2:#3A3A47;
+--coral:#FF5C35;--coral-2:#FF7A57;--coral-soft:rgba(255,92,53,.16);
+--text:#F7F7F5;--text-dim:#A6A6B0;--text-mute:#7A7A86;
+--tinta:#F7F7F5;/* no escuro, "tinta" (texto forte) vira claro */
+--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+--shadow-lg:0 2px 6px rgba(0,0,0,.4),0 24px 60px rgba(0,0,0,.5);
+--nav-bg:rgba(20,20,28,.72);
+--cta-bg:#0E0E15;--cta-text:#F7F7F5;--cta-sub:#9A9AA6;
+}
+/* ajustes de cor que nao sao 1:1 entre temas */
+[data-theme="dark"] .logo{color:var(--text)}
+[data-theme="dark"] .li-tag.res{background:rgba(227,160,8,.18);color:#f3c869}
+[data-theme="dark"] .li-tag.in{background:rgba(47,174,107,.18);color:#5fd699}
+[data-theme="dark"] .sc-dot:first-child,[data-theme="dark"] .sc-dot:nth-child(2),[data-theme="dark"] .sc-dot:nth-child(3){opacity:.9}
 html{scroll-behavior:smooth}
 body{font-family:var(--display),"DM Sans",sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
@@ -26,14 +45,21 @@ a{color:inherit;text-decoration:none}
 .btn-lg{padding:15px 28px;font-size:16px}
 
 /* NAV */
-.nav{position:sticky;top:0;z-index:100;background:rgba(247,247,245,.8);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
 .nav-inner{max-width:var(--maxw);margin:0 auto;padding:15px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .logo{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:19px;color:var(--tinta);letter-spacing:-.03em}
 .logo .logo-mark{height:26px;width:auto;display:block}
 .nav-links{display:flex;gap:28px}
 .nav-links a{color:var(--text-dim);font-size:14.5px;font-weight:600;transition:color .2s}
 .nav-links a:hover{color:var(--tinta)}
-.nav-cta{display:flex;gap:10px}
+.nav-cta{display:flex;gap:10px;align-items:center}
+.theme-toggle{width:38px;height:38px;border-radius:10px;border:1px solid var(--border-2);background:transparent;color:var(--text-dim);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:color .2s,border-color .2s,background .2s;flex-shrink:0}
+.theme-toggle:hover{color:var(--coral);border-color:var(--coral)}
+.theme-toggle svg{width:19px;height:19px}
+.theme-toggle .ico-sun{display:none}
+.theme-toggle .ico-moon{display:block}
+[data-theme="dark"] .theme-toggle .ico-sun{display:block}
+[data-theme="dark"] .theme-toggle .ico-moon{display:none}
 
 /* ===== HERO ===== */
 .hero{position:relative;max-width:var(--maxw);margin:0 auto;padding:84px 28px 0;text-align:center}
@@ -133,10 +159,10 @@ a{color:inherit;text-decoration:none}
 
 /* CTA */
 .cta{max-width:var(--maxw);margin:0 auto;padding:0 28px 88px}
-.cta-card{background:var(--tinta);border-radius:24px;padding:72px 32px;text-align:center;position:relative;overflow:hidden}
+.cta-card{background:var(--cta-bg);border-radius:24px;padding:72px 32px;text-align:center;position:relative;overflow:hidden}
 .cta-card:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 50% 100% at 50% 0%,rgba(255,92,53,.25),transparent 70%)}
-.cta-card h2{position:relative;font-family:var(--display);font-weight:800;font-size:clamp(28px,4.4vw,44px);line-height:1.08;letter-spacing:-.04em;color:var(--nevoa);margin-bottom:14px}
-.cta-card p{position:relative;color:#B8B8C2;font-size:17px;margin-bottom:30px}
+.cta-card h2{position:relative;font-family:var(--display);font-weight:800;font-size:clamp(28px,4.4vw,44px);line-height:1.08;letter-spacing:-.04em;color:var(--cta-text);margin-bottom:14px}
+.cta-card p{position:relative;color:var(--cta-sub);font-size:17px;margin-bottom:30px}
 .cta-card .btn{position:relative}
 
 /* FOOTER */
