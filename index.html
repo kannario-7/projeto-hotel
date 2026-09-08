@@ -6,7 +6,7 @@
 <title>HospedaPrime - Sistema de Gestao Hoteleira na Nuvem</title>
 <meta name="description" content="HospedaPrime e o sistema de gestao para hoteis e pousadas: reservas, check-in, financeiro e mapa de quartos, tudo na nuvem. Teste gratis.">
 <link rel="icon" type="image/svg+xml" href="/app/img/logo-h-solido.svg">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=JetBrains+Mono:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="landing.css">
 </head>
 <body>
@@ -27,142 +27,158 @@
 </div>
 </header>
 
-<!-- HERO -->
+<!-- HERO centrado -->
 <section class="hero" id="topo">
-<div class="hero-grid" aria-hidden="true"></div>
-<div class="hero-wrap">
-<p class="eyebrow"><span class="dot"></span>Feito para recepcao, governanca e gerencia</p>
-<h1>O balcao inteiro<br>numa <em>tela so.</em></h1>
-<p class="hero-lead">Reservas, check-in, mapa de quartos e caixa do dia. Sem planilha, sem papel, sem sistema que trava na hora do movimento. Abre no navegador e ja funciona.</p>
+<div class="hero-inner">
+<span class="pill">Novo &middot; caixa por turno e permissoes por operador</span>
+<h1>A gestao do seu hotel,<br>leve como deveria ser.</h1>
+<p class="hero-lead">Reservas, check-in, mapa de quartos e financeiro num sistema que a equipe entende no primeiro dia. Na nuvem, acessivel de qualquer lugar.</p>
 <div class="hero-actions">
 <a class="btn btn-primary btn-lg" href="/app#cadastro">Comecar gratis</a>
-<a class="btn btn-line btn-lg" href="#recursos">Ver por dentro</a>
+<a class="btn btn-soft btn-lg" href="#recursos">Conhecer o sistema</a>
 </div>
-<p class="hero-note">14 dias gratis &middot; sem cartao &middot; seus dados isolados por hotel</p>
+<p class="hero-note">14 dias gratis, sem cartao de credito.</p>
 </div>
 
-<!-- faixa de metricas: substitui a "janela fake" -->
-<div class="ticker">
-<div class="ticker-item"><span class="tk-num">8 min</span><span class="tk-lbl">da chegada ao check-in</span></div>
-<div class="ticker-item"><span class="tk-num">1 clique</span><span class="tk-lbl">para fechar o caixa do turno</span></div>
-<div class="ticker-item"><span class="tk-num">0</span><span class="tk-lbl">instalacao — roda no navegador</span></div>
-<div class="ticker-item"><span class="tk-num">24/7</span><span class="tk-lbl">acesso de qualquer lugar</span></div>
+<!-- prova visual: dashboard claro -->
+<div class="showcase">
+<div class="sc-top">
+<span class="sc-dot"></span><span class="sc-dot"></span><span class="sc-dot"></span>
+<span class="sc-url">app.hospedaprime.app.br</span>
+</div>
+<div class="sc-body">
+<div class="sc-kpis">
+<div class="kpi"><span class="kpi-lbl">Ocupacao</span><b class="kpi-val">78%</b><span class="kpi-bar"><i style="width:78%"></i></span></div>
+<div class="kpi"><span class="kpi-lbl">Reservas hoje</span><b class="kpi-val">12</b></div>
+<div class="kpi"><span class="kpi-lbl">Receita do mes</span><b class="kpi-val">R$ 48.300</b></div>
+<div class="kpi"><span class="kpi-lbl">Check-ins</span><b class="kpi-val">5</b></div>
+</div>
+<div class="sc-map">
+<span class="room ocup"><b>101</b>Ocupado</span>
+<span class="room livre"><b>102</b>Livre</span>
+<span class="room res"><b>201</b>Reservado</span>
+<span class="room ocup"><b>202</b>Ocupado</span>
+<span class="room livre"><b>301</b>Livre</span>
+<span class="room limp"><b>302</b>Limpeza</span>
+</div>
+</div>
 </div>
 </section>
 
-<!-- MANIFESTO -->
-<section class="manifesto">
-<p><b>A recepcao nao pode parar.</b> Cada segundo que o sistema demora e um hospede esperando no balcao. Por isso o HospedaPrime foi desenhado para o movimento real: as acoes do dia a dia estao a um clique, o mapa de quartos e a tela inicial e nada exige treinamento.</p>
+<!-- FAIXA de confianca -->
+<section class="trust">
+<p>Feito para pousadas, hoteis e flats que querem sair da planilha.</p>
+<div class="trust-stats">
+<div><b>8 min</b><span>da chegada ao check-in</span></div>
+<div><b>1 clique</b><span>para fechar o caixa</span></div>
+<div><b>0</b><span>instalacao</span></div>
+</div>
 </section>
 
-<!-- RECURSOS — bento grid assimetrico -->
+<!-- RECURSOS — lista alternada -->
 <section class="section" id="recursos">
-<div class="sec-head">
-<span class="sec-idx">01 — Recursos</span>
-<h2>Tudo que o balcao precisa,<br>e nada que atrapalha.</h2>
+<div class="sec-head center">
+<span class="kicker">Recursos</span>
+<h2>O balcao inteiro, organizado.</h2>
+<p class="sec-lead">Cada tela pensada para o movimento real da recepcao.</p>
 </div>
 
-<div class="bento">
-<article class="cell cell-lg">
-<div class="cell-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></div>
-<h3>Mapa de quartos</h3>
-<p>A tela que a recepcao vive olhando. Ocupado, livre, reservado ou em limpeza num relance — clica no quarto e ve o hospede, a diaria e o consumo.</p>
-<div class="mini-map" aria-hidden="true">
-<span class="mm ocup">101</span><span class="mm livre">102</span><span class="mm res">201</span>
-<span class="mm ocup">202</span><span class="mm limp">301</span><span class="mm livre">302</span>
+<div class="feature">
+<div class="feature-txt">
+<div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg></div>
+<h3>Mapa de quartos ao vivo</h3>
+<p>A tela inicial da recepcao. Ocupado, livre, reservado ou em limpeza num relance. Clique no quarto e veja o hospede, a diaria e o consumo sem trocar de pagina.</p>
 </div>
-</article>
+<div class="feature-vis">
+<div class="vis-map">
+<span class="room ocup"><b>101</b>Ocupado</span>
+<span class="room livre"><b>102</b>Livre</span>
+<span class="room res"><b>201</b>Reservado</span>
+<span class="room ocup"><b>202</b>Ocupado</span>
+<span class="room limp"><b>301</b>Limpeza</span>
+<span class="room livre"><b>302</b>Livre</span>
+</div>
+</div>
+</div>
 
-<article class="cell">
-<div class="cell-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-<h3>Reservas</h3>
-<p>Disponibilidade por tipo de quarto e datas, sem overbooking. Confirma, edita e acompanha tudo em um lugar.</p>
-</article>
+<div class="feature reverse">
+<div class="feature-txt">
+<div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+<h3>Financeiro que bate no fim do dia</h3>
+<p>Receita por dia, mes e ano, resumo por forma de pagamento e caixa fechado por turno, sabendo quem recebeu o que. O dinheiro confere quando o turno acaba.</p>
+</div>
+<div class="feature-vis">
+<div class="vis-fin">
+<div class="fin-row"><span>Dinheiro</span><b>R$ 12.400</b></div>
+<div class="fin-row"><span>Pix</span><b>R$ 21.900</b></div>
+<div class="fin-row"><span>Cartao</span><b>R$ 14.000</b></div>
+<div class="fin-total"><span>Receita do mes</span><b>R$ 48.300</b></div>
+</div>
+</div>
+</div>
 
-<article class="cell">
-<div class="cell-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></div>
-<h3>Check-in / Check-out</h3>
-<p>Entrada e saida em poucos toques, com fatura gerada e baixa automatica no quarto.</p>
-</article>
-
-<article class="cell cell-wide">
-<div class="cell-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-<h3>Financeiro &amp; caixa por turno</h3>
-<p>Receita por dia, mes e ano, resumo por forma de pagamento e caixa fechado por turno — sabendo quem recebeu o que. O dinheiro bate no fim do expediente.</p>
-</article>
-
-<article class="cell">
-<div class="cell-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-<h3>Hospedes</h3>
-<p>Cadastro completo com historico de estadias. Quem volta, voce reconhece.</p>
-</article>
-
-<article class="cell">
-<div class="cell-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-<h3>Relatorios</h3>
-<p>Ocupacao, receita, proximas chegadas e hospedes fieis — prontos para imprimir.</p>
-</article>
+<div class="feature">
+<div class="feature-txt">
+<div class="f-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+<h3>Reservas e check-in sem atrito</h3>
+<p>Disponibilidade por tipo de quarto e datas, sem overbooking. Entrada e saida em poucos toques, com fatura gerada e baixa automatica no quarto.</p>
+</div>
+<div class="feature-vis">
+<div class="vis-list">
+<div class="li"><span class="li-tag res">Reserva</span><span>Ap 201 &middot; 12-15 mar</span></div>
+<div class="li"><span class="li-tag in">Check-in</span><span>Ap 101 &middot; hoje</span></div>
+<div class="li"><span class="li-tag out">Check-out</span><span>Ap 202 &middot; 11h</span></div>
+</div>
+</div>
 </div>
 </section>
 
-<!-- FLUXO — timeline horizontal, nao "3 passos em circulos" -->
-<section class="section section-alt" id="fluxo">
-<div class="sec-head">
-<span class="sec-idx">02 — Como funciona</span>
-<h2>Do cadastro ao primeiro<br>check-in no mesmo dia.</h2>
+<!-- outros recursos em grid compacto -->
+<section class="section section-soft">
+<div class="mini-grid">
+<div class="mini"><div class="f-ico sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><h4>Hospedes</h4><p>Cadastro completo com historico de estadias.</p></div>
+<div class="mini"><div class="f-ico sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><h4>Relatorios</h4><p>Ocupacao, receita e chegadas, prontos para imprimir.</p></div>
+<div class="mini"><div class="f-ico sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h4>Dados isolados</h4><p>Cada hotel enxerga so as proprias informacoes.</p></div>
+<div class="mini"><div class="f-ico sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><h4>Permissoes</h4><p>Cada operador acessa so o que precisa.</p></div>
 </div>
-<ol class="flow">
-<li>
-<span class="flow-tag">Crie a conta</span>
-<p>Nome do hotel, seu e-mail e senha. O sistema ja abre com quartos, tipos e servicos de exemplo.</p>
-</li>
-<li>
-<span class="flow-tag">Ajuste ao seu hotel</span>
-<p>Troque quartos, tarifas e formas de pagamento. Leva minutos, nao dias.</p>
-</li>
-<li>
-<span class="flow-tag">Coloque no ar</span>
-<p>Comece a lancar reservas e check-ins. Toda a equipe acessa de qualquer dispositivo.</p>
-</li>
-</ol>
+</section>
+
+<!-- FLUXO -->
+<section class="section" id="fluxo">
+<div class="sec-head center">
+<span class="kicker">Como funciona</span>
+<h2>No ar no mesmo dia.</h2>
+</div>
+<div class="steps">
+<div class="step"><span class="step-n">1</span><h4>Crie a conta</h4><p>Nome do hotel, e-mail e senha. Ja abre com dados de exemplo.</p></div>
+<div class="step"><span class="step-n">2</span><h4>Ajuste ao seu hotel</h4><p>Quartos, tarifas e formas de pagamento em minutos.</p></div>
+<div class="step"><span class="step-n">3</span><h4>Comece a operar</h4><p>Reservas e check-ins com a equipe toda, de qualquer lugar.</p></div>
+</div>
 </section>
 
 <!-- PLANOS -->
-<section class="section" id="planos">
-<div class="sec-head">
-<span class="sec-idx">03 — Planos</span>
-<h2>Comece de graca.<br>Pague quando fizer sentido.</h2>
+<section class="section section-soft" id="planos">
+<div class="sec-head center">
+<span class="kicker">Planos</span>
+<h2>Comece de graca.</h2>
+<p class="sec-lead">Pague quando o sistema ja fizer parte da rotina.</p>
 </div>
 <div class="planos">
 <div class="plano">
-<div class="plano-top"><h3>Teste</h3><div class="preco">R$ 0<span>/ 14 dias</span></div></div>
-<ul>
-<li>Todos os recursos liberados</li>
-<li>Sem cartao de credito</li>
-<li>Dados na nuvem</li>
-</ul>
-<a class="btn btn-line" href="/app#cadastro">Comecar</a>
+<h3>Teste</h3><div class="preco">R$ 0<span>/ 14 dias</span></div>
+<ul><li>Todos os recursos</li><li>Sem cartao de credito</li><li>Dados na nuvem</li></ul>
+<a class="btn btn-soft" href="/app#cadastro">Comecar</a>
 </div>
 <div class="plano plano-hi">
 <span class="plano-flag">Mais escolhido</span>
-<div class="plano-top"><h3>Essencial</h3><div class="preco">R$ 99<span>/ mes</span></div></div>
-<ul>
-<li>Reservas e hospedes</li>
-<li>Check-in / Check-out</li>
-<li>Mapa de quartos</li>
-<li>Suporte por WhatsApp</li>
-</ul>
+<h3>Essencial</h3><div class="preco">R$ 99<span>/ mes</span></div>
+<ul><li>Reservas e hospedes</li><li>Check-in / Check-out</li><li>Mapa de quartos</li><li>Suporte por WhatsApp</li></ul>
 <a class="btn btn-primary" href="/app#cadastro">Assinar</a>
 </div>
 <div class="plano">
-<div class="plano-top"><h3>Profissional</h3><div class="preco">R$ 199<span>/ mes</span></div></div>
-<ul>
-<li>Tudo do Essencial</li>
-<li>Financeiro e relatorios</li>
-<li>Multiusuario com permissoes</li>
-<li>Prioridade no suporte</li>
-</ul>
-<a class="btn btn-line" href="/app#cadastro">Assinar</a>
+<h3>Profissional</h3><div class="preco">R$ 199<span>/ mes</span></div>
+<ul><li>Tudo do Essencial</li><li>Financeiro e relatorios</li><li>Multiusuario com permissoes</li><li>Prioridade no suporte</li></ul>
+<a class="btn btn-soft" href="/app#cadastro">Assinar</a>
 </div>
 </div>
 <p class="planos-note">Precos de referencia (beta). Fale com a gente para condicoes por numero de quartos.</p>
@@ -170,10 +186,10 @@
 
 <!-- CTA -->
 <section class="cta">
-<div class="cta-inner">
-<h2>Seu proximo hospede<br>chega hoje. Bora?</h2>
-<a class="btn btn-primary btn-lg" href="/app#cadastro">Testar o HospedaPrime gratis</a>
-<p class="cta-note">Configuracao em minutos. Cancelamento quando quiser.</p>
+<div class="cta-card">
+<h2>Pronto para deixar a planilha pra tras?</h2>
+<p>Crie sua conta e coloque o hotel no HospedaPrime hoje mesmo.</p>
+<a class="btn btn-primary btn-lg" href="/app#cadastro">Testar gratis</a>
 </div>
 </section>
 
