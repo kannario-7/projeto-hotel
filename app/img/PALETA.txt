@@ -1,0 +1,10 @@
+HOSPEDAPRIME — PALETA
+
+Tinta      #14141C   rgb(20, 20, 28)
+Coral      #FF5C35   rgb(255, 92, 53)    ~ Pantone 172 C
+Grafite    #6B6B7B   rgb(107, 107, 123)
+Névoa      #F7F7F5   rgb(247, 247, 245)
+
+Tipografia: Plus Jakarta Sans (Google Fonts, SIL OFL)
+Pesos autorizados: 800 display · 700 título e etiqueta · 500 corpo
+Entreletra negativa obrigatória em 700 e 800.
