@@ -3,6 +3,9 @@ node_modules/
 .DS_Store
 *.log
 
+# Capturas de revisao das paginas (nao sao assets de produto)
+app/img/_*.png
+
 # Segredos (NUNCA commitar) - senha do banco / connection string do Supabase
 .env
 .env.*
