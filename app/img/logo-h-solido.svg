@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="HospedaPrime">
+  <!-- Favicon/avatar: fundo Tinta, H em Nevoa, travessa Coral. Tracos engrossados (22) p/ tamanho pequeno. -->
+  <rect width="64" height="64" rx="15" fill="#14141C"/>
+  <g transform="translate(16 14)">
+    <!-- hastes nevoa -->
+    <rect x="0" y="0" width="12" height="36" rx="6" fill="#F7F7F5"/>
+    <rect x="20" y="0" width="12" height="36" rx="6" fill="#F7F7F5"/>
+    <!-- travessa coral a 62% -->
+    <rect x="6" y="17" width="20" height="12" rx="6" fill="#FF5C35"/>
+  </g>
+</svg>

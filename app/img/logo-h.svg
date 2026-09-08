@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63 75" width="63" height="75" role="img" aria-label="HospedaPrime">
+  <!-- Simbolo H (V2): 3 tracos de mesma espessura (19), pontas semicirculares (raio 9.5).
+       Hastes herdam currentColor (tinta no claro / nevoa no escuro). Travessa sempre coral,
+       a 62% da altura a partir do topo (centro do traco). Eixo a eixo 44. -->
+  <!-- haste esquerda -->
+  <rect x="0" y="0" width="19" height="75" rx="9.5" fill="currentColor"/>
+  <!-- haste direita (eixo a eixo 44 => x = 44 - 19/2 - ... ; largura 19, borda direita em 63) -->
+  <rect x="44" y="0" width="19" height="75" rx="9.5" fill="currentColor"/>
+  <!-- travessa coral: centro vertical a 62% de 75 = 46.5 => y = 46.5 - 9.5 = 37 -->
+  <rect x="9.5" y="37" width="44" height="19" rx="9.5" fill="#FF5C35"/>
+</svg>

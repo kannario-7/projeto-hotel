@@ -1,92 +1,111 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
 --sidebar-w:260px;
---bg:#F7F5F1;
+/* HospedaPrime — identidade visual V2 (tema claro). 4 cores: Tinta, Coral, Grafite, Nevoa.
+   Coral e acento (uma funcao por tela), nunca base de layout. */
+--bg:#F7F7F5;            /* Nevoa */
 --surface:#FFFFFF;
---surface-2:#FBFAF7;
---surface-3:#F2EFE9;
---border:#E7E2D9;
---border-soft:#EFEBE3;
---accent:#A9522C;
---accent-2:#8F4322;
---accent-soft:#F5E6DC;
---text:#1C1917;
---text-dim:#78716C;
---text-mute:#A8A29E;
---navy:#1C1917;
---gold:#A9522C;
---ink:#1C1917;
---ink-hover:#44403C;
+--surface-2:#F7F7F5;
+--surface-3:#EFEFEC;
+--border:#E4E4E0;
+--border-soft:#EDEDEA;
+--accent:#FF5C35;        /* Coral (acento) */
+--accent-2:#E64A26;      /* Coral escurecido p/ hover/leitura sobre claro */
+--accent-soft:#FFE7DF;
+--grad:#FF5C35;          /* V2 nao usa gradiente; mantido como cor solida coral */
+--grad-strong:#FF5C35;
+--coral:#FF5C35;
+--tinta:#14141C;
+--grafite:#6B6B7B;
+--solido:#FF5C35;
+--text:#14141C;          /* Tinta */
+--text-dim:#6B6B7B;      /* Grafite */
+--text-mute:#9A9AA6;
+--navy:#14141C;
+--gold:#FF5C35;
+--ink:#FF5C35;           /* botao principal = coral */
+--ink-hover:#E64A26;
 --on-ink:#FFFFFF;
 --pos:#15803D;
 --neg:#B91C1C;
 --warn:#CA8A04;
---info:#1D4ED8;
---roxo:#7E22CE;
---ciano:#0891B2;
---cinza:#A8A29E;
+--info:#3557B7;
+--roxo:#6B6B7B;
+--ciano:#0E7C86;
+--cinza:#9A9AA6;
 --star:#CA8A04;
 --online:#15803D;
---shadow:rgba(28,25,23,0.10);
---shadow-strong:rgba(28,25,23,0.16);
---accent-glow:rgba(169,82,44,0.20);
---accent-glow-strong:rgba(169,82,44,0.30);
---overlay:rgba(28,25,23,0.45);
+--shadow:rgba(20,20,28,0.08);
+--shadow-strong:rgba(20,20,28,0.16);
+--accent-glow:rgba(255,92,53,0.22);
+--accent-glow-strong:rgba(255,92,53,0.34);
+--overlay:rgba(20,20,28,0.45);
 --pos-bg:#DCFCE7;
 --neg-bg:#FEE2E2;
 --warn-bg:#FEF3C7;
---info-bg:#DBEAFE;
---roxo-bg:#F3E8FF;
---ciano-bg:#CFFAFE;
---cinza-bg:#F2EFE9;
---bubble-me:#A9522C;
+--info-bg:#E1E8F7;
+--roxo-bg:#EEEEF1;
+--ciano-bg:#D5F0F2;
+--cinza-bg:#EFEFEC;
+--bubble-me:#FF5C35;
 --on-status:#FFFFFF;
 }
 [data-theme="dark"]{
---bg:#1C1917;
---surface:#292524;
---surface-2:#332E2B;
---surface-3:#3B3532;
---border:#44403C;
---border-soft:#3A3532;
---accent:#E0794A;
---accent-2:#EC8B5F;
---accent-soft:rgba(224,121,74,0.16);
---text:#F5F0EB;
---text-dim:#B4A99F;
---text-mute:#877E76;
---navy:#F5F0EB;
---gold:#E0794A;
---ink:#F5F0EB;
---ink-hover:#D6CCC3;
---on-ink:#1C1917;
+/* HospedaPrime — identidade visual V2 (tema escuro, fundo Tinta #14141C) */
+--bg:#14141C;
+--surface:#1D1D28;
+--surface-2:#25252F;
+--surface-3:#30303B;
+--border:#34343F;
+--border-soft:#28282F;
+--accent:#FF5C35;        /* Coral (mesmo tom, contrasta bem no escuro) */
+--accent-2:#FF7A57;      /* Coral clareado p/ hover no escuro */
+--accent-soft:rgba(255,92,53,0.18);
+--grad:#FF5C35;
+--grad-strong:#FF5C35;
+--coral:#FF5C35;
+--tinta:#14141C;
+--grafite:#6B6B7B;
+--solido:#FF5C35;
+--text:#F7F7F5;          /* Nevoa como texto */
+--text-dim:#A6A6B0;
+--text-mute:#6B6B7B;     /* Grafite */
+--navy:#F7F7F5;
+--gold:#FF5C35;
+--ink:#FF5C35;
+--ink-hover:#FF7A57;
+--on-ink:#14141C;
 --pos:#4ADE80;
 --neg:#F87171;
 --warn:#FACC15;
---info:#60A5FA;
---roxo:#C084FC;
---ciano:#22D3EE;
---cinza:#A8A29E;
+--info:#7FA0E8;
+--roxo:#A6A6B0;
+--ciano:#4FD3DC;
+--cinza:#6B6B7B;
 --star:#FACC15;
 --online:#4ADE80;
---shadow:rgba(0,0,0,0.35);
---shadow-strong:rgba(0,0,0,0.55);
---accent-glow:rgba(224,121,74,0.28);
---accent-glow-strong:rgba(224,121,74,0.45);
---overlay:rgba(0,0,0,0.55);
+--shadow:rgba(0,0,0,0.45);
+--shadow-strong:rgba(0,0,0,0.65);
+--accent-glow:rgba(255,92,53,0.30);
+--accent-glow-strong:rgba(255,92,53,0.45);
+--overlay:rgba(0,0,0,0.6);
 --pos-bg:rgba(74,222,128,0.16);
 --neg-bg:rgba(248,113,113,0.16);
 --warn-bg:rgba(250,204,21,0.16);
---info-bg:rgba(96,165,250,0.16);
---roxo-bg:rgba(192,132,252,0.16);
---ciano-bg:rgba(34,211,238,0.16);
---cinza-bg:rgba(168,162,158,0.18);
---bubble-me:#B5623A;
---on-status:#1C1917;
+--info-bg:rgba(127,160,232,0.16);
+--roxo-bg:rgba(166,166,176,0.16);
+--ciano-bg:rgba(79,211,220,0.16);
+--cinza-bg:rgba(107,107,123,0.18);
+--bubble-me:#FF5C35;
+--on-status:#14141C;
 }
-body{font-family:"DM Sans",sans-serif;background:var(--bg);display:flex;min-height:100vh;color:var(--text);-webkit-font-smoothing:antialiased}
+body{font-family:"Plus Jakarta Sans","DM Sans",sans-serif;background:var(--bg);display:flex;min-height:100vh;color:var(--text);-webkit-font-smoothing:antialiased}
+/* Entreletra negativa nos textos pesados 700/800 (regra da marca V2) */
+h1,h2,h3,.stat-card .value,.qcard-num,.room-number,.page-header h2,.section-title{letter-spacing:-0.025em;font-weight:800}
+.stat-card .value,.room-number,.qcard-num{letter-spacing:-0.035em}
 .sidebar{width:var(--sidebar-w);background:var(--surface);color:var(--text);position:fixed;height:100vh;z-index:1000;display:flex;flex-direction:column;border-right:1px solid var(--border)}
 .sidebar-logo{padding:24px;text-align:center;border-bottom:1px solid var(--border)}
+.sidebar-logo .hp-logo{justify-content:center}
 .version-badge{display:inline-block;background:var(--bubble-me);color:#fff;font-family:"DM Sans",sans-serif;font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;vertical-align:middle;letter-spacing:0.5px}
 .version-tag{font-size:10px;color:var(--text-mute);margin-top:6px;letter-spacing:0.5px}
 .sidebar-logo h1{font-family:Sora,sans-serif;font-size:20px;font-weight:700;color:var(--text)}
@@ -110,8 +129,8 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);display:flex;min-heig
 .btn{padding:10px 20px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:transform .15s,box-shadow .2s,background .2s,filter .2s;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .btn:hover{transform:translateY(-1px)}
 .btn:active{transform:translateY(0) scale(.98)}
-.btn-primary{background:var(--ink);color:var(--on-ink);box-shadow:0 2px 12px var(--shadow)}
-.btn-primary:hover{background:var(--ink-hover);box-shadow:0 4px 18px var(--shadow-strong)}
+.btn-primary{background:var(--coral);color:#fff;box-shadow:0 4px 16px var(--accent-glow)}
+.btn-primary:hover{background:var(--ink-hover);box-shadow:0 6px 22px var(--accent-glow-strong)}
 .btn-secondary{background:var(--surface-3);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{background:var(--surface-2)}
 .btn-danger{background:var(--neg);color:var(--on-status);box-shadow:0 2px 12px var(--shadow)}
@@ -121,7 +140,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);display:flex;min-heig
 .btn-sm{padding:6px 12px;font-size:12px}
 .cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-bottom:24px}
 .stat-card{position:relative;background:var(--surface);border-radius:16px;padding:22px;box-shadow:0 4px 20px var(--shadow);border:1px solid var(--border);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
-.stat-card:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.stat-card:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
 .stat-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px var(--shadow-strong);border-color:var(--accent)}
 .stat-card h3{font-size:11px;text-transform:uppercase;color:var(--text-mute);margin-bottom:10px;letter-spacing:0.6px;font-weight:700}
 .stat-card .value{font-family:Sora,sans-serif;font-size:30px;font-weight:700;color:var(--text);line-height:1.1}
@@ -261,7 +280,7 @@ td.oc-ini{border-left:3px solid rgba(255,255,255,.55)}
 .chat-conversa{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:16px;background:var(--surface-2);scroll-behavior:smooth}
 .chat-form{flex:none;display:flex;align-items:flex-end;gap:10px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface)}
 .chat-form textarea{flex:1;resize:none;max-height:120px;min-height:44px;margin:0;border-radius:22px;padding:11px 16px}
-.chat-send{flex:none;width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px var(--accent-glow)}
+.chat-send{flex:none;width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 14px var(--accent-glow)}
 .chat-send:hover{transform:scale(1.06);box-shadow:0 6px 18px var(--accent-glow-strong)}
 .chat-send svg{margin-left:-2px}
 
@@ -467,7 +486,7 @@ table{display:block;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrollin
 .chart-row{display:flex;align-items:center;gap:12px}
 .chart-label{flex:none;width:90px;font-size:12px;color:var(--text-dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chart-track{flex:1;background:var(--surface-2);border-radius:8px;height:26px;position:relative;overflow:hidden}
-.chart-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:flex-end;padding:0 10px;min-width:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.chart-fill{height:100%;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:flex-end;padding:0 10px;min-width:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .chart-fill.pos{background:var(--pos)}
 .chart-fill.neg{background:var(--neg)}
 .chart-val{font-size:11px;font-weight:700;color:var(--on-status);white-space:nowrap}
@@ -596,3 +615,19 @@ body:not(.logged) .topbar{display:none}
   .topbar-kbd{display:none}
   .busca-resultados{left:14px;right:14px;max-width:none;max-height:70vh}
 }
+
+/* ===== Logo da marca HospedaPrime V2 (simbolo H + texto) ===== */
+/* Serve nos dois fundos: as hastes do H usam currentColor (herdam a cor do container),
+   a travessa e sempre coral. O container fixa color=var(--text) => tinta no claro, nevoa no escuro. */
+.hp-logo{display:inline-flex;align-items:center;gap:11px;text-decoration:none;line-height:1;color:var(--text)}
+.hp-logo .hp-mark{flex:none;display:block;width:auto}
+.hp-logo .hp-name{font-family:"Plus Jakarta Sans",sans-serif;font-weight:800;letter-spacing:-0.035em;color:var(--text)}
+/* tamanhos (altura do simbolo H) */
+.hp-logo.sm .hp-mark{height:24px}
+.hp-logo.sm .hp-name{font-size:18px}
+.hp-logo.md .hp-mark{height:30px}
+.hp-logo.md .hp-name{font-size:22px}
+.hp-logo.lg .hp-mark{height:40px}
+.hp-logo.lg .hp-name{font-size:28px}
+/* simbolo isolado (centralizado no login) */
+.hp-mark-only{display:block;height:52px;width:auto;margin:0 auto;color:var(--text)}

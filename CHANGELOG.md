@@ -18,6 +18,11 @@ detalhes técnicos internos. Descrever apenas o benefício de forma clara.
 
 ---
 
+## Versão 2.8.0 — 30/08/2026
+
+- **Novo**: Nova identidade visual HospedaPrime — símbolo próprio (o H com a barra coral), paleta sóbria de quatro cores e a fonte Plus Jakarta Sans. Um visual de produto, pensado para quem opera o sistema o dia inteiro.
+- **Melhoria**: O novo visual vale no sistema (claro e escuro), na página pública de reservas e no site. O coral entra só como destaque — em botões principais, barras de ocupação e números em foco.
+
 ## Versão 0.9.9-beta — 03/09/2026
 
 - **Novo**: Login com e-mail e senha e cadastro do seu hotel.

@@ -2,8 +2,12 @@
 import { esc, fmtD } from "./utils.js";
 import { sm } from "./ui.js";
 
-export var APP_VERSION="2.7.1";
+export var APP_VERSION="2.8.0";
 export var CHANGELOG=[
+{v:"2.8.0",data:"2026-08-30",mudancas:[
+{t:"novo",d:"Nova identidade visual HospedaPrime: simbolo proprio (o H com a barra coral), paleta sobria de quatro cores e a fonte Plus Jakarta Sans. Um visual de produto, pensado para quem opera o sistema o dia inteiro."},
+{t:"melhoria",d:"O novo visual vale no sistema (claro e escuro), na pagina publica de reservas e no site. O coral entra so como destaque - em botoes principais, barras de ocupacao e numeros em foco."}
+]},
 {v:"2.7.1",data:"2026-09-06",mudancas:[
 {t:"melhoria",d:"Sincronizacao automatica dos calendarios: os links do Airbnb/Booking cadastrados nos quartos passam a ser sincronizados sozinhos uma vez por dia, alem do botao Sincronizar agora."}
 ]},
