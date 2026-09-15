@@ -91,12 +91,16 @@ var _obsA11y=new MutationObserver(function(muts){
 _obsA11y.observe(document.body,{childList:true,subtree:true});
 marcarTabsA11y(document);
 
-// Boot: trata convite -> senão restaura sessão
+// Boot: trata recuperacao de senha -> convite -> senão restaura sessão
 var hash = window.location.hash || "";
-if(hash.indexOf("#convite=")===0){
+if(hash.indexOf("#recuperar")===0 || auth.isRecuperacaoSenha()){
+  // usuario chegou pelo link de recuperacao de senha: mostra o form de nova senha
+  auth.showDefinirNovaSenha();
+} else if(hash.indexOf("#convite=")===0){
   auth.iniciarAceiteConvite(hash.slice("#convite=".length));
 } else {
   auth.restaurarSessao().then(function(logado){
+    if(auth.isRecuperacaoSenha()){ auth.showDefinirNovaSenha(); return; }
     if(logado){ auth.hideLogin(); nav.renderPage(); }
     else { auth.showLogin(); }
   }).catch(function(e){ console.error("Boot:", e); auth.showLogin(); });

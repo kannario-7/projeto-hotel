@@ -34,20 +34,25 @@ export function atualizarPermsPorPapel(prefixo){
 export async function renderUsuariosHotel(){
   var alvo=document.getElementById("configContent");
   if(!alvo)return;
-  alvo.innerHTML='<div class="form-container"><p style="color:var(--text-mute)">Carregando usuarios...</p></div>';
+  alvo.innerHTML='<div class="form-container"><p style="color:var(--text-mute)">Carregando usuários...</p></div>';
   var meu=getCurrentUser();
   var { data: perfis } = await supabase.from("perfis").select("*").eq("hotel_id", getHotelId());
   var { data: convites } = await supabase.from("convites").select("*").eq("usado", false);
   var html='<div class="form-container"><h3 style="margin-bottom:16px;color:var(--text)">Equipe do Hotel</h3>';
-  if(meu&&meu.papel==="admin") html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"><button class="btn btn-primary" onclick="showNovoUsuarioHotel()">+ Criar usuario</button><button class="btn btn-secondary" onclick="showGerarConvite()">Gerar link de convite</button></div>';
-  html+='<table><tr><th>Nome</th><th>Papel</th><th>Turno</th><th>Status</th>'+(meu&&meu.papel==="admin"?'<th>Acoes</th>':'')+'</tr>'+
+  html+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">';
+  if(meu&&meu.papel==="admin") html+='<button class="btn btn-primary" onclick="showNovoUsuarioHotel()">+ Criar usuário</button><button class="btn btn-secondary" onclick="showGerarConvite()">Gerar link de convite</button>';
+  html+='<button class="btn btn-secondary" onclick="showAlterarMinhaSenha()">Alterar minha senha</button>';
+  html+='</div>';
+  html+='<table><tr><th>Nome</th><th>Papel</th><th>Turno</th><th>Status</th>'+(meu&&meu.papel==="admin"?'<th>Ações</th>':'')+'</tr>'+
   (perfis||[]).map(function(p){
     var nomeEsc=(""+(p.nome||"")).replace(/'/g,"\\'");
     var podeGerir=(meu&&meu.papel==="admin"&&p.id!==meu.id);
-    var btnPerm=(podeGerir&&p.papel!=="admin"&&p.is_owner!==true)?'<button class="btn btn-sm btn-secondary" onclick="editarPermissoes(\''+p.id+'\')" style="margin-right:4px">Permissoes</button>':'';
+    var btnPerm=(podeGerir&&p.papel!=="admin"&&p.is_owner!==true)?'<button class="btn btn-sm btn-secondary" onclick="editarPermissoes(\''+p.id+'\')" style="margin-right:4px">Permissões</button>':'';
+    // Redefinir senha: admin do hotel pode, exceto o dono do SaaS
+    var btnSenha=(podeGerir&&p.is_owner!==true)?'<button class="btn btn-sm btn-secondary" onclick="showRedefinirSenhaUsuario(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-right:4px">Redefinir senha</button>':'';
     // Excluir permanente: so admin, e nunca o dono do SaaS
     var btnExcluir=(podeGerir&&p.is_owner!==true)?'<button class="btn btn-sm btn-danger" onclick="excluirUsuarioHotel(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-left:4px">Excluir</button>':'';
-    var acoes=podeGerir?(btnPerm+'<button class="btn btn-sm '+(p.ativo!==false?'btn-secondary':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>'+btnExcluir):'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'voce':'')+'</span>';
+    var acoes=podeGerir?(btnPerm+btnSenha+'<button class="btn btn-sm '+(p.ativo!==false?'btn-secondary':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>'+btnExcluir):'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'você':'')+'</span>';
     return '<tr><td>'+esc(p.nome)+'</td><td>'+esc(p.papel)+'</td><td>'+esc(p.turno||"-")+'</td><td>'+(p.ativo!==false?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>')+'</td>'+(meu&&meu.papel==="admin"?'<td>'+acoes+'</td>':'')+'</tr>';
   }).join('')+'</table>';
   if(convites&&convites.length){
@@ -59,13 +64,13 @@ export async function renderUsuariosHotel(){
 }
 
 export function showNovoUsuarioHotel(){
-  sm("Criar usuario",
+  sm("Criar usuário",
   '<div class="form-group"><label>Nome *</label><input type="text" id="nuNome"></div>'+
   '<div class="form-group"><label>E-mail *</label><input type="email" id="nuEmail" placeholder="email@exemplo.com"></div>'+
-  '<div class="form-group"><label>Senha *</label><input type="password" id="nuSenha" placeholder="Minimo 6 caracteres"></div>'+
-  '<div class="form-group"><label>Papel</label><select id="nuPapel" onchange="atualizarPermsPorPapel(\'nu\')"><option value="operador">Operador</option><option value="recepcao">Recepcao</option><option value="admin">Administrador</option></select></div>'+
-  '<div class="form-group"><label>Turno</label><select id="nuTurno"><option value="">Sem restricao</option><option value="Manha">Manha</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>'+
-  '<div class="form-group"><label>Acesso aos modulos</label><div id="nuPermsBox">'+checkboxesModulos("operador",null)+'</div></div>'+
+  '<div class="form-group"><label>Senha *</label><input type="password" id="nuSenha" placeholder="Mínimo 6 caracteres"></div>'+
+  '<div class="form-group"><label>Papel</label><select id="nuPapel" onchange="atualizarPermsPorPapel(\'nu\')"><option value="operador">Operador</option><option value="recepcao">Recepção</option><option value="admin">Administrador</option></select></div>'+
+  '<div class="form-group"><label>Turno</label><select id="nuTurno"><option value="">Sem restrição</option><option value="Manha">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>'+
+  '<div class="form-group"><label>Acesso aos módulos</label><div id="nuPermsBox">'+checkboxesModulos("operador",null)+'</div></div>'+
   '<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarNovoUsuarioHotel()">Criar</button></div>',"");
 }
 
@@ -74,30 +79,30 @@ export function showNovoUsuarioHotel(){
 export async function salvarNovoUsuarioHotel(){
   var n=document.getElementById("nuNome"),e=document.getElementById("nuEmail"),s=document.getElementById("nuSenha"),pa=document.getElementById("nuPapel"),tu=document.getElementById("nuTurno");
   if(!n.value.trim()||!e.value.trim()||!s.value)return st("Preencha nome, e-mail e senha.","error");
-  if(s.value.length<6)return st("Senha minima de 6 caracteres.","error");
+  if(s.value.length<6)return st("Senha mínima de 6 caracteres.","error");
   // Gera um convite e ja o utiliza criando a conta num cliente isolado (nao afeta a sessao do admin)
   var hotelId=getHotelId();
   var perms=pa.value==="admin"?null:lerPermissoesModulos();
   var { data: conv, error: ec } = await supabase.from("convites").insert({ hotel_id:hotelId, nome:n.value.trim(), papel:pa.value, turno:tu.value, permissoes:perms }).select().single();
-  if(ec)return st("Erro ao preparar usuario: "+ec.message,"error");
+  if(ec)return st("Erro ao preparar usuário: "+ec.message,"error");
   // cria a conta usando a API REST diretamente (sem afetar a sessao atual)
   try{
     var resp=await fetch(SUPABASE_URL+"/auth/v1/signup",{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({email:e.value.trim(),password:s.value})});
     var novo=await resp.json();
     var novoToken=novo.access_token;
-    if(!novoToken){ st("Usuario criado. Peca para ele confirmar/entrar e aceitar o convite pelo link.","info"); cm(); renderUsuariosHotel(); return; }
+    if(!novoToken){ st("Usuário criado. Peça para ele confirmar/entrar e aceitar o convite pelo link.","info"); cm(); renderUsuariosHotel(); return; }
     // aceita o convite em nome da nova conta
     await fetch(SUPABASE_URL+"/rest/v1/rpc/aceitar_convite",{method:"POST",headers:{apikey:SUPABASE_ANON_KEY,Authorization:"Bearer "+novoToken,"Content-Type":"application/json"},body:JSON.stringify({p_token:conv.token})});
-    st("Usuario criado com sucesso!","success"); cm(); renderUsuariosHotel();
-  }catch(err){ st("Erro ao criar usuario.","error"); }
+    st("Usuário criado com sucesso!","success"); cm(); renderUsuariosHotel();
+  }catch(err){ st("Erro ao criar usuário.","error"); }
 }
 
 export function showGerarConvite(){
   sm("Gerar link de convite",
   '<div class="form-group"><label>Nome da pessoa *</label><input type="text" id="cvNome"></div>'+
-  '<div class="form-group"><label>Papel</label><select id="cvPapel" onchange="atualizarPermsPorPapel(\'cv\')"><option value="operador">Operador</option><option value="recepcao">Recepcao</option><option value="admin">Administrador</option></select></div>'+
-  '<div class="form-group"><label>Turno</label><select id="cvTurno"><option value="">Sem restricao</option><option value="Manha">Manha</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>'+
-  '<div class="form-group"><label>Acesso aos modulos</label><div id="cvPermsBox">'+checkboxesModulos("operador",null)+'</div></div>'+
+  '<div class="form-group"><label>Papel</label><select id="cvPapel" onchange="atualizarPermsPorPapel(\'cv\')"><option value="operador">Operador</option><option value="recepcao">Recepção</option><option value="admin">Administrador</option></select></div>'+
+  '<div class="form-group"><label>Turno</label><select id="cvTurno"><option value="">Sem restrição</option><option value="Manha">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>'+
+  '<div class="form-group"><label>Acesso aos módulos</label><div id="cvPermsBox">'+checkboxesModulos("operador",null)+'</div></div>'+
   '<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="gerarConvite()">Gerar link</button></div>',"");
 }
 
@@ -109,7 +114,7 @@ export async function gerarConvite(){
   if(error)return st("Erro: "+error.message,"error");
   var link=location.origin+"/app#convite="+data.token;
   sm("Link de convite gerado",
-  '<p style="color:var(--text-dim);margin-bottom:12px">Envie este link para a pessoa. Ao abrir, ela define a senha e entra ja vinculada ao seu hotel.</p>'+
+  '<p style="color:var(--text-dim);margin-bottom:12px">Envie este link para a pessoa. Ao abrir, ela define a senha e entra já vinculada ao seu hotel.</p>'+
   '<div class="form-group"><input type="text" id="cvLink" value="'+esc(link)+'" readonly></div>',
   '<button class="btn btn-secondary" onclick="closeModal()">Fechar</button><button class="btn btn-primary" onclick="copiarConvite(\''+data.token+'\')">Copiar link</button>');
   renderUsuariosHotel();
@@ -123,26 +128,26 @@ export function copiarConvite(token){
 export async function toggleUsuarioHotel(id, ativoAtual, nome){
   var { error } = await supabase.from("perfis").update({ ativo: !ativoAtual }).eq("id", id);
   if(error)return st("Erro: "+error.message,"error");
-  auditar(ativoAtual?"usuario.desativar":"usuario.ativar",(ativoAtual?"Desativou":"Ativou")+" o usuario "+(nome||id));
-  st(!ativoAtual?"Usuario ativado!":"Usuario desativado.", !ativoAtual?"success":"warning");
+  auditar(ativoAtual?"usuario.desativar":"usuario.ativar",(ativoAtual?"Desativou":"Ativou")+" o usuário "+(nome||id));
+  st(!ativoAtual?"Usuário ativado!":"Usuário desativado.", !ativoAtual?"success":"warning");
   renderUsuariosHotel();
 }
 
 // Exclui (apaga) o perfil do usuario do hotel. So admin do hotel ou dono (RLS reforca no banco).
 export async function excluirUsuarioHotel(id, nome){
   var meu=getCurrentUser();
-  if(!meu||(meu.papel!=="admin"&&!meu.isOwner))return st("Apenas o administrador do hotel pode excluir usuarios.","error");
-  if(id===meu.id)return st("Voce nao pode excluir a si mesmo.","error");
+  if(!meu||(meu.papel!=="admin"&&!meu.isOwner))return st("Apenas o administrador do hotel pode excluir usuários.","error");
+  if(id===meu.id)return st("Você não pode excluir a si mesmo.","error");
   confirmar({
-    titulo:"Excluir usuario?",
-    msg:'"'+(nome||"Usuario")+'" perdera o acesso ao hotel e sera removido da lista. Esta acao nao pode ser desfeita. (A conta de login em si nao e removida por aqui.)',
+    titulo:"Excluir usuário?",
+    msg:'"'+(nome||"Usuário")+'" perderá o acesso ao hotel e será removido da lista. Esta ação não pode ser desfeita. (A conta de login em si não é removida por aqui.)',
     okLabel:"Sim, excluir",tipo:"danger"
   }, async function(){
     var { error, count } = await supabase.from("perfis").delete({ count:"exact" }).eq("id", id);
-    if(error)return st("Nao foi possivel excluir: "+error.message,"error");
-    if(count===0)return st("Exclusao bloqueada. Rode o schema-27 no banco ou verifique suas permissoes.","error");
-    auditar("usuario.excluir","Excluiu o usuario "+(nome||id));
-    st("Usuario excluido.","warning");
+    if(error)return st("Não foi possível excluir: "+error.message,"error");
+    if(count===0)return st("Exclusão bloqueada. Rode o schema-27 no banco ou verifique suas permissões.","error");
+    auditar("usuario.excluir","Excluiu o usuário "+(nome||id));
+    st("Usuário excluído.","warning");
     renderUsuariosHotel();
   });
 }
@@ -150,12 +155,12 @@ export async function excluirUsuarioHotel(id, nome){
 // Abre o modal de permissoes de um usuario existente (so admin)
 export async function editarPermissoes(id){
   var meu=getCurrentUser();
-  if(!meu||meu.papel!=="admin")return st("Apenas administradores podem alterar permissoes.","error");
+  if(!meu||meu.papel!=="admin")return st("Apenas administradores podem alterar permissões.","error");
   var { data: p, error } = await supabase.from("perfis").select("*").eq("id", id).single();
-  if(error||!p)return st("Nao foi possivel carregar o usuario.","error");
-  if(p.papel==="admin"||p.is_owner===true)return st("Este usuario ja tem acesso total.","info");
-  sm("Permissoes de "+esc(p.nome||""),
-    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">Marque os modulos que <b>'+esc(p.nome||"")+'</b> ('+esc(p.papel)+') pode acessar. O Painel fica sempre disponivel.</p>'+
+  if(error||!p)return st("Não foi possível carregar o usuário.","error");
+  if(p.papel==="admin"||p.is_owner===true)return st("Este usuário já tem acesso total.","info");
+  sm("Permissões de "+esc(p.nome||""),
+    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">Marque os módulos que <b>'+esc(p.nome||"")+'</b> ('+esc(p.papel)+') pode acessar. O Painel fica sempre disponível.</p>'+
     '<div id="permEditBox">'+checkboxesModulos(p.papel, p.permissoes||null)+'</div>',
     '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarPermissoes(\''+id+'\')">Salvar</button>');
 }
@@ -165,7 +170,68 @@ export async function salvarPermissoes(id){
   var perms=lerPermissoesModulos();
   var { error } = await supabase.from("perfis").update({ permissoes: perms }).eq("id", id);
   if(error)return st("Erro ao salvar: "+error.message,"error");
-  auditar("usuario.permissoes","Alterou as permissoes de acesso do usuario "+id);
-  st("Permissoes atualizadas!","success");
+  auditar("usuario.permissoes","Alterou as permissões de acesso do usuário "+id);
+  st("Permissões atualizadas!","success");
   cm(); renderUsuariosHotel();
+}
+
+// ===== ALTERAR A PROPRIA SENHA (qualquer usuario logado) =====
+export function showAlterarMinhaSenha(){
+  sm("Alterar minha senha",
+    '<div class="form-group"><label>Nova senha *</label><input type="password" id="msNova1" placeholder="Mínimo 6 caracteres"></div>'+
+    '<div class="form-group"><label>Confirmar nova senha *</label><input type="password" id="msNova2" placeholder="Repita a senha"></div>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarMinhaSenha()">Salvar</button>');
+}
+
+export async function salvarMinhaSenha(){
+  var p1=document.getElementById("msNova1"),p2=document.getElementById("msNova2");
+  if(!p1||!p1.value||!p2||!p2.value)return st("Preencha os dois campos.","error");
+  if(p1.value.length<6)return st("A senha deve ter ao menos 6 caracteres.","error");
+  if(p1.value!==p2.value)return st("As senhas não coincidem.","error");
+  var { error } = await supabase.auth.updateUser({ password: p1.value });
+  if(error)return st("Não foi possível alterar: "+error.message,"error");
+  auditar("usuario.senha_propria","Alterou a própria senha");
+  st("Senha alterada com sucesso!","success");
+  cm();
+}
+
+// ===== REDEFINIR SENHA DE OUTRO USUARIO (admin do hotel / dono) =====
+// Usa o endpoint serverless /api/admin-senha, que valida a permissao no back-end
+// e aplica a nova senha via Admin API (service_role). O front nunca ve a service key.
+export async function definirSenhaUsuario(userId, novaSenha){
+  var { data: sess } = await supabase.auth.getSession();
+  var token = sess && sess.session ? sess.session.access_token : null;
+  if(!token) return { ok:false, error:"Sessão expirada. Entre novamente." };
+  try{
+    var resp = await fetch("/api/admin-senha", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+token },
+      body: JSON.stringify({ user_id:userId, nova_senha:novaSenha })
+    });
+    var body = await resp.json().catch(function(){ return {}; });
+    if(!resp.ok || !body.ok) return { ok:false, error:(body&&body.error)||"Falha ao redefinir a senha." };
+    return { ok:true };
+  }catch(e){ return { ok:false, error:"Erro de rede ao redefinir a senha." }; }
+}
+
+export function showRedefinirSenhaUsuario(id, nome){
+  var meu=getCurrentUser();
+  if(!meu||(meu.papel!=="admin"&&!meu.isOwner))return st("Sem permissão para redefinir senhas.","error");
+  sm("Redefinir senha de "+esc(nome||"usuário"),
+    '<p style="color:var(--text-dim);font-size:13px;margin-bottom:8px">Defina uma nova senha para <b>'+esc(nome||"o usuário")+'</b>. Informe-a à pessoa; ela poderá trocá-la depois em "Alterar minha senha".</p>'+
+    '<div class="form-group"><label>Nova senha *</label><input type="password" id="rsNova1" placeholder="Mínimo 6 caracteres"></div>'+
+    '<div class="form-group"><label>Confirmar nova senha *</label><input type="password" id="rsNova2" placeholder="Repita a senha"></div>',
+    '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarRedefinirSenhaUsuario(\''+id+'\',\''+(""+(nome||"")).replace(/'/g,"\\'")+'\')">Redefinir</button>');
+}
+
+export async function salvarRedefinirSenhaUsuario(id, nome){
+  var p1=document.getElementById("rsNova1"),p2=document.getElementById("rsNova2");
+  if(!p1||!p1.value||!p2||!p2.value)return st("Preencha os dois campos.","error");
+  if(p1.value.length<6)return st("A senha deve ter ao menos 6 caracteres.","error");
+  if(p1.value!==p2.value)return st("As senhas não coincidem.","error");
+  var res=await definirSenhaUsuario(id, p1.value);
+  if(!res.ok)return st(res.error,"error");
+  auditar("usuario.redefinir_senha","Redefiniu a senha do usuário "+(nome||id));
+  st("Senha redefinida com sucesso!","success");
+  cm();
 }
