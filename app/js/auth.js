@@ -14,12 +14,17 @@ export function getCurrentUser(){ return usuarioAtual; }
 
 // O Supabase dispara PASSWORD_RECOVERY ao abrir o app pelo link de recuperacao.
 // Marcamos o estado e mostramos a tela de nova senha, evitando que o boot restaure a sessao normal.
-supabase.auth.onAuthStateChange(function(event){
-  if(event==="PASSWORD_RECOVERY"){
-    emRecuperacaoSenha = true;
-    showDefinirNovaSenha();
-  }
-});
+// Blindado: qualquer erro aqui NAO pode travar o carregamento do app.
+try{
+  supabase.auth.onAuthStateChange(function(event){
+    try{
+      if(event==="PASSWORD_RECOVERY"){
+        emRecuperacaoSenha = true;
+        if(document.getElementById("loginContent")) showDefinirNovaSenha();
+      }
+    }catch(e){ console.error("onAuthStateChange:", e); }
+  });
+}catch(e){ console.error("Falha ao registrar onAuthStateChange:", e); }
 
 export function isRecuperacaoSenha(){
   return emRecuperacaoSenha || (window.location.hash||"").indexOf("#recuperar")===0;
