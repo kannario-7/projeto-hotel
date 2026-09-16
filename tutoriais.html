@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tutoriais - HospedaPrime</title>
+<meta name="description" content="Tutoriais em vídeo e passo a passo do HospedaPrime: reservas, check-in, check-out, financeiro, caixa por turno, hóspedes e configurações.">
+<link rel="icon" type="image/svg+xml" href="/app/img/logo-h-solido.svg">
+<script>(function(){try{var t=localStorage.getItem("hms_theme");if(!t){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}if(t==="dark"){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css">
+<style>
+/* ===== TUTORIAIS ===== */
+.tut-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.tut-chip{border:1px solid var(--border);background:var(--surface);color:var(--text-dim);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.tut-chip:hover{color:var(--tinta)}
+.tut-chip.active{background:var(--coral);border-color:var(--coral);color:#fff}
+.tut-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tut-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.tut-media{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,var(--tinta),#2a2f45);cursor:pointer;overflow:hidden}
+.tut-media iframe{width:100%;height:100%;border:0;display:block}
+.tut-poster{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;padding:16px}
+.tut-play{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.16);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.6);transition:transform .15s}
+.tut-media:hover .tut-play{transform:scale(1.08)}
+.tut-play svg{width:26px;height:26px;fill:#fff;margin-left:3px}
+.tut-poster small{opacity:.85;font-size:12px;letter-spacing:.02em}
+.tut-soon{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.45);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:.04em}
+.tut-body{padding:20px 22px 22px}
+.tut-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--coral);margin-bottom:8px}
+.tut-body h3{font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--tinta);margin-bottom:6px}
+.tut-body p{color:var(--text-dim);font-size:14px;line-height:1.55;margin-bottom:14px}
+.tut-toggle{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--coral);font-weight:700;font-size:14px;cursor:pointer;padding:0}
+.tut-toggle svg{width:16px;height:16px;transition:transform .2s}
+.tut-card.open .tut-toggle svg{transform:rotate(180deg)}
+.tut-steps{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.tut-card.open .tut-steps{max-height:900px}
+.tut-steps ol{margin:14px 0 4px 18px;color:var(--text-dim);line-height:1.8;font-size:14px}
+.tut-steps ol b{color:var(--tinta)}
+@media(max-width:760px){.tut-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+<div class="nav-inner">
+<a class="logo" href="/"><svg class="logo-mark" viewBox="0 0 63 75" fill="none" aria-hidden="true"><rect x="0" y="0" width="19" height="75" rx="9.5" fill="currentColor"/><rect x="44" y="0" width="19" height="75" rx="9.5" fill="currentColor"/><rect x="9.5" y="37" width="44" height="19" rx="9.5" fill="#FF5C35"/></svg><span>HospedaPrime</span></a>
+<nav class="nav-links">
+<a href="/#recursos">Recursos</a>
+<a href="/#planos">Planos</a>
+<a href="/guias.html">Guias</a>
+<a href="/tutoriais.html">Tutoriais</a>
+</nav>
+<div class="nav-cta">
+<button class="theme-toggle" type="button" onclick="toggleTema()" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+<svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+<svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
+<a class="btn btn-ghost" href="/app">Entrar</a>
+<a class="btn btn-primary" href="/app#cadastro">Testar grátis</a>
+</div>
+</div>
+</header>
+
+<div class="guia-wrap" style="max-width:1040px">
+<h1>Tutoriais</h1>
+<p class="lead">Aprenda o HospedaPrime no seu ritmo. Cada tutorial tem um vídeo curto e um passo a passo escrito para consultar quando precisar.</p>
+
+<div class="tut-toolbar" id="tutFiltros">
+<button class="tut-chip active" data-cat="todos" onclick="filtrarTut(this,'todos')">Todos</button>
+<button class="tut-chip" data-cat="inicio" onclick="filtrarTut(this,'inicio')">Primeiros passos</button>
+<button class="tut-chip" data-cat="reservas" onclick="filtrarTut(this,'reservas')">Reservas</button>
+<button class="tut-chip" data-cat="operacao" onclick="filtrarTut(this,'operacao')">Operação</button>
+<button class="tut-chip" data-cat="financeiro" onclick="filtrarTut(this,'financeiro')">Financeiro</button>
+</div>
+
+<div class="tut-grid" id="tutGrid"><!-- os cards são gerados por JS a partir da lista TUTORIAIS --></div>
+
+<div style="text-align:center;margin-top:40px">
+<a class="btn btn-primary btn-lg" href="/app#cadastro">Começar agora</a>
+</div>
+</div>
+
+<footer class="footer">
+<div class="footer-inner">
+<div class="footer-brand">
+<div class="logo"><svg class="logo-mark" viewBox="0 0 63 75" fill="none" aria-hidden="true"><rect x="0" y="0" width="19" height="75" rx="9.5" fill="currentColor"/><rect x="44" y="0" width="19" height="75" rx="9.5" fill="currentColor"/><rect x="9.5" y="37" width="44" height="19" rx="9.5" fill="#FF5C35"/></svg><span>HospedaPrime</span></div>
+<p>Sistema de gestão hoteleira na nuvem, feito para o movimento do balcão.</p>
+</div>
+<div class="footer-cols">
+<div><h4>Produto</h4><a href="/#recursos">Recursos</a><a href="/#planos">Planos</a><a href="/guias.html">Guias</a><a href="/tutoriais.html">Tutoriais</a></div>
+<div><h4>Legal</h4><a href="/privacidade.html">Privacidade</a><a href="/termos.html">Termos de Uso</a></div>
+<div><h4>Contato</h4><a href="https://wa.me/5511992144143" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:kannariodev@gmail.com">E-mail</a></div>
+</div>
+</div>
+<div class="footer-base"><span>&copy; 2026 HospedaPrime — DHON CLESSIO SILVA DE JESUS — CNPJ 69.097.078/0001-72</span><span>Todos os direitos reservados</span></div>
+</footer>
+
+<script>
+function toggleTema(){
+  var escuro = document.documentElement.getAttribute("data-theme") === "dark";
+  var novo = escuro ? "light" : "dark";
+  if(novo === "dark"){ document.documentElement.setAttribute("data-theme","dark"); }
+  else { document.documentElement.removeAttribute("data-theme"); }
+  try{ localStorage.setItem("hms_theme", novo); }catch(e){}
+}
+
+/* =========================================================================
+   LISTA DE TUTORIAIS
+   Para publicar um vídeo: pegue o ID do YouTube (o trecho depois de
+   "watch?v=" ou "youtu.be/") e cole no campo "youtube" do tutorial.
+   Ex.: https://www.youtube.com/watch?v=dQw4w9WgXcQ  ->  youtube: "dQw4w9WgXcQ"
+   Enquanto "youtube" estiver vazio (""), o card mostra "Vídeo em breve"
+   e o passo a passo em texto continua funcionando normalmente.
+   ========================================================================= */
+var TUTORIAIS = [
+  {
+    cat:"inicio", tag:"Primeiros passos",
+    titulo:"Criando sua conta e conhecendo o painel",
+    resumo:"Do cadastro ao primeiro login: o que aparece na tela inicial e por onde começar.",
+    youtube:"",
+    passos:[
+      "Na landing, clique em <b>Testar grátis</b>.",
+      "Preencha nome do hotel, seu nome, e-mail e senha.",
+      "Ao entrar, o sistema já vem com <b>quartos, tipos e serviços de exemplo</b>.",
+      "Explore o <b>Painel</b>: ocupação do dia, chegadas e atalhos rápidos."
+    ]
+  },
+  {
+    cat:"inicio", tag:"Primeiros passos",
+    titulo:"Configurando os dados do hotel",
+    resumo:"Nome, horários de check-in/out, taxa de serviço e formas de pagamento.",
+    youtube:"",
+    passos:[
+      "Abra o menu <b>Configurações</b>.",
+      "Preencha razão social, endereço e horários de <b>check-in</b> e <b>check-out</b>.",
+      "Defina a <b>taxa de serviço</b> e as <b>formas de pagamento</b> aceitas.",
+      "Salve. Esses dados aparecem nas faturas e no fechamento de caixa."
+    ]
+  },
+  {
+    cat:"reservas", tag:"Reservas",
+    titulo:"Como criar uma reserva",
+    resumo:"Da escolha do hóspede à confirmação, sem risco de overbooking.",
+    youtube:"",
+    passos:[
+      "Vá em <b>Reservas</b> e clique em <b>+ Nova Reserva</b>.",
+      "Escolha o hóspede (ou cadastre um novo ali mesmo).",
+      "Selecione o tipo de quarto e as datas de check-in e check-out.",
+      "O sistema mostra só os quartos <b>disponíveis</b> no período. Escolha e salve.",
+      "Clique em <b>Confirmar</b> quando o hóspede garantir a estadia."
+    ]
+  },
+  {
+    cat:"reservas", tag:"Reservas",
+    titulo:"Mapa de ocupação e troca de quarto",
+    resumo:"Visualize a grade de quartos por dia e mova uma reserva com segurança.",
+    youtube:"",
+    passos:[
+      "Em <b>Reservas</b>, clique em <b>Mapa de ocupação</b>.",
+      "Veja a grade quarto × dias e navegue pelos períodos.",
+      "Para mover uma reserva, abra-a e use <b>Trocar quarto</b>.",
+      "O sistema só oferece quartos <b>livres</b> no período e recalcula o valor se o tipo mudar."
+    ]
+  },
+  {
+    cat:"operacao", tag:"Operação",
+    titulo:"Fazendo o check-in",
+    resumo:"Registre a chegada do hóspede e ocupe o quarto em poucos toques.",
+    youtube:"",
+    passos:[
+      "No dia da chegada, vá em <b>Check-in</b>.",
+      "Localize a reserva e clique em <b>Fazer Check-in</b>.",
+      "O quarto passa para <b>ocupado</b> automaticamente.",
+      "Durante a estadia, use <b>Lançar consumo</b> para adicionar serviços à conta."
+    ]
+  },
+  {
+    cat:"operacao", tag:"Operação",
+    titulo:"Fazendo o check-out e a fatura",
+    resumo:"Confira diárias, serviços e taxa, registre o pagamento e libere o quarto.",
+    youtube:"",
+    passos:[
+      "Vá em <b>Check-out</b> e selecione a reserva que está saindo.",
+      "Confira a fatura: <b>diárias + serviços + taxa de serviço</b>.",
+      "Registre o pagamento (dinheiro, PIX, cartão...).",
+      "Ao finalizar, o quarto vai para <b>limpeza</b> e o valor entra no <b>Financeiro</b>."
+    ]
+  },
+  {
+    cat:"operacao", tag:"Operação",
+    titulo:"Cadastrando e gerenciando hóspedes",
+    resumo:"Cadastro completo com histórico de estadias e consentimento (LGPD).",
+    youtube:"",
+    passos:[
+      "Abra <b>Hóspedes</b> e clique em <b>+ Novo Hóspede</b>.",
+      "Preencha nome e documento (CPF é validado automaticamente).",
+      "Use a busca de CEP para preencher o endereço.",
+      "O histórico de reservas do hóspede fica disponível na ficha dele."
+    ]
+  },
+  {
+    cat:"financeiro", tag:"Financeiro",
+    titulo:"Abrindo e fechando o caixa por turno",
+    resumo:"Controle quanto entrou por turno e concilie o dinheiro contado.",
+    youtube:"",
+    passos:[
+      "Em <b>Financeiro</b>, abra a aba <b>Caixa</b> e clique em <b>Abrir Caixa</b>.",
+      "Informe o <b>fundo de troco</b> inicial da gaveta.",
+      "Durante o turno, os pagamentos são somados automaticamente.",
+      "Ao fechar, informe os valores contados. O sistema mostra <b>sobra</b> ou <b>falta</b>."
+    ]
+  },
+  {
+    cat:"financeiro", tag:"Financeiro",
+    titulo:"Lançando despesas e contas a pagar",
+    resumo:"Registre gastos, categorize e acompanhe vencimentos.",
+    youtube:"",
+    passos:[
+      "Em <b>Financeiro</b>, abra <b>Despesas</b> e clique em <b>+ Nova Despesa</b>.",
+      "Preencha descrição, valor, categoria e forma de pagamento.",
+      "Para contas futuras, use <b>Contas a Pagar/Receber</b> com data de vencimento.",
+      "Marque como <b>pago</b> quando quitar; o valor entra no resultado."
+    ]
+  },
+  {
+    cat:"financeiro", tag:"Financeiro",
+    titulo:"Relatórios: ocupação, receita e lucro",
+    resumo:"Taxa de ocupação, ADR/RevPAR, DRE e hóspedes mais fiéis.",
+    youtube:"",
+    passos:[
+      "Abra <b>Relatórios</b> e escolha o período com os filtros de data.",
+      "Navegue pelas abas: <b>Ocupação</b>, <b>Por Tipo de Quarto</b>, <b>Reservas</b> e mais.",
+      "Para receita, despesa e lucro (DRE), use o módulo <b>Financeiro</b>.",
+      "Exporte em <b>CSV</b> ou gere um <b>PDF</b> para imprimir."
+    ]
+  }
+];
+
+function icoPlay(){return '<span class="tut-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>';}
+function icoChevron(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';}
+
+function renderTutoriais(){
+  var grid=document.getElementById("tutGrid");
+  grid.innerHTML=TUTORIAIS.map(function(t,i){
+    var temVideo=!!t.youtube;
+    var media=temVideo
+      ? '<div class="tut-media" data-yt="'+t.youtube+'" onclick="abrirVideo(this)">'+
+          '<div class="tut-poster">'+icoPlay()+'<small>Assistir ao vídeo</small></div>'+
+        '</div>'
+      : '<div class="tut-media">'+
+          '<span class="tut-soon">Vídeo em breve</span>'+
+          '<div class="tut-poster">'+icoPlay()+'<small>Passo a passo disponível abaixo</small></div>'+
+        '</div>';
+    var passos='<ol>'+t.passos.map(function(p){return '<li>'+p+'</li>';}).join('')+'</ol>';
+    return '<article class="tut-card" data-cat="'+t.cat+'">'+
+      media+
+      '<div class="tut-body">'+
+        '<span class="tut-tag">'+t.tag+'</span>'+
+        '<h3>'+t.titulo+'</h3>'+
+        '<p>'+t.resumo+'</p>'+
+        '<button class="tut-toggle" onclick="togglePassos(this)">Ver passo a passo '+icoChevron()+'</button>'+
+        '<div class="tut-steps">'+passos+'</div>'+
+      '</div>'+
+    '</article>';
+  }).join('');
+}
+
+function abrirVideo(el){
+  var id=el.getAttribute("data-yt");
+  if(!id)return;
+  el.innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&rel=0" title="Tutorial em vídeo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+  el.style.cursor="default";
+  el.removeAttribute("onclick");
+}
+
+function togglePassos(btn){
+  var card=btn.closest(".tut-card");
+  card.classList.toggle("open");
+}
+
+function filtrarTut(chip,cat){
+  var chips=document.querySelectorAll("#tutFiltros .tut-chip");
+  for(var i=0;i<chips.length;i++)chips[i].classList.remove("active");
+  chip.classList.add("active");
+  var cards=document.querySelectorAll("#tutGrid .tut-card");
+  for(var j=0;j<cards.length;j++){
+    var mostra=(cat==="todos"||cards[j].getAttribute("data-cat")===cat);
+    cards[j].style.display=mostra?"flex":"none";
+  }
+}
+
+renderTutoriais();
+</script>
+
+</body>
+</html>

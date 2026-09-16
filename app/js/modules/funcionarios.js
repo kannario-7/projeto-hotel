@@ -6,15 +6,15 @@ import { lerCampos, crudExcluir, crudSalvar } from "./crud.js";
 
 export function renderFuncionarios(){var el=document.getElementById("pageContent");
 var funcionarios=St.ga("fa");
-el.innerHTML='<div class="page-header"><div><h2>Funcionarios</h2><p>Gerenciar equipe do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovoFuncionario()">+ Novo Funcionario</button></div></div>';
+el.innerHTML='<div class="page-header"><div><h2>Funcionários</h2><p>Gerenciar equipe do hotel</p></div><div class="page-header-actions"><button class="btn btn-primary" onclick="showNovoFuncionario()">+ Novo Funcionário</button></div></div>';
 
-if(!funcionarios.length){el.innerHTML+='<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhum funcionario cadastrado.</p>';return;}
+if(!funcionarios.length){el.innerHTML+='<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhum funcionário cadastrado.</p>';return;}
 
-el.innerHTML+='<table><tr><th>Nome</th><th>Cargo</th><th>Telefone</th><th>Email</th><th>Turno</th><th>Ativo</th><th>Acoes</th></tr>'+
-funcionarios.map(function(f){return'<tr><td>'+esc(f.nome)+'</td><td>'+esc(f.cargo||"-")+'</td><td>'+esc(f.telefone||"-")+'</td><td>'+esc(f.email||"-")+'</td><td>'+esc(f.turno||"-")+'</td><td>'+(f.ativo!==false?'<span class="badge badge-success">Sim</span>':'<span class="badge badge-danger">Nao</span>')+'</td><td><button class="btn btn-sm btn-primary" onclick="editarFuncionario(\''+f.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirFuncionario(\''+f.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
+el.innerHTML+='<table><tr><th>Nome</th><th>Cargo</th><th>Telefone</th><th>Email</th><th>Turno</th><th>Ativo</th><th>Ações</th></tr>'+
+funcionarios.map(function(f){return'<tr><td>'+esc(f.nome)+'</td><td>'+esc(f.cargo||"-")+'</td><td>'+esc(f.telefone||"-")+'</td><td>'+esc(f.email||"-")+'</td><td>'+esc(f.turno||"-")+'</td><td>'+(f.ativo!==false?'<span class="badge badge-success">Sim</span>':'<span class="badge badge-danger">Não</span>')+'</td><td><button class="btn btn-sm btn-primary" onclick="editarFuncionario(\''+f.id+'\')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirFuncionario(\''+f.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
 
-export function showNovoFuncionario(){sm("Novo Funcionario",formFuncionario(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarFuncionario()">Salvar</button>')}
-export function editarFuncionario(id){sm("Editar Funcionario",formFuncionario(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarFuncionario(\''+id+'\')">Salvar</button>')}
+export function showNovoFuncionario(){sm("Novo Funcionário",formFuncionario(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarFuncionario()">Salvar</button>')}
+export function editarFuncionario(id){sm("Editar Funcionário",formFuncionario(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarFuncionario(\''+id+'\')">Salvar</button>')}
 
 function formFuncionario(id){var f=id?St.fi("fa",id):null;
 return'<div class="form-grid">'+
@@ -22,17 +22,17 @@ return'<div class="form-grid">'+
 '<div class="form-group"><label>Cargo *</label><select id="ffCargo"><option value="Recepcionista"'+(f&&f.cargo==="Recepcionista"?' selected':'')+'>Recepcionista</option><option value="Camareira"'+(f&&f.cargo==="Camareira"?' selected':'')+'>Camareira</option><option value="Gerente"'+(f&&f.cargo==="Gerente"?' selected':'')+'>Gerente</option><option value="Manutencao"'+(f&&f.cargo==="Manutencao"?' selected':'')+'>Manutencao</option><option value="Cozinha"'+(f&&f.cargo==="Cozinha"?' selected':'')+'>Cozinha</option><option value="Seguranca"'+(f&&f.cargo==="Seguranca"?' selected':'')+'>Seguranca</option><option value="Outro"'+(f&&f.cargo==="Outro"?' selected':'')+'>Outro</option></select></div>'+
 '<div class="form-group"><label>Telefone</label><input type="text" id="ffTel" value="'+(f?esc(f.telefone||""):'')+'"></div>'+
 '<div class="form-group"><label>Email</label><input type="email" id="ffEmail" value="'+(f?esc(f.email||""):'')+'"></div>'+
-'<div class="form-group"><label>Turno</label><select id="ffTurno"><option value="Manha"'+(f&&f.turno==="Manha"?' selected':'')+'>Manha (06-14h)</option><option value="Tarde"'+(f&&f.turno==="Tarde"?' selected':'')+'>Tarde (14-22h)</option><option value="Noite"'+(f&&f.turno==="Noite"?' selected':'')+'>Noite (22-06h)</option><option value="Administrativo"'+(f&&f.turno==="Administrativo"?' selected':'')+'>Administrativo</option></select></div>'+
-'<div class="form-group"><label>Salario (R$)</label><input type="number" id="ffSal" value="'+(f&&f.salario?(f.salario/100).toFixed(2):'')+'" step="0.01" min="0"></div>'+
+'<div class="form-group"><label>Turno</label><select id="ffTurno"><option value="Manha"'+(f&&f.turno==="Manha"?' selected':'')+'>Manhã (06-14h)</option><option value="Tarde"'+(f&&f.turno==="Tarde"?' selected':'')+'>Tarde (14-22h)</option><option value="Noite"'+(f&&f.turno==="Noite"?' selected':'')+'>Noite (22-06h)</option><option value="Administrativo"'+(f&&f.turno==="Administrativo"?' selected':'')+'>Administrativo</option></select></div>'+
+'<div class="form-group"><label>Salário (R$)</label><input type="number" id="ffSal" value="'+(f&&f.salario?(f.salario/100).toFixed(2):'')+'" step="0.01" min="0"></div>'+
 '</div>';}
 
 export function salvarFuncionario(id){
   var d=lerCampos({nome:"ffNome",cargo:"ffCargo",telefone:"ffTel",email:"ffEmail",turno:"ffTurno",salario:"ffSal"},{money:["salario"]});
-  if(!d.nome)return st("Nome obrigatorio.","error"),false;
+  if(!d.nome)return st("Nome obrigatório.","error"),false;
   d.ativo=true;
-  crudSalvar("fa",id,d,{toastNovo:"Funcionario cadastrado!",toastEditar:"Funcionario atualizado!"},function(){cm();renderFuncionarios();});
+  crudSalvar("fa",id,d,{toastNovo:"Funcionário cadastrado!",toastEditar:"Funcionário atualizado!"},function(){cm();renderFuncionarios();});
 }
 
 export function excluirFuncionario(id){
-  crudExcluir("fa",id,{titulo:"Excluir funcionario?",toast:"Funcionario excluido."},renderFuncionarios);
+  crudExcluir("fa",id,{titulo:"Excluir funcionário?",toast:"Funcionário excluído."},renderFuncionarios);
 }

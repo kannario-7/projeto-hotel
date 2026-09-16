@@ -146,7 +146,9 @@ a{color:inherit;text-decoration:none}
 .planos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
 .plano{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:30px;display:flex;flex-direction:column;position:relative;box-shadow:var(--shadow)}
 .plano-hi{border-color:var(--coral);box-shadow:0 4px 10px rgba(255,92,53,.12),0 24px 50px rgba(255,92,53,.14);transform:translateY(-6px)}
-.plano-flag{position:absolute;top:20px;right:20px;font-size:11.5px;font-weight:700;letter-spacing:.02em;color:var(--coral-2);background:var(--coral-soft);border-radius:20px;padding:5px 12px}
+/* faixa de selos no topo do card (fica ACIMA do título, sem sobrepor) */
+.plano-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:26px}
+.plano-flag{font-size:11.5px;font-weight:700;letter-spacing:.02em;color:var(--coral-2);background:var(--coral-soft);border-radius:20px;padding:5px 12px}
 .plano h3{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:var(--text-mute)}
 .preco{font-family:var(--display);font-size:42px;font-weight:800;color:var(--tinta);letter-spacing:-.04em;margin:8px 0 22px}
 .preco span{font-size:15px;color:var(--text-mute);font-weight:500;letter-spacing:0}
@@ -156,6 +158,26 @@ a{color:inherit;text-decoration:none}
 .plano li:before{content:"";position:absolute;left:0;top:14px;width:15px;height:15px;background-color:var(--coral);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat}
 .plano .btn{width:100%}
 .planos-note{text-align:center;color:var(--text-mute);font-size:13px;margin-top:28px}
+/* preços promocionais (De/Por) */
+.preco-de{display:block;font-family:var(--body,inherit);font-size:15px;font-weight:600;color:var(--text-mute);text-decoration:line-through;letter-spacing:0;margin-bottom:2px}
+.preco.promo{margin-top:2px}
+.plano-promo{font-size:11px;font-weight:700;letter-spacing:.02em;color:#fff;background:var(--coral);border-radius:20px;padding:5px 11px}
+
+/* CAPTURA DE LEAD */
+.lead-sec{max-width:640px;margin:0 auto;padding:0 28px}
+.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;box-shadow:var(--shadow);text-align:center}
+.lead-card h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.4vw,34px);letter-spacing:-.03em;color:var(--tinta);margin-bottom:8px}
+.lead-card p.lead-sub{color:var(--text-dim);font-size:16px;margin-bottom:24px}
+.lead-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
+.lead-form .full{grid-column:1/-1}
+.lead-form label{display:block;font-size:13px;font-weight:600;color:var(--tinta);margin-bottom:5px}
+.lead-form input,.lead-form textarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2,var(--surface));color:var(--tinta);font-family:inherit;font-size:15px}
+.lead-form input:focus,.lead-form textarea:focus{outline:none;border-color:var(--coral)}
+.lead-form textarea{resize:vertical;min-height:70px}
+.lead-msg{grid-column:1/-1;font-size:14px;margin-top:4px;min-height:20px}
+.lead-msg.ok{color:var(--pos,#1a7f4b)}
+.lead-msg.err{color:var(--neg,#c0392b)}
+@media(max-width:560px){.lead-form{grid-template-columns:1fr}.lead-card{padding:26px 20px}}
 
 /* CTA */
 .cta{max-width:var(--maxw);margin:0 auto;padding:0 28px 88px}

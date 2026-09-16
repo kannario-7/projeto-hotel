@@ -7,7 +7,7 @@ import { getCurrentUser } from "../auth.js";
 
 export function renderReservas(){var el=document.getElementById("pageContent");
 var reservas=St.ga("r"),hospedes=St.ga("h"),quartos=St.ga("q"),servicos=St.ga("sv"),tq=St.ga("tq");
-el.innerHTML='<div class="page-header"><div><h2>Reservas</h2><p>Gerenciar reservas do hotel</p></div><div class="page-header-actions"><button class="btn btn-secondary" onclick="abrirMapaOcupacao()">Mapa de ocupacao</button><button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button></div></div>';
+el.innerHTML='<div class="page-header"><div><h2>Reservas</h2><p>Gerenciar reservas do hotel</p></div><div class="page-header-actions"><button class="btn btn-secondary" onclick="abrirMapaOcupacao()">Mapa de ocupação</button><button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button></div></div>';
 
 var filtro='<div id="reservaFiltros" style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">'+
 '<button class="btn btn-sm btn-primary" data-filtro="" onclick="filtrarReservas(\'\')">Todas</button>'+
@@ -25,7 +25,7 @@ document.getElementById("reservasTable").innerHTML=buildReservasTable(reservas,S
 var btns=document.querySelectorAll("#reservaFiltros button");for(var i=0;i<btns.length;i++){var ativo=btns[i].getAttribute("data-filtro")===s;btns[i].className="btn btn-sm "+(ativo?"btn-primary":"btn-secondary")}}
 
 function buildReservasTable(reservas,quartos,hospedes,servicos,tq){if(!reservas.length)return'<p style="padding:24px;text-align:center;color:var(--text-mute)">Nenhuma reserva encontrada.</p>';
-return'<table><tr><th>Hospede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Total</th><th>Status</th><th>Acoes</th></tr>'+
+return'<table><tr><th>Hóspede</th><th>Quarto</th><th>Check-in</th><th>Check-out</th><th>Total</th><th>Status</th><th>Ações</th></tr>'+
 reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+(h?esc(h.nome):"-")+' <small>'+(h?esc(h.documento||""):"")+'</small></td><td>'+(q?"Apto "+q.numero:"-")+'</td><td>'+fmtD(r.dataCheckin)+'</td><td>'+fmtD(r.dataCheckout)+'</td><td>'+fmtC(r.total)+'</td><td>'+getStatusBadge(r.status)+'</td>'+
 '<td>'+
 (r.status==="pendente"||r.status==="confirmada"?'<button class="btn btn-sm btn-primary" onclick="editarReserva(\''+r.id+'\')" style="margin-right:4px">Editar</button>':'')+
@@ -38,10 +38,10 @@ reservas.sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).
 export function showNovaReserva(){sm("Nova Reserva",formReserva(null),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva()">Salvar</button>')}
 export function editarReserva(id){sm("Editar Reserva",formReserva(id),'<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarReserva(\''+id+'\')">Salvar</button>')}
 export function confirmarReserva(id){St.up("r",id,{status:"confirmada"});st("Reserva confirmada!","success");cm();renderReservas()}
-export function cancelarReserva(id){confirmar({titulo:"Cancelar reserva?",msg:"Esta reserva sera marcada como cancelada.",okLabel:"Sim, cancelar",tipo:"danger"},function(){
+export function cancelarReserva(id){confirmar({titulo:"Cancelar reserva?",msg:"Esta reserva será marcada como cancelada.",okLabel:"Sim, cancelar",tipo:"danger"},function(){
 var r=St.fi("r",id);var h=r?St.fi("h",r.hospedeId):null;var q=r?St.fi("q",r.quartoId):null;
 St.up("r",id,{status:"cancelada"});
-auditar("reserva.cancelar","Cancelou reserva de "+(h?h.nome:"hospede")+(q?(" - Apto "+q.numero):"")+(r?(" ("+fmtD(r.dataCheckin)+" a "+fmtD(r.dataCheckout)+")"):""));
+auditar("reserva.cancelar","Cancelou reserva de "+(h?h.nome:"hóspede")+(q?(" - Apto "+q.numero):"")+(r?(" ("+fmtD(r.dataCheckin)+" a "+fmtD(r.dataCheckout)+")"):""));
 st("Reserva cancelada.","warning");renderReservas()})}
 
 // --- PAGAMENTO / SINAL DA RESERVA ---
@@ -58,9 +58,9 @@ export function registrarPagamento(id){
   var formas=(St.gc().pm)||["dinheiro","cartao","pix"];
   var ehSinal=pago===0; // primeiro pagamento e tratado como sinal
   var corpo='<div class="qmodal-info" style="margin-bottom:14px">'+
-      '<div class="qmodal-row"><span>Hospede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Hóspede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
       '<div class="qmodal-row"><span>Total da reserva</span><b>'+fmtC(total)+'</b></div>'+
-      '<div class="qmodal-row"><span>Ja pago</span><b style="color:var(--pos)">'+fmtC(pago)+'</b></div>'+
+      '<div class="qmodal-row"><span>Já pago</span><b style="color:var(--pos)">'+fmtC(pago)+'</b></div>'+
       '<div class="qmodal-row"><span>Saldo a receber</span><b style="color:'+(saldo>0?"var(--warn)":"var(--pos)")+'">'+fmtC(saldo>0?saldo:0)+'</b></div>'+
     '</div>'+
     '<div class="form-grid">'+
@@ -68,7 +68,7 @@ export function registrarPagamento(id){
     '<div class="form-group"><label>Forma</label><select id="pgForma">'+formas.map(function(f){return'<option value="'+f+'">'+esc(f.charAt(0).toUpperCase()+f.slice(1))+'</option>'}).join('')+'</select></div>'+
     '<div class="form-group"><label>Tipo</label><select id="pgTipo"><option value="sinal"'+(ehSinal?' selected':'')+'>Sinal / entrada</option><option value="avulso"'+(!ehSinal?' selected':'')+'>Pagamento parcial</option></select></div>'+
     '<div class="form-group"><label>Data</label><input type="date" id="pgData" value="'+td()+'"></div>'+
-    '<div class="form-group" style="grid-column:1/-1"><label>Observacoes</label><input type="text" id="pgObs" placeholder="Opcional"></div>'+
+    '<div class="form-group" style="grid-column:1/-1"><label>Observações</label><input type="text" id="pgObs" placeholder="Opcional"></div>'+
     '</div>'+
     (pags.length?'<h4 style="margin:14px 0 8px;color:var(--text)">Pagamentos desta reserva</h4><table><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Forma</th></tr>'+
       pags.map(function(p){return '<tr><td>'+fmtD(p.data)+'</td><td>'+esc(rotuloTipoPg(p.tipo))+'</td><td>'+fmtC(p.valor)+'</td><td>'+esc((p.forma||"").charAt(0).toUpperCase()+(p.forma||"").slice(1))+'</td></tr>';}).join('')+'</table>':'');
@@ -80,14 +80,14 @@ export async function salvarPagamentoReserva(id){
   var r=St.fi("r",id);if(!r)return;
   var val=document.getElementById("pgValor"),forma=document.getElementById("pgForma"),tipo=document.getElementById("pgTipo"),data=document.getElementById("pgData"),obs=document.getElementById("pgObs");
   var v=Math.round(parseFloat(val&&val.value?val.value:0)*100);
-  if(!v||v<=0)return st("Informe um valor valido.","error"),false;
+  if(!v||v<=0)return st("Informe um valor válido.","error"),false;
   var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Registrando...";}
   var _u=getCurrentUser();
   var res=await St.inErr("pg",{reservaId:id,hospedeId:r.hospedeId,valor:v,forma:(forma?forma.value:"dinheiro"),data:(data&&data.value?data.value:td()),tipo:(tipo?tipo.value:"avulso"),observacoes:(obs?obs.value.trim():""),criadoEm:new Date().toISOString(),usuarioId:(_u?_u.id:null),usuarioNome:(_u?_u.nome:null)});
   if(btn){btn.disabled=false;btn.textContent="Registrar pagamento";}
-  if(!res.ok)return st("Nao foi possivel registrar o pagamento. Tente novamente.","error"),false;
+  if(!res.ok)return st("Não foi possível registrar o pagamento. Tente novamente.","error"),false;
   var h=St.fi("h",r.hospedeId);
-  auditar("pagamento.registrar","Pagamento de "+fmtC(v)+" ("+(tipo?tipo.value:"avulso")+") - "+(h?h.nome:"hospede"));
+  auditar("pagamento.registrar","Pagamento de "+fmtC(v)+" ("+(tipo?tipo.value:"avulso")+") - "+(h?h.nome:"hóspede"));
   st("Pagamento registrado!","success");
   cm();renderReservas();
 }
@@ -102,10 +102,10 @@ export function trocarQuarto(id){
   var livres=quartosLivres(r.dataCheckin,r.dataCheckout,id).filter(function(q){return q.id!==r.quartoId});
   var corpo;
   if(!livres.length){
-    corpo='<div class="qmodal-info" style="margin-bottom:14px"><div class="qmodal-row"><span>Hospede</span><b>'+(St.fi("h",r.hospedeId)?esc(St.fi("h",r.hospedeId).nome):"-")+'</b></div>'+
+    corpo='<div class="qmodal-info" style="margin-bottom:14px"><div class="qmodal-row"><span>Hóspede</span><b>'+(St.fi("h",r.hospedeId)?esc(St.fi("h",r.hospedeId).nome):"-")+'</b></div>'+
       '<div class="qmodal-row"><span>Quarto atual</span><b>'+(qAtual?"Apto "+esc(qAtual.numero):"-")+'</b></div>'+
-      '<div class="qmodal-row"><span>Periodo</span><b>'+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+'</b></div></div>'+
-      '<p style="color:var(--text-mute);text-align:center;padding:8px 0">Nenhum outro quarto esta livre neste periodo.<br>Libere um quarto ou ajuste as datas da reserva.</p>';
+      '<div class="qmodal-row"><span>Período</span><b>'+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+'</b></div></div>'+
+      '<p style="color:var(--text-mute);text-align:center;padding:8px 0">Nenhum outro quarto está livre neste período.<br>Libere um quarto ou ajuste as datas da reserva.</p>';
     sm("Trocar quarto",corpo,'<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>');
     return;
   }
@@ -121,9 +121,9 @@ export function trocarQuarto(id){
   }).join('');
   var precoAtual=(St.fi("tq",r.tipoQuartoId)?St.fi("tq",r.tipoQuartoId).precoDiaria:0);
   corpo='<div class="qmodal-info" style="margin-bottom:14px">'+
-      '<div class="qmodal-row"><span>Hospede</span><b>'+(St.fi("h",r.hospedeId)?esc(St.fi("h",r.hospedeId).nome):"-")+'</b></div>'+
+      '<div class="qmodal-row"><span>Hóspede</span><b>'+(St.fi("h",r.hospedeId)?esc(St.fi("h",r.hospedeId).nome):"-")+'</b></div>'+
       '<div class="qmodal-row"><span>Quarto atual</span><b>'+(qAtual?"Apto "+esc(qAtual.numero):"-")+'</b></div>'+
-      '<div class="qmodal-row"><span>Periodo</span><b>'+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+'</b></div>'+
+      '<div class="qmodal-row"><span>Período</span><b>'+fmtD(r.dataCheckin)+' a '+fmtD(r.dataCheckout)+'</b></div>'+
     '</div>'+
     '<div class="form-group"><label>Novo quarto (apenas livres) *</label>'+
       '<select id="tqNovoQuarto" onchange="previewTrocaQuarto(\''+id+'\')"><option value="">Selecione...</option>'+optgroups+'</select></div>'+
@@ -138,10 +138,10 @@ export function previewTrocaQuarto(id){
   var q=St.fi("q",sel.value);
   if(!q){aviso.textContent="";return;}
   var tNovo=St.fi("tq",q.tipoQuartoId),tAtual=St.fi("tq",r.tipoQuartoId);
-  if(!tNovo||!tAtual||tNovo.id===tAtual.id){aviso.innerHTML='<span style="color:var(--pos)">Mesmo tipo de quarto: o valor da reserva nao muda.</span>';return;}
+  if(!tNovo||!tAtual||tNovo.id===tAtual.id){aviso.innerHTML='<span style="color:var(--pos)">Mesmo tipo de quarto: o valor da reserva não muda.</span>';return;}
   var calc=calcularDiarias(tNovo.id, r.dataCheckin, r.dataCheckout);
   aviso.innerHTML='Muda de <b>'+esc(tAtual.nome)+'</b> para <b>'+esc(tNovo.nome)+'</b>. '+
-    'Novo valor da reserva: <b>'+fmtC(calc.total)+'</b> ('+(calc.noites||r.noites)+' noite(s)'+(calc.variou?', tarifa variavel':'')+').';
+    'Novo valor da reserva: <b>'+fmtC(calc.total)+'</b> ('+(calc.noites||r.noites)+' noite(s)'+(calc.variou?', tarifa variável':'')+').';
 }
 
 export async function salvarTrocaQuarto(id){
@@ -149,10 +149,10 @@ export async function salvarTrocaQuarto(id){
   if(!r||!sel)return;
   if(!sel.value)return st("Selecione o novo quarto.","error"),false;
   var novo=St.fi("q",sel.value);
-  if(!novo)return st("Quarto invalido.","error"),false;
+  if(!novo)return st("Quarto inválido.","error"),false;
   // Revalida: o quarto de destino ainda esta livre no periodo? (ignora a propria reserva)
   if(!checkDisponivel(novo.id,r.dataCheckin,r.dataCheckout,id)){
-    return st("Esse quarto ja foi ocupado nesse periodo. Escolha outro.","error"),false;
+    return st("Esse quarto já foi ocupado nesse período. Escolha outro.","error"),false;
   }
   var tNovo=St.fi("tq",novo.tipoQuartoId);
   var calcT=calcularDiarias(novo.tipoQuartoId, r.dataCheckin, r.dataCheckout);
@@ -164,7 +164,7 @@ export async function salvarTrocaQuarto(id){
   if(btn){btn.disabled=false;btn.textContent="Confirmar troca";}
   if(!res.ok){
     if(ehErroOverbooking(res.error)) return st("Esse quarto acabou de ser ocupado por outra reserva. Escolha outro.","error"),false;
-    return st("Nao foi possivel trocar o quarto. Tente novamente.","error"),false;
+    return st("Não foi possível trocar o quarto. Tente novamente.","error"),false;
   }
   // Se o hospede ja fez check-in, sincroniza status dos quartos (libera o antigo, ocupa o novo)
   if(r.status==="checkin"){
@@ -182,18 +182,18 @@ function formReserva(id){var r=id?St.fi("r",id):null;
 var hospedes=St.ga("h").filter(function(h){return h.ativo!==false});
 var tq=St.ga("tq").filter(function(t){return t.ativo!==false});
 return'<div class="form-grid">'+
-'<div class="form-group" style="grid-column:1/-1"><label>Hospede *</label>'+
-(hospedes.length?'<input type="text" id="rfBuscaHosp" oninput="filtrarHospedesReserva(this.value)" placeholder="Buscar hospede por nome ou documento..." style="margin-bottom:8px">':'')+
-'<div style="display:flex;gap:8px"><select id="rfHospede" style="flex:1" size="1">'+(hospedes.length?(r?'':'<option value="">Selecione...</option>'):'<option value="">Nenhum hospede - cadastre um</option>')+hospedes.map(function(h){return'<option value="'+h.id+'" data-busca="'+esc((h.nome+" "+(h.documento||"")).toLowerCase())+'"'+(r&&r.hospedeId===h.id?' selected':'')+'>'+esc(h.nome)+(h.documento?' - '+esc(h.documento):'')+'</option>'}).join('')+'</select><button type="button" class="btn btn-secondary" onclick="toggleNovoHospedeReserva()" id="rfBtnNovoHosp">+ Novo hospede</button></div>'+
+'<div class="form-group" style="grid-column:1/-1"><label>Hóspede *</label>'+
+(hospedes.length?'<input type="text" id="rfBuscaHosp" oninput="filtrarHospedesReserva(this.value)" placeholder="Buscar hóspede por nome ou documento..." style="margin-bottom:8px">':'')+
+'<div style="display:flex;gap:8px"><select id="rfHospede" style="flex:1" size="1">'+(hospedes.length?(r?'':'<option value="">Selecione...</option>'):'<option value="">Nenhum hóspede - cadastre um</option>')+hospedes.map(function(h){return'<option value="'+h.id+'" data-busca="'+esc((h.nome+" "+(h.documento||"")).toLowerCase())+'"'+(r&&r.hospedeId===h.id?' selected':'')+'>'+esc(h.nome)+(h.documento?' - '+esc(h.documento):'')+'</option>'}).join('')+'</select><button type="button" class="btn btn-secondary" onclick="toggleNovoHospedeReserva()" id="rfBtnNovoHosp">+ Novo hóspede</button></div>'+
 '<small id="rfBuscaMsg" style="color:var(--text-mute);font-size:12px"></small></div>'+
 '<div class="form-group" id="rfNovoHospedeBox" style="grid-column:1/-1;display:none;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px">'+
-  '<div style="font-family:Sora,sans-serif;font-weight:600;color:var(--text);margin-bottom:10px">Cadastro rapido de hospede</div>'+
+  '<div style="font-family:Sora,sans-serif;font-weight:600;color:var(--text);margin-bottom:10px">Cadastro rápido de hóspede</div>'+
   '<div class="form-grid">'+
-    '<div class="form-group"><label>Nome *</label><input type="text" id="rfNhNome" placeholder="Nome do hospede"></div>'+
+    '<div class="form-group"><label>Nome *</label><input type="text" id="rfNhNome" placeholder="Nome do hóspede"></div>'+
     '<div class="form-group"><label>CPF ou CNPJ</label><input type="text" id="rfNhDoc" oninput="mascReservaDoc(this)" placeholder="000.000.000-00"></div>'+
     '<div class="form-group"><label>Telefone</label><input type="text" id="rfNhTel" oninput="mascReservaTel(this)" placeholder="(11) 99999-9999"></div>'+
   '</div>'+
-  '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px"><button type="button" class="btn btn-secondary" onclick="toggleNovoHospedeReserva()">Cancelar</button><button type="button" class="btn btn-primary" onclick="salvarHospedeNaReserva()">Salvar hospede</button></div>'+
+  '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px"><button type="button" class="btn btn-secondary" onclick="toggleNovoHospedeReserva()">Cancelar</button><button type="button" class="btn btn-primary" onclick="salvarHospedeNaReserva()">Salvar hóspede</button></div>'+
 '</div>'+
 '<div class="form-group"><label>Tipo de Quarto *</label><select id="rfTipo" onchange="atualizarQuartosDisponiveis()">'+(r?'':'<option value="">Selecione...</option>')+tq.map(function(t){return'<option value="'+t.id+'" data-capacidade="'+t.capacidade+'"'+(r?St.fi("q",r.quartoId)&&St.fi("q",r.quartoId).tipoQuartoId===t.id?' selected':'':'')+'>'+esc(t.nome)+' - '+fmtC(t.precoDiaria)+'/noite</option>'}).join('')+'</select></div>'+
 '<div class="form-group"><label>Check-in *</label><input type="date" id="rfCheckin" value="'+(r?r.dataCheckin:td())+'" onchange="atualizarQuartosDisponiveis()"></div>'+
@@ -206,7 +206,7 @@ export function atualizarQuartosDisponiveis(){var sel=document.getElementById("r
 var tipo=document.getElementById("rfTipo"),ci=document.getElementById("rfCheckin"),co=document.getElementById("rfCheckout");
 if(!tipo||!ci||!co||!tipo.value)return;
 var qs=quartosDisponiveis(tipo.value,ci.value,co.value,null);
-sel.innerHTML=qs.length?'<option value="">Selecione...</option>'+qs.map(function(q){return'<option value="'+q.id+'">Apto '+q.numero+'</option>'}).join(''):'<option value="">Nenhum quarto disponivel</option>';}
+sel.innerHTML=qs.length?'<option value="">Selecione...</option>'+qs.map(function(q){return'<option value="'+q.id+'">Apto '+q.numero+'</option>'}).join(''):'<option value="">Nenhum quarto disponível</option>';}
 
 export function filtrarHospedesReserva(termo){
   var sel=document.getElementById("rfHospede"),msg=document.getElementById("rfBuscaMsg");
@@ -224,8 +224,8 @@ export function filtrarHospedesReserva(termo){
   if(t&&primeiraOpt)sel.value=primeiraOpt.value;
   if(msg){
     if(!t)msg.textContent="";
-    else if(visiveis===0)msg.textContent="Nenhum hospede encontrado. Use \"+ Novo hospede\" para cadastrar.";
-    else msg.textContent=visiveis+" hospede(s) encontrado(s).";
+    else if(visiveis===0)msg.textContent="Nenhum hóspede encontrado. Use \"+ Novo hóspede\" para cadastrar.";
+    else msg.textContent=visiveis+" hóspede(s) encontrado(s).";
   }
 }
 
@@ -241,14 +241,14 @@ export function mascReservaDoc(el){mascDocAuto(el);}
 export function mascReservaTel(el){mascTel(el);}
 export async function salvarHospedeNaReserva(){
   var n=document.getElementById("rfNhNome"),d=document.getElementById("rfNhDoc"),t=document.getElementById("rfNhTel");
-  if(!n||!n.value.trim())return st("Informe o nome do hospede.","error"),false;
+  if(!n||!n.value.trim())return st("Informe o nome do hóspede.","error"),false;
   if(d&&d.value.trim()){var dig=d.value.replace(/\D/g,"");
-    if(dig.length!==11&&dig.length!==14)return st("Documento deve ser CPF (11) ou CNPJ (14 digitos).","error"),false;
-    if(dig.length===11&&!isValidCPF(dig))return st("CPF invalido.","error"),false;}
+    if(dig.length!==11&&dig.length!==14)return st("Documento deve ser CPF (11) ou CNPJ (14 dígitos).","error"),false;
+    if(dig.length===11&&!isValidCPF(dig))return st("CPF inválido.","error"),false;}
   var btn=document.querySelector("#rfNovoHospedeBox .btn-primary");if(btn){btn.disabled=true;btn.textContent="Salvando...";}
   // inAsync aguarda o banco e retorna o id REAL (nao o temporario), evitando reserva com hospede fantasma
   var novo=await St.inAsync("h",{nome:n.value.trim(),documento:(d?d.value.trim():""),telefone:(t?t.value.trim():""),email:"",endereco:"",observacoes:"",consentimentoEm:new Date().toISOString(),ativo:true});
-  if(!novo||!novo.id){if(btn){btn.disabled=false;btn.textContent="Salvar hospede";}return st("Nao foi possivel salvar o hospede.","error"),false;}
+  if(!novo||!novo.id){if(btn){btn.disabled=false;btn.textContent="Salvar hóspede";}return st("Não foi possível salvar o hóspede.","error"),false;}
   var sel=document.getElementById("rfHospede");
   if(sel){
     var opt=document.createElement("option");
@@ -257,19 +257,19 @@ export async function salvarHospedeNaReserva(){
     sel.appendChild(opt);sel.value=novo.id;
   }
   var busca=document.getElementById("rfBuscaHosp");if(busca)busca.value="";
-  st("Hospede cadastrado e selecionado!","success");
+  st("Hóspede cadastrado e selecionado!","success");
   toggleNovoHospedeReserva();
 }
 
 export async function salvarReserva(id){var h=document.getElementById("rfHospede"),t=document.getElementById("rfTipo"),q=document.getElementById("rfQuarto"),ci=document.getElementById("rfCheckin"),co=document.getElementById("rfCheckout"),selSt=document.getElementById("rfStatus");
 if(!h||!t||!q||!ci||!co)return;
-if(!h.value||!t.value||!q.value||!ci.value||!co.value)return st("Preencha todos os campos obrigatorios.","error"),false;
-if(ci.value>=co.value)return st("Check-out deve ser apos Check-in.","error"),false;
+if(!h.value||!t.value||!q.value||!ci.value||!co.value)return st("Preencha todos os campos obrigatórios.","error"),false;
+if(ci.value>=co.value)return st("Check-out deve ser após Check-in.","error"),false;
 // Revalida disponibilidade no momento de salvar (datas podem ter mudado apos escolher o quarto).
 // So bloqueia se a reserva for ficar ativa (pendente/confirmada); ignora a propria reserva ao editar.
 var statusNovo=(selSt?selSt.value:"pendente");
 if(["pendente","confirmada"].indexOf(statusNovo)>=0 && !checkDisponivel(q.value,ci.value,co.value,id||null)){
-  return st("Esse quarto ja esta reservado nesse periodo. Escolha outro quarto ou datas.","error"),false;
+  return st("Esse quarto já está reservado nesse período. Escolha outro quarto ou datas.","error"),false;
 }
 var qo=St.fi("q",q.value),tq=St.fi("tq",qo?qo.tipoQuartoId:null);
 var calc=calcularDiarias(qo?qo.tipoQuartoId:t.value, ci.value, co.value);
@@ -279,8 +279,8 @@ var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disable
 var res = id ? await St.upErr("r",id,dados) : await St.inErr("r",dados);
 if(btn){btn.disabled=false;btn.textContent="Salvar";}
 if(!res.ok){
-  if(ehErroOverbooking(res.error)) return st("Esse quarto acabou de ser reservado por outra pessoa nesse periodo. Escolha outro.","error"),false;
-  return st("Nao foi possivel salvar a reserva. Tente novamente.","error"),false;
+  if(ehErroOverbooking(res.error)) return st("Esse quarto acabou de ser reservado por outra pessoa nesse período. Escolha outro.","error"),false;
+  return st("Não foi possível salvar a reserva. Tente novamente.","error"),false;
 }
 st(id?"Reserva atualizada!":"Reserva criada!","success");
 cm();renderReservas()}
@@ -294,7 +294,7 @@ function somarDias(iso, n){
   d.setDate(d.getDate()+n);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
-var DIAS_SEMANA=["Dom","Seg","Ter","Qua","Qui","Sex","Sab"];
+var DIAS_SEMANA=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 function diaSemana(iso){var p=iso.split("-");return DIAS_SEMANA[new Date(Number(p[0]),Number(p[1])-1,Number(p[2])).getDay()];}
 
 // Reserva ATIVA que ocupa um quarto num dia especifico (dia dentro de [checkin, checkout))
@@ -323,7 +323,7 @@ function pintarMapaOcupacao(){
   var dias=[]; for(var i=0;i<MAPA_DIAS;i++) dias.push(somarDias(_mapaInicio,i));
   var fimISO=dias[dias.length-1];
 
-  var header='<div class="page-header"><div><h2>Mapa de ocupacao</h2><p>Ocupacao por quarto e por dia</p></div>'+
+  var header='<div class="page-header"><div><h2>Mapa de ocupação</h2><p>Ocupação por quarto e por dia</p></div>'+
     '<div class="page-header-actions">'+
       '<button class="btn btn-secondary" onclick="renderReservas()">Voltar</button>'+
       '<button class="btn btn-primary" onclick="showNovaReserva()">+ Nova Reserva</button>'+
@@ -332,12 +332,12 @@ function pintarMapaOcupacao(){
   var controles='<div class="mapa-oc-ctrl">'+
     '<button class="btn btn-sm btn-secondary" onclick="mapaNavegar(-'+MAPA_DIAS+')">&laquo; Anterior</button>'+
     '<button class="btn btn-sm btn-secondary" onclick="mapaHoje()">Hoje</button>'+
-    '<button class="btn btn-sm btn-secondary" onclick="mapaNavegar('+MAPA_DIAS+')">Proximo &raquo;</button>'+
+    '<button class="btn btn-sm btn-secondary" onclick="mapaNavegar('+MAPA_DIAS+')">Próximo &raquo;</button>'+
     '<span class="mapa-oc-periodo">'+fmtD(dias[0])+' a '+fmtD(fimISO)+'</span>'+
     '<span class="mapa-oc-legenda"><i class="oc-cell oc-confirmada"></i>Confirmada <i class="oc-cell oc-checkin"></i>Hospedado <i class="oc-cell oc-pendente"></i>Pendente <i class="oc-cell oc-livre"></i>Livre</span>'+
   '</div>';
 
-  if(!quartos.length){ el.innerHTML=header+'<p style="color:var(--text-mute);padding:16px 0">Cadastre quartos para ver o mapa de ocupacao.</p>'; return; }
+  if(!quartos.length){ el.innerHTML=header+'<p style="color:var(--text-mute);padding:16px 0">Cadastre quartos para ver o mapa de ocupação.</p>'; return; }
 
   // cabecalho de dias
   var thDias=dias.map(function(d){
@@ -384,7 +384,7 @@ export function mapaVerReserva(id){
   var r=St.fi("r",id); if(!r)return;
   var h=St.fi("h",r.hospedeId), q=St.fi("q",r.quartoId), t=St.fi("tq",r.tipoQuartoId);
   var body='<div class="qmodal-info">'+
-    '<div class="qmodal-row"><span>Hospede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
+    '<div class="qmodal-row"><span>Hóspede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
     (h&&h.telefone?'<div class="qmodal-row"><span>Telefone</span><b>'+esc(h.telefone)+'</b></div>':'')+
     '<div class="qmodal-row"><span>Quarto</span><b>Apto '+(q?esc(q.numero):"-")+' ('+(t?esc(t.nome):"")+')</b></div>'+
     '<div class="qmodal-row"><span>Check-in</span><b>'+fmtD(r.dataCheckin)+'</b></div>'+

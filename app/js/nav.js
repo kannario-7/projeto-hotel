@@ -23,7 +23,7 @@ if(p.indexOf("convite=")===0)return; // convites tratados no boot
 document.querySelectorAll(".sidebar-nav a").forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+p)});
 document.querySelectorAll(".bn-item[data-nav]").forEach(function(a){a.classList.toggle("active",a.getAttribute("data-nav")===p)});
 if(p==="admin"){var u=getCurrentUser();if(u&&u.isOwner){renderAdmin();return}else{window.location.hash="d";return}}
-var acesso=hasAccess(p);if(acesso===false){st("Acesso negado a este modulo.","error");window.location.hash="d";return}
+var acesso=hasAccess(p);if(acesso===false){st("Acesso negado a este módulo.","error");window.location.hash="d";return}
 filtrarSidebar();
 switch(p){
 case"d":renderDashboard();break;

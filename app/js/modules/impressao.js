@@ -75,7 +75,7 @@ export function imprimirDocumento(titulo, subtitulo, corpoHTML){
       (docLinha?'<div class="doc-sub">'+esc(docLinha)+'</div>':'')+
       (h.endereco?'<div class="doc-sub">'+esc(h.endereco)+(h.cep?(" · CEP "+esc(h.cep)):"")+'</div>':'')+
       (contato?'<div class="doc-sub">'+esc(contato)+'</div>':'')+
-    '</div><div class="doc-badge"><b>HospedaPrime</b>Relatorio gerencial<br>Emitido em '+agora()+'</div></div>'+
+    '</div><div class="doc-badge"><b>HospedaPrime</b>Relatório gerencial<br>Emitido em '+agora()+'</div></div>'+
     '<div class="doc-title">'+esc(titulo)+'</div>'+
     (subtitulo?'<div class="doc-period">'+esc(subtitulo)+'</div>':'')+
     corpo+
@@ -95,7 +95,7 @@ export function imprimirDocumento(titulo, subtitulo, corpoHTML){
   // aguarda o conteudo (fontes/layout) e dispara o dialogo de impressao
   var disparar = function(){
     try{ frame.contentWindow.focus(); frame.contentWindow.print(); }
-    catch(e){ st("Nao foi possivel abrir a impressao.","error"); }
+    catch(e){ st("Não foi possível abrir a impressão.","error"); }
   };
   if(frame.contentWindow.document.readyState === "complete"){ setTimeout(disparar, 300); }
   else { frame.onload = function(){ setTimeout(disparar, 300); }; }

@@ -110,7 +110,7 @@ export function renderResultadosBusca(termo){
   var html = "";
 
   if(r.hospedes.length){
-    html += grupo("Hospedes", r.hospedes.map(function(h){
+    html += grupo("Hóspedes", r.hospedes.map(function(h){
       var sub = [h.documento, h.telefone].filter(Boolean).map(esc).join(" &middot; ");
       return item("hospede", 'onclick="buscaAbrirHospede(\''+h.id+'\')"', esc(h.nome), sub);
     }).join(''));
@@ -181,14 +181,14 @@ function mostrarDetalheReserva(id){
   var pago = St.ga("pg").filter(function(p){return p.reservaId===id;}).reduce(function(s,p){return s+(p.valor||0);},0);
   var saldo = (r.total||0) - pago;
   var body = '<div class="qmodal-info">'+
-    '<div class="qmodal-row"><span>Hospede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
+    '<div class="qmodal-row"><span>Hóspede</span><b>'+(h?esc(h.nome):"-")+'</b></div>'+
     (h&&h.telefone?'<div class="qmodal-row"><span>Telefone</span><b>'+esc(h.telefone)+'</b></div>':'')+
     '<div class="qmodal-row"><span>Quarto</span><b>'+(q?("Apto "+esc(q.numero)):"-")+(t?(" ("+esc(t.nome)+")"):"")+'</b></div>'+
     '<div class="qmodal-row"><span>Check-in</span><b>'+fmtD(r.dataCheckin)+'</b></div>'+
     '<div class="qmodal-row"><span>Check-out</span><b>'+fmtD(r.dataCheckout)+'</b></div>'+
     '<div class="qmodal-row"><span>Status</span><b>'+getStatusBadge(r.status)+'</b></div>'+
     (r.total?'<div class="qmodal-row"><span>Total</span><b>'+fmtC(r.total)+'</b></div>':'')+
-    (r.total?'<div class="qmodal-row"><span>Ja pago</span><b style="color:var(--pos)">'+fmtC(pago)+'</b></div>':'')+
+    (r.total?'<div class="qmodal-row"><span>Já pago</span><b style="color:var(--pos)">'+fmtC(pago)+'</b></div>':'')+
     (r.total&&saldo>0?'<div class="qmodal-row"><span>Saldo a receber</span><b style="color:var(--warn)">'+fmtC(saldo)+'</b></div>':'')+
   '</div>';
   var footer = '<button class="btn btn-secondary" onclick="closeModal()">Fechar</button>';

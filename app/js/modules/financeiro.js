@@ -12,7 +12,7 @@ export function imprimirFinanceiroAtual(){
   var el=document.getElementById("financeiroContent");if(!el)return;
   var clone=el.cloneNode(true);
   clone.querySelectorAll(".no-print, button").forEach(function(n){n.remove()});
-  var sub=(periodo.fi||periodo.ff)?("Periodo: "+(periodo.fi?fmtD(periodo.fi):"inicio")+" a "+(periodo.ff?fmtD(periodo.ff):"hoje")):"Periodo: todo o historico";
+  var sub=(periodo.fi||periodo.ff)?("Período: "+(periodo.fi?fmtD(periodo.fi):"início")+" a "+(periodo.ff?fmtD(periodo.ff):"hoje")):"Período: todo o histórico";
   imprimirDocumento(TITULOS_FIN[abaAtual]||"Financeiro", sub, clone.innerHTML);
 }
 
@@ -25,12 +25,12 @@ var periodo = { fi:"", ff:"" };
 export function renderFinanceiro(){var el=document.getElementById("pageContent");
 el.innerHTML='<div class="page-header"><div><h2>Financeiro</h2><p>Controle financeiro completo do hotel</p></div></div>'+
 '<div style="display:flex;gap:12px;align-items:end;margin-bottom:16px;flex-wrap:wrap">'+
-'<div class="form-group" style="margin:0"><label>Data Inicio</label><input type="date" id="filtroFi" value="'+esc(periodo.fi)+'"></div>'+
+'<div class="form-group" style="margin:0"><label>Data Início</label><input type="date" id="filtroFi" value="'+esc(periodo.fi)+'"></div>'+
 '<div class="form-group" style="margin:0"><label>Data Fim</label><input type="date" id="filtroFf" value="'+esc(periodo.ff)+'"></div>'+
 '<button class="btn btn-primary btn-sm" onclick="filtrarFinanceiro()">Filtrar</button>'+
 '<button class="btn btn-secondary btn-sm" onclick="limparFiltroFinanceiro()">Limpar</button></div>'+
 '<div class="tabs">'+
-'<div class="tab active" onclick="mudarFinTab(this,\'geral\')">Visao Geral</div>'+
+'<div class="tab active" onclick="mudarFinTab(this,\'geral\')">Visão Geral</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'receitas\')">Receitas</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'despesas\')">Despesas</div>'+
 '<div class="tab" onclick="mudarFinTab(this,\'contas\')">Contas a Pagar/Receber</div>'+
@@ -61,7 +61,7 @@ function noPeriodo(lista){return lista.filter(function(x){
   return true;
 });}
 
-function labelPeriodo(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi?fmtD(periodo.fi):"inicio")+' a '+(periodo.ff?fmtD(periodo.ff):"hoje");return' &middot; todo o periodo';}
+function labelPeriodo(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi?fmtD(periodo.fi):"início")+' a '+(periodo.ff?fmtD(periodo.ff):"hoje");return' &middot; todo o período';}
 
 // ---- RESUMO / DRE ----
 // despesas efetivadas (pagas) - regra unica no financeiro-core (contas a pagar em aberto nao entram no resultado)
@@ -80,12 +80,12 @@ function buildVisaoGeral(){
     var saldo=(r.total||0)-pagoDaReserva; return s+(saldo>0?saldo:0);
   },0);
   var lucroCor = lucro>=0?"var(--pos)":"var(--neg)";
-  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Visao Geral'+labelPeriodo()+'</h3><div class="no-print" style="display:flex;gap:8px"><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
+  var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"><h3 style="color:var(--text)">Visão Geral'+labelPeriodo()+'</h3><div class="no-print" style="display:flex;gap:8px"><button class="btn btn-sm btn-secondary" onclick="exportarResumoCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:var(--pos)">'+fmtC(receita)+'</div></div>'+
   '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:var(--neg)">'+fmtC(despesa)+'</div></div>'+
-  '<div class="stat-card"><h3>Lucro Liquido</h3><div class="value" style="color:'+lucroCor+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
-  '<div class="stat-card"><h3>Ticket Medio</h3><div class="value">'+fmtC(ticket)+'</div><div class="sub">'+pg.length+' pagamento(s)</div></div>'+
+  '<div class="stat-card"><h3>Lucro Líquido</h3><div class="value" style="color:'+lucroCor+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
+  '<div class="stat-card"><h3>Ticket Médio</h3><div class="value">'+fmtC(ticket)+'</div><div class="sub">'+pg.length+' pagamento(s)</div></div>'+
   '<div class="stat-card"><h3>A Receber</h3><div class="value" style="color:var(--warn)">'+fmtC(aReceber)+'</div><div class="sub">reservas em aberto</div></div>'+
   '</div></div>';
   html+=buildBalanceteSecoes();
@@ -101,7 +101,7 @@ function buildComparativoMensal(){
   ds.forEach(function(x){var m=x.data?x.data.slice(0,7):"";if(m){meses[m]=meses[m]||{r:0,d:0};meses[m].d+=(x.valor||0);}});
   var chaves=Object.keys(meses).sort().reverse().slice(0,12);
   if(!chaves.length)return'<div class="report-container"><p style="color:var(--text-mute)">Sem dados para o comparativo mensal.</p></div>';
-  var html='<div class="report-container"><h3 style="margin-bottom:14px;color:var(--text)">Comparativo Mensal (ultimos 12 meses)</h3><table><tr><th>Mes</th><th>Receita</th><th>Despesa</th><th>Lucro</th></tr>'+
+  var html='<div class="report-container"><h3 style="margin-bottom:14px;color:var(--text)">Comparativo Mensal (últimos 12 meses)</h3><table><tr><th>Mês</th><th>Receita</th><th>Despesa</th><th>Lucro</th></tr>'+
   chaves.map(function(m){var v=meses[m];var l=v.r-v.d;return'<tr><td>'+m.split("-").reverse().join("/")+'</td><td style="color:var(--pos)">'+fmtC(v.r)+'</td><td style="color:var(--neg)">'+fmtC(v.d)+'</td><td style="color:'+(l>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(l)+'</td></tr>'}).join('')+'</table></div>'+
   '<div class="no-print" style="text-align:right"><button class="btn btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>';
   return html;
@@ -113,12 +113,12 @@ function buildReceitas(){
   var total=pg.reduce(function(s,p){return s+(p.valor||0)},0);
   var porForma={};pg.forEach(function(p){porForma[p.forma]=(porForma[p.forma]||0)+(p.valor||0)});
   var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Receitas'+labelPeriodo()+'</h3><button class="btn btn-sm btn-secondary" onclick="exportarReceitasCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div>'+
-  '<div class="cards-row"><div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:var(--pos)">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Transacoes</h3><div class="value">'+pg.length+'</div></div></div>';
+  '<div class="cards-row"><div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:var(--pos)">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Transações</h3><div class="value">'+pg.length+'</div></div></div>';
   if(Object.keys(porForma).length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por Forma de Pagamento</h3><table><tr><th>Forma</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porForma).map(function(f){var pc=total?Math.round(porForma[f]/total*100):0;return'<tr><td>'+esc(cap(f))+'</td><td>'+fmtC(porForma[f])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
-  if(pg.length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Historico</h3><table><tr><th>Data</th><th>Hospede</th><th>Valor</th><th>Forma</th><th>Obs</th></tr>'+
+  if(pg.length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Histórico</h3><table><tr><th>Data</th><th>Hóspede</th><th>Valor</th><th>Forma</th><th>Obs</th></tr>'+
   pg.slice().sort(function(a,b){return (b.data||"").localeCompare(a.data||"")}).slice(0,200).map(function(p){var h=hospedes.find(function(x){return x.id===p.hospedeId});return'<tr><td>'+fmtD(p.data)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+fmtC(p.valor)+'</td><td>'+esc(cap(p.forma||""))+'</td><td>'+esc(p.observacoes||"-")+'</td></tr>'}).join('')+'</table>';}
-  else{html+='<p style="padding:20px;text-align:center;color:var(--text-mute)">Nenhuma receita no periodo.</p>';}
+  else{html+='<p style="padding:20px;text-align:center;color:var(--text-mute)">Nenhuma receita no período.</p>';}
   html+='</div>';return html;
 }
 
@@ -128,41 +128,41 @@ function buildDespesas(){
   var total=ds.reduce(function(s,d){return s+(d.valor||0)},0);
   var porCat={};ds.forEach(function(d){var c=d.categoria||"Outros";porCat[c]=(porCat[c]||0)+(d.valor||0)});
   var html='<div class="report-container"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px"><h3 style="color:var(--text)">Despesas'+labelPeriodo()+'</h3><div style="display:flex;gap:8px"><button class="btn btn-sm btn-primary" onclick="showNovaDespesa()">+ Nova Despesa</button><button class="btn btn-sm btn-secondary" onclick="exportarDespesasCSV()">Exportar CSV</button><button class="btn btn-sm btn-secondary" onclick="imprimirFinanceiroAtual()">Imprimir / PDF</button></div></div>'+
-  '<div class="cards-row"><div class="stat-card"><h3>Total de Despesas</h3><div class="value" style="color:var(--neg)">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Lancamentos</h3><div class="value">'+ds.length+'</div></div></div>';
+  '<div class="cards-row"><div class="stat-card"><h3>Total de Despesas</h3><div class="value" style="color:var(--neg)">'+fmtC(total)+'</div></div><div class="stat-card"><h3>Lançamentos</h3><div class="value">'+ds.length+'</div></div></div>';
   if(Object.keys(porCat).length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por Categoria</h3><table><tr><th>Categoria</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porCat).map(function(c){var pc=total?Math.round(porCat[c]/total*100):0;return'<tr><td>'+esc(c)+'</td><td>'+fmtC(porCat[c])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
-  if(ds.length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Lancamentos</h3><table><tr><th>Data</th><th>Descricao</th><th>Categoria</th><th>Valor</th><th>Forma</th><th>Acoes</th></tr>'+
+  if(ds.length){html+='<h3 style="margin:16px 0 10px;color:var(--text)">Lançamentos</h3><table><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Forma</th><th>Ações</th></tr>'+
   ds.slice().sort(function(a,b){return (b.data||"").localeCompare(a.data||"")}).map(function(d){return'<tr><td>'+fmtD(d.data)+'</td><td>'+esc(d.descricao)+'</td><td>'+esc(d.categoria||"-")+'</td><td style="color:var(--neg)">'+fmtC(d.valor)+'</td><td>'+esc(cap(d.forma||"-"))+'</td><td><button class="btn btn-sm btn-danger" onclick="excluirDespesa(\''+d.id+'\')">Excluir</button></td></tr>'}).join('')+'</table>';}
-  else{html+='<p style="padding:20px;text-align:center;color:var(--text-mute)">Nenhuma despesa no periodo. Clique em "+ Nova Despesa".</p>';}
+  else{html+='<p style="padding:20px;text-align:center;color:var(--text-mute)">Nenhuma despesa no período. Clique em "+ Nova Despesa".</p>';}
   html+='</div>';return html;
 }
 
 export function showNovaDespesa(){
   sm("Nova Despesa",
   '<div class="form-grid">'+
-  '<div class="form-group" style="grid-column:1/-1"><label>Descricao *</label><input type="text" id="dsDesc" placeholder="Ex: Conta de energia"></div>'+
+  '<div class="form-group" style="grid-column:1/-1"><label>Descrição *</label><input type="text" id="dsDesc" placeholder="Ex: Conta de energia"></div>'+
   '<div class="form-group"><label>Valor (R$) *</label><input type="number" id="dsValor" step="0.01" min="0" placeholder="0,00"></div>'+
   '<div class="form-group"><label>Data</label><input type="date" id="dsData" value="'+td()+'"></div>'+
   '<div class="form-group"><label>Categoria</label><select id="dsCat">'+CATEGORIAS_DESPESA.map(function(c){return'<option value="'+esc(c)+'">'+esc(c)+'</option>'}).join('')+'</select></div>'+
   '<div class="form-group"><label>Forma de Pagamento</label><select id="dsForma">'+FORMAS.map(function(f){return'<option value="'+f+'">'+cap(f)+'</option>'}).join('')+'</select></div>'+
-  '<div class="form-group" style="grid-column:1/-1"><label>Observacoes</label><textarea id="dsObs" rows="2"></textarea></div>'+
+  '<div class="form-group" style="grid-column:1/-1"><label>Observações</label><textarea id="dsObs" rows="2"></textarea></div>'+
   '</div>',
   '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvarDespesa()">Salvar</button>');
 }
 
 export function salvarDespesa(){
   var desc=document.getElementById("dsDesc"),val=document.getElementById("dsValor"),dt=document.getElementById("dsData"),cat=document.getElementById("dsCat"),fm=document.getElementById("dsForma"),obs=document.getElementById("dsObs");
-  if(!desc||!desc.value.trim())return st("Informe a descricao da despesa.","error"),false;
+  if(!desc||!desc.value.trim())return st("Informe a descrição da despesa.","error"),false;
   var v=Math.round(parseFloat(val&&val.value?val.value:0)*100);
-  if(!v||v<=0)return st("Informe um valor valido.","error"),false;
+  if(!v||v<=0)return st("Informe um valor válido.","error"),false;
   St.in("ds",{descricao:desc.value.trim(),valor:v,data:(dt&&dt.value?dt.value:td()),categoria:(cat?cat.value:"Outros"),forma:(fm?fm.value:"dinheiro"),observacoes:(obs?obs.value.trim():"")});
   st("Despesa registrada!","success");cm();
   document.getElementById("financeiroContent").innerHTML=buildDespesas();
 }
 
 export function excluirDespesa(id){
-  confirmar({titulo:"Excluir despesa?",msg:"Esta acao nao podera ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){
-    St.rm("ds",id);st("Despesa excluida.","warning");
+  confirmar({titulo:"Excluir despesa?",msg:"Esta ação não poderá ser desfeita.",okLabel:"Sim, excluir",tipo:"danger"},function(){
+    St.rm("ds",id);st("Despesa excluída.","warning");
     document.getElementById("financeiroContent").innerHTML=buildDespesas();
   });
 }
@@ -198,10 +198,10 @@ function buildBalanceteSecoes(){
     linhaBal("Valor cancelado",fmtC(totalCancel))+'</div>';
 
   var secFat='<div class="bal-sec"><div class="bal-sec-tit">Faturamento</div>'+
-    linhaBal("Receita de diarias",fmtC(recDiarias))+
-    linhaBal("Receita de servicos/consumo",fmtC(recServicos))+
+    linhaBal("Receita de diárias",fmtC(recDiarias))+
+    linhaBal("Receita de serviços/consumo",fmtC(recServicos))+
     linhaBal("(-) Despesas",fmtC(despesa),"bal-neg")+
-    linhaBal("Resultado liquido",fmtC(liquido),(liquido>=0?"bal-pos":"bal-neg"),true)+'</div>';
+    linhaBal("Resultado líquido",fmtC(liquido),(liquido>=0?"bal-pos":"bal-neg"),true)+'</div>';
 
   var secDesp='<div class="bal-sec"><div class="bal-sec-tit">Despesas por categoria</div>'+
     (Object.keys(porCat).length?Object.keys(porCat).sort(function(a,b){return porCat[b]-porCat[a]}).map(function(c){return linhaBal(c,fmtC(porCat[c]))}).join(''):'<div class="bal-line"><span class="bl-lbl" style="color:var(--text-mute)">Sem despesas</span><span class="bl-val">R$ 0,00</span></div>')+
@@ -212,14 +212,14 @@ function buildBalanceteSecoes(){
     linhaBal("Contas a pagar",fmtC(aPagar),"")+
     linhaBal("Saldo projetado",fmtC(aReceber-aPagar),((aReceber-aPagar)>=0?"bal-pos":"bal-neg"),true)+'</div>';
 
-  var secIndice='<div class="bal-sec"><div class="bal-sec-tit">Indices</div>'+
-    linhaBal("Margem liquida",margem+"%")+
-    linhaBal("Ticket medio",fmtC(pg.length?Math.round(receita/pg.length):0))+
+  var secIndice='<div class="bal-sec"><div class="bal-sec-tit">Índices</div>'+
+    linhaBal("Margem líquida",margem+"%")+
+    linhaBal("Ticket médio",fmtC(pg.length?Math.round(receita/pg.length):0))+
     linhaBal("Nº de pagamentos",""+pg.length)+'</div>';
 
   return '<div class="report-container">'+
     '<h3 style="color:var(--text);margin-bottom:4px">Balancete de Resultados'+labelPeriodo()+'</h3>'+
-    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:12px">Visao consolidada do periodo. Contas a pagar/receber sao previsoes.</p>'+
+    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:12px">Visão consolidada do período. Contas a pagar/receber são previsões.</p>'+
     '<div class="bal-grid">'+secReceitas+secCancel+secFat+secDesp+secContas+secIndice+'</div>'+
     '</div>';
 }
@@ -249,7 +249,7 @@ function buildContas(){
   '</div>';
   // A PAGAR
   html+='<h3 style="margin:18px 0 10px;color:var(--text)">Contas a Pagar</h3>';
-  if(aPagar.length){html+='<table><tr><th>Vencimento</th><th>Descricao</th><th>Categoria</th><th>Valor</th><th>Situacao</th><th>Acao</th></tr>'+
+  if(aPagar.length){html+='<table><tr><th>Vencimento</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Situação</th><th>Ação</th></tr>'+
   aPagar.map(function(d){
     var venc=d.vencimento||"";var situacao,cor;
     if(!venc){situacao="Sem data";cor="var(--text-mute)";}
@@ -257,10 +257,10 @@ function buildContas(){
     else{var dias=Math.round((new Date(venc)-new Date(hoje))/86400000);situacao=dias===0?"Vence hoje":("Vence em "+dias+"d");cor=dias<=3?"var(--warn)":"var(--text-dim)";}
     return'<tr><td>'+(venc?fmtD(venc):"-")+'</td><td>'+esc(d.descricao)+'</td><td>'+esc(d.categoria||"-")+'</td><td style="color:var(--neg)">'+fmtC(d.valor)+'</td><td style="color:'+cor+'">'+situacao+'</td><td><button class="btn btn-sm btn-success" onclick="marcarPagoDespesa(\''+d.id+'\')">Marcar Pago</button></td></tr>';
   }).join('')+'</table>';}
-  else{html+='<p style="color:var(--text-mute);padding:10px 0">Nenhuma conta a pagar em aberto. Use "+ Conta a Pagar" para lancar.</p>';}
+  else{html+='<p style="color:var(--text-mute);padding:10px 0">Nenhuma conta a pagar em aberto. Use "+ Conta a Pagar" para lançar.</p>';}
   // A RECEBER
   html+='<h3 style="margin:18px 0 10px;color:var(--text)">Contas a Receber (reservas em aberto)</h3>';
-  if(aReceber.length){html+='<table><tr><th>Hospede</th><th>Check-in</th><th>Check-out</th><th>Saldo a Receber</th></tr>'+
+  if(aReceber.length){html+='<table><tr><th>Hóspede</th><th>Check-in</th><th>Check-out</th><th>Saldo a Receber</th></tr>'+
   aReceber.sort(function(a,b){return (a.checkin||"").localeCompare(b.checkin||"")}).map(function(x){return'<tr><td>'+esc(x.nome)+'</td><td>'+fmtD(x.checkin)+'</td><td>'+fmtD(x.checkout)+'</td><td style="color:var(--warn)">'+fmtC(x.saldo)+'</td></tr>'}).join('')+'</table>';}
   else{html+='<p style="color:var(--text-mute);padding:10px 0">Nenhuma reserva com saldo em aberto.</p>';}
   html+='</div>';
@@ -270,7 +270,7 @@ function buildContas(){
 export function showNovaContaPagar(){
   sm("Nova Conta a Pagar",
   '<div class="form-grid">'+
-  '<div class="form-group" style="grid-column:1/-1"><label>Descricao *</label><input type="text" id="cpDesc" placeholder="Ex: Fornecedor de enxoval"></div>'+
+  '<div class="form-group" style="grid-column:1/-1"><label>Descrição *</label><input type="text" id="cpDesc" placeholder="Ex: Fornecedor de enxoval"></div>'+
   '<div class="form-group"><label>Valor (R$) *</label><input type="number" id="cpValor" step="0.01" min="0"></div>'+
   '<div class="form-group"><label>Vencimento *</label><input type="date" id="cpVenc" value="'+td()+'"></div>'+
   '<div class="form-group"><label>Categoria</label><select id="cpCat">'+CATEGORIAS_DESPESA.map(function(c){return'<option value="'+esc(c)+'">'+esc(c)+'</option>'}).join('')+'</select></div>'+
@@ -280,9 +280,9 @@ export function showNovaContaPagar(){
 }
 export function salvarContaPagar(){
   var desc=document.getElementById("cpDesc"),val=document.getElementById("cpValor"),venc=document.getElementById("cpVenc"),cat=document.getElementById("cpCat"),fm=document.getElementById("cpForma");
-  if(!desc||!desc.value.trim())return st("Informe a descricao.","error"),false;
+  if(!desc||!desc.value.trim())return st("Informe a descrição.","error"),false;
   var v=Math.round(parseFloat(val&&val.value?val.value:0)*100);
-  if(!v||v<=0)return st("Informe um valor valido.","error"),false;
+  if(!v||v<=0)return st("Informe um valor válido.","error"),false;
   // conta a pagar = despesa nao paga, com vencimento. data fica igual ao vencimento ate ser paga
   St.in("ds",{descricao:desc.value.trim(),valor:v,data:(venc&&venc.value?venc.value:td()),vencimento:(venc&&venc.value?venc.value:td()),categoria:(cat?cat.value:"Outros"),forma:(fm?fm.value:"boleto"),pago:false,observacoes:""});
   st("Conta a pagar cadastrada!","success");cm();
@@ -322,7 +322,7 @@ function pagamentosDoTurno(sessao){
 // Agrupa pagamentos por operador (usuarioNome), para o fechamento mostrar quem recebeu o que.
 function porOperador(pgs){
   var m={};
-  pgs.forEach(function(p){ var k=p.usuarioNome||"Nao identificado"; m[k]=(m[k]||0)+(p.valor||0); });
+  pgs.forEach(function(p){ var k=p.usuarioNome||"Não identificado"; m[k]=(m[k]||0)+(p.valor||0); });
   return m;
 }
 
@@ -340,13 +340,13 @@ function buildCaixa(){
     if(Object.keys(porForma).length){html+='<h4 style="margin:12px 0 8px;color:var(--text)">Recebido por forma (sistema)</h4><table><tr><th>Forma</th><th>Total</th></tr>'+Object.keys(porForma).map(function(f){return'<tr><td>'+esc(cap(f))+'</td><td>'+fmtC(porForma[f])+'</td></tr>'}).join('')+'</table>';}
     var porOp=porOperador(pgT);
     if(Object.keys(porOp).length){html+='<h4 style="margin:12px 0 8px;color:var(--text)">Recebido por operador</h4><table><tr><th>Operador</th><th>Total</th></tr>'+Object.keys(porOp).map(function(nome){return'<tr><td>'+esc(nome)+'</td><td>'+fmtC(porOp[nome])+'</td></tr>'}).join('')+'</table>';}
-    html+='<div style="margin-top:14px"><button class="btn btn-danger" onclick="showFecharCaixa()">Fechar Caixa (conferencia)</button></div>';
+    html+='<div style="margin-top:14px"><button class="btn btn-danger" onclick="showFecharCaixa()">Fechar Caixa (conferência)</button></div>';
   } else {
     html+='<p style="color:var(--text-mute);margin-bottom:14px">Nenhum caixa aberto no momento. Abra o caixa para iniciar um turno.</p><button class="btn btn-primary" onclick="showAbrirCaixa()">Abrir Caixa</button>';
   }
   // historico de fechamentos
   var fechados=St.ga("sc").filter(function(s){return s.status==="fechado"}).sort(function(a,b){return (b.fechadoEm||"").localeCompare(a.fechadoEm||"")}).slice(0,30);
-  if(fechados.length){html+='<h3 style="margin:22px 0 10px;color:var(--text)">Historico de Fechamentos</h3><table><tr><th>Abertura</th><th>Fechamento</th><th>Operador</th><th>Sistema</th><th>Contado</th><th>Diferenca</th></tr>'+
+  if(fechados.length){html+='<h3 style="margin:22px 0 10px;color:var(--text)">Histórico de Fechamentos</h3><table><tr><th>Abertura</th><th>Fechamento</th><th>Operador</th><th>Sistema</th><th>Contado</th><th>Diferença</th></tr>'+
   fechados.map(function(s){var contado=(s.contadoDinheiro||0)+(s.contadoCartao||0)+(s.contadoPix||0)+(s.contadoOutros||0);var difCor=s.diferenca===0?"var(--pos)":(s.diferenca>0?"var(--warn)":"var(--neg)");var difTxt=s.diferenca===0?"OK":(s.diferenca>0?("Sobra "+fmtC(s.diferenca)):("Falta "+fmtC(-s.diferenca)));return'<tr><td>'+fmtDataHora(s.abertoEm)+'</td><td>'+fmtDataHora(s.fechadoEm)+'</td><td>'+esc(s.usuarioFechamento||s.usuarioAbertura||"-")+'</td><td>'+fmtC(s.valorSistema)+'</td><td>'+fmtC(contado)+'</td><td style="color:'+difCor+'">'+difTxt+'</td></tr>'}).join('')+'</table>';}
   html+='</div>';
   return html;
@@ -355,18 +355,18 @@ function buildCaixa(){
 export function showAbrirCaixa(){
   sm("Abrir Caixa",
   '<div class="form-group"><label>Fundo de troco inicial (R$)</label><input type="number" id="cxAbertura" step="0.01" min="0" value="0" placeholder="0,00"></div>'+
-  '<p style="color:var(--text-mute);font-size:12px">Valor em dinheiro que ja esta na gaveta no inicio do turno.</p>',
+  '<p style="color:var(--text-mute);font-size:12px">Valor em dinheiro que já está na gaveta no início do turno.</p>',
   '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="abrirCaixa()">Abrir</button>');
 }
 export async function abrirCaixa(){
-  if(caixaAberto())return st("Ja existe um caixa aberto. Feche-o antes de abrir outro.","warning");
+  if(caixaAberto())return st("Já existe um caixa aberto. Feche-o antes de abrir outro.","warning");
   var v=document.getElementById("cxAbertura");
   var fundo=Math.round(parseFloat(v&&v.value?v.value:0)*100);
   var u=getCurrentUser();
   var btn=document.querySelector("#modalFooter .btn-primary"); if(btn){btn.disabled=true;btn.textContent="Abrindo...";}
   var res=await St.inErr("sc",{usuarioAbertura:(u?u.nome:"-"),abertoEm:new Date().toISOString(),valorAbertura:fundo,status:"aberto"});
   if(btn){btn.disabled=false;btn.textContent="Abrir caixa";}
-  if(!res.ok)return st("Nao foi possivel abrir o caixa. Tente novamente.","error"),false;
+  if(!res.ok)return st("Não foi possível abrir o caixa. Tente novamente.","error"),false;
   auditar("caixa.abrir","Abriu o caixa com fundo de "+fmtC(fundo));
   st("Caixa aberto!","success");cm();
   document.getElementById("financeiroContent").innerHTML=buildCaixa();
@@ -375,14 +375,14 @@ export async function abrirCaixa(){
 export function showFecharCaixa(){
   var aberto=caixaAberto();if(!aberto)return st("Nenhum caixa aberto.","error");
   var pgT=pagamentosDoTurno(aberto);var totalSistema=pgT.reduce(function(s,p){return s+(p.valor||0)},0);
-  sm("Fechar Caixa - Conferencia",
-  '<p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">Conte os valores fisicos e informe abaixo. O sistema registrou <b>'+fmtC(totalSistema)+'</b> neste turno (+ fundo de '+fmtC(aberto.valorAbertura)+').</p>'+
+  sm("Fechar Caixa - Conferência",
+  '<p style="color:var(--text-dim);font-size:13px;margin-bottom:12px">Conte os valores físicos e informe abaixo. O sistema registrou <b>'+fmtC(totalSistema)+'</b> neste turno (+ fundo de '+fmtC(aberto.valorAbertura)+').</p>'+
   '<div class="form-grid">'+
   '<div class="form-group"><label>Dinheiro contado (R$)</label><input type="number" id="cxDin" step="0.01" min="0" value="0"></div>'+
-  '<div class="form-group"><label>Cartao (R$)</label><input type="number" id="cxCard" step="0.01" min="0" value="0"></div>'+
+  '<div class="form-group"><label>Cartão (R$)</label><input type="number" id="cxCard" step="0.01" min="0" value="0"></div>'+
   '<div class="form-group"><label>PIX (R$)</label><input type="number" id="cxPix" step="0.01" min="0" value="0"></div>'+
   '<div class="form-group"><label>Outros (R$)</label><input type="number" id="cxOut" step="0.01" min="0" value="0"></div>'+
-  '<div class="form-group" style="grid-column:1/-1"><label>Observacoes</label><textarea id="cxObs" rows="2"></textarea></div>'+
+  '<div class="form-group" style="grid-column:1/-1"><label>Observações</label><textarea id="cxObs" rows="2"></textarea></div>'+
   '</div>',
   '<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-danger" onclick="fecharCaixa()">Fechar e conferir</button>');
 }
@@ -400,8 +400,8 @@ export async function fecharCaixa(){
   // AGUARDA o banco: o fechamento de caixa (conferencia/diferenca) nao pode se perder silenciosamente
   var res=await St.upErr("sc",aberto.id,{usuarioFechamento:(u?u.nome:"-"),fechadoEm:new Date().toISOString(),contadoDinheiro:din,contadoCartao:card,contadoPix:pix,contadoOutros:out,valorSistema:totalSistema,diferenca:diferenca,observacoes:(obs?obs.value.trim():""),status:"fechado"});
   if(btn){btn.disabled=false;btn.textContent="Fechar e conferir";}
-  if(!res.ok)return st("Nao foi possivel fechar o caixa. Confira a conexao e tente novamente.","error"),false;
-  auditar("caixa.fechar","Fechou o caixa. Sistema "+fmtC(totalSistema)+", contado "+fmtC(contadoTotal)+", diferenca "+(diferenca>=0?"+":"")+fmtC(diferenca));
+  if(!res.ok)return st("Não foi possível fechar o caixa. Confira a conexão e tente novamente.","error"),false;
+  auditar("caixa.fechar","Fechou o caixa. Sistema "+fmtC(totalSistema)+", contado "+fmtC(contadoTotal)+", diferença "+(diferenca>=0?"+":"")+fmtC(diferenca));
   var msg=diferenca===0?"Caixa fechado. Valores conferem!":(diferenca>0?("Caixa fechado. SOBRA de "+fmtC(diferenca)):("Caixa fechado. FALTA de "+fmtC(-diferenca)));
   st(msg, diferenca===0?"success":"warning");cm();
   document.getElementById("financeiroContent").innerHTML=buildCaixa();
@@ -410,19 +410,19 @@ export async function fecharCaixa(){
 // ---- Exportacao CSV (baixarCSV/reais/cap vem de utils.js) ----
 export function exportarReceitasCSV(){
   var pg=noPeriodo(St.ga("pg")),hospedes=St.ga("h");
-  var linhas=[["Data","Hospede","Valor","Forma","Observacoes"]];
+  var linhas=[["Data","Hóspede","Valor","Forma","Observações"]];
   pg.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"")}).forEach(function(p){var h=hospedes.find(function(x){return x.id===p.hospedeId});linhas.push([fmtD(p.data),h?h.nome:"",reais(p.valor),cap(p.forma||""),p.observacoes||""]);});
   baixarCSV("receitas.csv",linhas);st("Arquivo exportado.","success");
 }
 export function exportarDespesasCSV(){
   var ds=noPeriodo(despesasPagas());
-  var linhas=[["Data","Descricao","Categoria","Valor","Forma","Observacoes"]];
+  var linhas=[["Data","Descrição","Categoria","Valor","Forma","Observações"]];
   ds.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"")}).forEach(function(d){linhas.push([fmtD(d.data),d.descricao,d.categoria||"",reais(d.valor),cap(d.forma||""),d.observacoes||""]);});
   baixarCSV("despesas.csv",linhas);st("Arquivo exportado.","success");
 }
 export function exportarResumoCSV(){
   var pg=noPeriodo(St.ga("pg")),ds=noPeriodo(despesasPagas());
   var receita=pg.reduce(function(s,p){return s+(p.valor||0)},0),despesa=ds.reduce(function(s,d){return s+(d.valor||0)},0);
-  var linhas=[["Indicador","Valor (R$)"],["Receita",reais(receita)],["Despesa",reais(despesa)],["Lucro Liquido",reais(receita-despesa)],["Transacoes",pg.length],["Ticket Medio",reais(pg.length?Math.round(receita/pg.length):0)]];
+  var linhas=[["Indicador","Valor (R$)"],["Receita",reais(receita)],["Despesa",reais(despesa)],["Lucro Líquido",reais(receita-despesa)],["Transações",pg.length],["Ticket Médio",reais(pg.length?Math.round(receita/pg.length):0)]];
   baixarCSV("resumo-financeiro.csv",linhas);st("Arquivo exportado.","success");
 }

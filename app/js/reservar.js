@@ -18,10 +18,10 @@ var conteudo = document.getElementById("rvConteudo");
 function card(html){ return '<div class="rv-card">'+html+'</div>'; }
 
 async function iniciar(){
-  if(!SLUG){ conteudo.innerHTML = card('<div class="rv-msg">Link invalido. Peca ao hotel o link correto de reservas.</div>'); return; }
+  if(!SLUG){ conteudo.innerHTML = card('<div class="rv-msg">Link inválido. Peça ao hotel o link correto de reservas.</div>'); return; }
   var { data, error } = await supabase.rpc("catalogo_publico", { p_slug: SLUG });
   if(error || !data || !data.ok){
-    conteudo.innerHTML = card('<div class="rv-msg">As reservas online deste hotel nao estao disponiveis no momento.</div>');
+    conteudo.innerHTML = card('<div class="rv-msg">As reservas online deste hotel não estão disponíveis no momento.</div>');
     return;
   }
   CATALOGO = data;
@@ -51,7 +51,7 @@ async function buscarDisponibilidade(){
   var { data, error } = await supabase.rpc("disponibilidade_publica", { p_slug:SLUG, p_checkin:ci, p_checkout:co });
   if(btn){btn.disabled=false;btn.textContent="Ver disponibilidade";}
   if(error || !data || !data.ok){
-    toast("Nao foi possivel consultar. Verifique as datas e tente de novo.","error"); return;
+    toast("Não foi possível consultar. Verifique as datas e tente de novo.","error"); return;
   }
   renderResultados(ci, co, data.itens||[]);
 }
@@ -60,15 +60,15 @@ function renderResultados(ci, co, itens){
   var noites = (new Date(co)-new Date(ci))/86400000;
   var disponiveis = itens.filter(function(x){ return x.qtd_disponivel>0; });
   var html='<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px">'+
-    '<h3 style="color:var(--text);font-family:Sora,sans-serif">Acomodacoes</h3>'+
+    '<h3 style="color:var(--text);font-family:Sora,sans-serif">Acomodações</h3>'+
     '<button class="btn btn-secondary btn-sm" id="rvVoltarDatas">Trocar datas</button></div>'+
     '<p style="color:var(--text-dim);font-size:13px;margin-bottom:14px">'+fmtD(ci)+' a '+fmtD(co)+' &middot; '+noites+' noite(s)</p>';
   if(!disponiveis.length){
-    html += '<div class="rv-msg">Nenhuma acomodacao disponivel para essas datas. Tente outro periodo.</div>';
+    html += '<div class="rv-msg">Nenhuma acomodação disponível para essas datas. Tente outro período.</div>';
   } else {
     html += disponiveis.map(function(x){
       return '<div class="rv-tipo"><div class="rv-tipo-info"><b>'+esc(x.nome)+'</b>'+
-        '<small>Ate '+esc(x.capacidade)+' pessoa(s) &middot; '+x.qtd_disponivel+' disponivel(is)</small></div>'+
+        '<small>Até '+esc(x.capacidade)+' pessoa(s) &middot; '+x.qtd_disponivel+' disponível(is)</small></div>'+
         '<div class="rv-preco"><b>'+fmtC(x.preco)+'</b><small>'+noites+' noite(s)</small>'+
         '<button class="btn btn-primary btn-sm" style="margin-top:6px" data-tipo="'+esc(x.tipoId)+'" data-nome="'+esc(x.nome)+'" data-preco="'+x.preco+'">Reservar</button></div></div>';
     }).join('');
@@ -93,7 +93,7 @@ function renderFormHospede(){
     '<div class="form-group"><label>Telefone</label><input type="text" id="rvTel" placeholder="(11) 99999-9999"></div>'+
     '</div>'+
     '<div class="form-group"><label>CPF (opcional)</label><input type="text" id="rvDoc" placeholder="000.000.000-00"></div>'+
-    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:12px">Informe e-mail ou telefone para contato. Sua reserva sera confirmada pelo hotel.</p>'+
+    '<p style="color:var(--text-mute);font-size:12px;margin-bottom:12px">Informe e-mail ou telefone para contato. Sua reserva será confirmada pelo hotel.</p>'+
     '<div style="display:flex;gap:8px"><button class="btn btn-secondary" id="rvVoltarTipos" style="flex:1;justify-content:center">Voltar</button>'+
     '<button class="btn btn-primary" id="rvEnviar" style="flex:2;justify-content:center">Solicitar reserva</button></div>'
   );
@@ -124,10 +124,10 @@ async function enviarReserva(){
   if(btn){btn.disabled=false;btn.textContent="Solicitar reserva";}
   if(error || !data || !data.ok){
     var motivo = data && data.motivo;
-    var msg = motivo==="sem_disponibilidade" ? "Esta acomodacao acabou de ser reservada. Tente outras datas." :
-              motivo==="muitas_solicitacoes" ? "Voce ja tem solicitacoes pendentes. Aguarde o contato do hotel." :
-              motivo==="datas_invalidas" ? "As datas informadas nao sao validas." :
-              "Nao foi possivel enviar a solicitacao. Tente novamente.";
+    var msg = motivo==="sem_disponibilidade" ? "Esta acomodação acabou de ser reservada. Tente outras datas." :
+              motivo==="muitas_solicitacoes" ? "Você já tem solicitações pendentes. Aguarde o contato do hotel." :
+              motivo==="datas_invalidas" ? "As datas informadas não são válidas." :
+              "Não foi possível enviar a solicitação. Tente novamente.";
     toast(msg,"error"); return;
   }
   renderSucesso(data);
@@ -137,10 +137,10 @@ function renderSucesso(data){
   conteudo.innerHTML = card(
     '<div class="rv-ok">'+
     '<svg viewBox="0 0 24 24" fill="none" stroke="var(--pos)" stroke-width="2" style="width:52px;height:52px"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>'+
-    '<h3 style="color:var(--text);font-family:Sora,sans-serif;margin-top:10px">Solicitacao enviada!</h3>'+
+    '<h3 style="color:var(--text);font-family:Sora,sans-serif;margin-top:10px">Solicitação enviada!</h3>'+
     '<div class="rv-proto">#'+esc(data.protocolo)+'</div>'+
     '<p style="color:var(--text-dim)">Sua reserva de '+esc(SELECAO.nome)+' para '+fmtD(SELECAO.checkin)+' a '+fmtD(SELECAO.checkout)+' foi registrada como <b>pendente</b>.</p>'+
-    '<p style="color:var(--text-dim);margin-top:6px">O hotel entrara em contato para confirmar. Guarde o numero do protocolo.</p>'+
+    '<p style="color:var(--text-dim);margin-top:6px">O hotel entrará em contato para confirmar. Guarde o número do protocolo.</p>'+
     '<button class="btn btn-secondary" id="rvNova" style="margin-top:16px">Fazer outra reserva</button>'+
     '</div>'
   );

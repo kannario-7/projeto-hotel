@@ -13,7 +13,7 @@ setTimeout(function(){
   var alvo=document.querySelector("#modalBody input:not([type=hidden]),#modalBody select,#modalBody textarea");
   if(alvo){try{alvo.focus();}catch(e){}}
 },60);}
-export function cm(){document.getElementById("modalOverlay").classList.remove("show");document.getElementById("modalBody").innerHTML="";document.getElementById("modalFooter").innerHTML=""}
+export function cm(){document.getElementById("modalOverlay").classList.remove("show");document.getElementById("modalBody").innerHTML="";document.getElementById("modalFooter").innerHTML="";var b=document.querySelector("#modalOverlay .modal");if(b)b.classList.remove("modal-wide")}
 export function closeModal(){cm()}
 export function openModal(t,b,f){sm(t,b,f)}
 
@@ -102,8 +102,8 @@ function blocoAvaliar(){
     '<div class="sup-stars" id="supStars">'+
       [1,2,3,4,5].map(function(n){return '<button type="button" class="sup-star" data-n="'+n+'" onclick="setNotaSuporte('+n+')" aria-label="'+n+' estrelas">&#9733;</button>';}).join('')+
     '</div>'+
-    '<textarea id="supAvalComent" rows="2" placeholder="Deixe um comentario (opcional)"></textarea>'+
-    '<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="enviarAvaliacaoSuporte()">Enviar avaliacao</button>'+
+    '<textarea id="supAvalComent" rows="2" placeholder="Deixe um comentário (opcional)"></textarea>'+
+    '<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="enviarAvaliacaoSuporte()">Enviar avaliação</button>'+
   '</div>';
 }
 
@@ -121,13 +121,13 @@ export function setNotaSuporte(n){
 export async function enviarAvaliacaoSuporte(){
   if(!_supNotaSel)return st("Escolha de 1 a 5 estrelas.","warning");
   var hid=getHotelId();
-  if(!hid)return st("Faca login para avaliar.","warning");
+  if(!hid)return st("Faça login para avaliar.","warning");
   var c=document.getElementById("supAvalComent");
   var nome=(window.getCurrentUser&&window.getCurrentUser())?window.getCurrentUser().nome:"Cliente";
   var salvo=await avaliarSuporte(hid,_supNotaSel,c?c.value.trim():"",nome);
-  if(!salvo)return st("Nao foi possivel enviar a avaliacao.","error");
+  if(!salvo)return st("Não foi possível enviar a avaliação.","error");
   _supAvaliado=true; _supNotaSel=0;
-  st("Obrigado pela avaliacao!","success");
+  st("Obrigado pela avaliação!","success");
   var box=document.getElementById("supAvaliar");
   if(box) box.outerHTML='<div class="sup-avaliar sup-avaliado">Obrigado pelo seu feedback! &#128522;</div>';
 }
@@ -177,9 +177,9 @@ export function renderConversa(msgs,autorEu,opts){
     }
     var eu=m.autor===autorEu;
     var agrupado=m.autor===autorAnt;
-    var nome=eu?"Voce":(m.autor==="suporte"?"Suporte":(m.nome||"Cliente"));
+    var nome=eu?"Você":(m.autor==="suporte"?"Suporte":(m.nome||"Cliente"));
     out+='<div class="sup-msg '+(eu?"sup-msg-eu":"sup-msg-sup")+(agrupado?" grouped":"")+'">'+
-      '<div class="sup-avatar">'+esc(eu?"EU":iniciais(nome==="Voce"?"Voce":nome))+'</div>'+
+      '<div class="sup-avatar">'+esc(eu?"EU":iniciais(nome==="Você"?"Você":nome))+'</div>'+
       '<div class="sup-msg-body">'+
         (agrupado?"":'<div class="sup-msg-nome">'+esc(nome)+'</div>')+
         '<div class="sup-msg-bolha">'+esc(m.texto)+'</div>'+
@@ -195,12 +195,12 @@ export async function enviarSuporte(){
   var t=document.getElementById("supportMsg");
   if(!t||!t.value.trim())return st("Escreva uma mensagem antes de enviar.","warning");
   var hid=getHotelId();
-  if(!hid)return st("Faca login para enviar mensagem ao suporte.","warning");
+  if(!hid)return st("Faça login para enviar mensagem ao suporte.","warning");
   var nome=(window.getCurrentUser&&window.getCurrentUser())?window.getCurrentUser().nome:"Cliente";
   var texto=t.value.trim();
   t.value="";
   var salvo=await suporteEnviar(hid,"cliente",nome,texto);
-  if(!salvo)return st("Nao foi possivel enviar. Tente pelo WhatsApp.","error");
+  if(!salvo)return st("Não foi possível enviar. Tente pelo WhatsApp.","error");
   st("Mensagem enviada ao suporte!","success");
   // Se o cliente escreve, o atendimento volta a ficar aberto (reabre se estava finalizado)
   try{ suporteDefinirStatus(hid,"aberto",null); }catch(e){}
@@ -212,7 +212,7 @@ export async function enviarSuporte(){
 export function abrirSuporteWhatsApp(){
   var t=document.getElementById("supportMsg");
   var txt=(t&&t.value.trim())?t.value.trim():"Preciso de ajuda com o HospedaPrime";
-  var url="https://wa.me/5511922144143?text="+encodeURIComponent("Ola! "+txt);
+  var url="https://wa.me/5511922144143?text="+encodeURIComponent("Olá! "+txt);
   window.open(url,"_blank","noopener");
 }
 

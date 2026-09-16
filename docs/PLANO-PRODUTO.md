@@ -57,7 +57,7 @@ linhas do seu próprio hotel.
 
 ## 5. Planos de preço (rascunho — a definir)
 
-- **Teste grátis**: 14 dias, sem cartão.
+- **Teste grátis**: 7 dias, sem cartão. Bloqueio automático de acesso ao expirar.
 - **Essencial**: recepção, reservas, hóspedes, quartos, check-in/out. (hotéis pequenos)
 - **Profissional**: tudo do Essencial + financeiro, relatórios, multiusuário.
 - Cobrança mensal por hotel; possível faixa por nº de quartos.

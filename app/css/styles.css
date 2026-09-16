@@ -151,6 +151,7 @@ h1,h2,h3,.stat-card .value,.qcard-num,.room-number,.page-header h2,.section-titl
 .badge-warning{background:var(--warn-bg);color:var(--warn)}
 .badge-danger{background:var(--neg-bg);color:var(--neg)}
 .badge-info{background:var(--info-bg);color:var(--info)}
+.badge-neutral{background:var(--surface-2);color:var(--text-dim)}
 table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:0 4px 20px var(--shadow);border:1px solid var(--border);margin-bottom:24px}
 th{background:var(--surface-2);padding:13px 16px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);letter-spacing:0.5px;font-weight:700}
 td{padding:13px 16px;border-bottom:1px solid var(--border-soft);font-size:14px;color:var(--text)}
@@ -297,6 +298,18 @@ body.logged .support-widget{bottom:88px}
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--overlay);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.show{opacity:1;pointer-events:all}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 70px var(--shadow-strong);max-width:500px;width:90%;max-height:85vh;overflow-y:auto;transform:translateY(16px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s;color:var(--text)}
+/* modal largo p/ CRM e Prospecção */
+.modal.modal-wide{max-width:920px}
+/* cards compactos do CRM (não usam .stat-card p/ não herdar o tamanho grande) */
+.crm-cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+.crm-card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px 10px;text-align:center}
+.crm-card h4{font-size:10px;text-transform:uppercase;color:var(--text-mute);letter-spacing:.5px;font-weight:700;margin:0 0 4px}
+.crm-card .n{font-family:Sora,sans-serif;font-size:22px;font-weight:800;color:var(--text);line-height:1}
+.crm-card.on{border-color:var(--accent);background:var(--surface)}
+.crm-tabela{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.crm-tabela table{white-space:nowrap}
+@media(max-width:760px){.crm-cards{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:440px){.crm-cards{grid-template-columns:repeat(2,1fr)}}
 .modal-overlay.show .modal{transform:translateY(0) scale(1);opacity:1}
 .modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .modal-header h3{font-family:Sora,sans-serif;color:var(--text)}

@@ -234,3 +234,56 @@ export async function listarAuditoria(hotelId, limite){
     .eq("hotel_id", hotelId).order("criado_em", { ascending:false }).limit(limite||200);
   return data||[];
 }
+
+// --- CRM / Leads (captação de clientes; só o dono acessa) ---
+// DONO: lista todos os leads (mais recentes primeiro). RLS garante o acesso.
+export async function leadsListar(){
+  var { data, error } = await supabase.from("leads").select("*").order("criado_em", { ascending:false });
+  if(error){ console.error("leadsListar", error); return []; }
+  return data||[];
+}
+// DONO: atualiza status e/ou notas de um lead (via RPC que carimba a data).
+export async function leadAtualizar(id, status, notas){
+  var { error } = await supabase.rpc("lead_atualizar", { p_id:id, p_status:status||null, p_notas:(notas!=null?notas:null) });
+  if(error){ console.error("leadAtualizar", error); return false; }
+  return true;
+}
+// DONO: exclui um lead.
+export async function leadExcluir(id){
+  var { error } = await supabase.from("leads").delete().eq("id", id);
+  if(error){ console.error("leadExcluir", error); return false; }
+  return true;
+}
+// PÚBLICO: cria um lead pela RPC segura (usado pelo formulário da landing).
+export async function captarLead(nome, email, telefone, mensagem, origem){
+  var { data, error } = await supabase.rpc("captar_lead", {
+    p_nome:nome, p_email:email||null, p_telefone:telefone||null, p_mensagem:mensagem||null, p_origem:origem||"landing"
+  });
+  if(error) return { ok:false, error:error.message };
+  return { ok:true, id:data };
+}
+
+// --- Prospecção (busca ativa de estabelecimentos via Google Places) ---
+// Chama o endpoint serverless que consulta a Google Places API.
+export async function prospectar(q){
+  try{
+    var resp = await fetch("/api/prospectar", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ q:q })
+    });
+    var data = await resp.json();
+    if(!resp.ok || !data.ok) return { ok:false, error:(data && data.error) || "Falha na busca." };
+    return { ok:true, resultados:data.resultados||[], total:data.total||0 };
+  }catch(e){ return { ok:false, error:"Não foi possível buscar agora." }; }
+}
+// DONO: importa um resultado da prospecção como lead (não duplica por place_id).
+export async function importarProspecto(p){
+  var { data, error } = await supabase.rpc("importar_prospecto", {
+    p_nome:p.nome, p_telefone:p.telefone||null, p_email:p.email||null,
+    p_site:p.site||null, p_cidade:p.cidade||null, p_endereco:p.endereco||null,
+    p_avaliacao:(p.avaliacao!=null?p.avaliacao:null), p_place_id:p.place_id||null
+  });
+  if(error) return { ok:false, error:error.message };
+  return { ok:true, id:data };
+}

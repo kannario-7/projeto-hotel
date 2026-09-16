@@ -25,12 +25,12 @@ export function crudExcluir(chave, id, opts, reRender){
   opts=opts||{};
   confirmar({
     titulo:opts.titulo||"Excluir?",
-    msg:opts.msg||"Esta acao nao podera ser desfeita.",
+    msg:opts.msg||"Esta ação não poderá ser desfeita.",
     okLabel:opts.okLabel||"Sim, excluir",
     tipo:"danger"
   },function(){
     St.rm(chave,id);
-    st(opts.toast||"Registro excluido.","warning");
+    st(opts.toast||"Registro excluído.","warning");
     if(typeof reRender==="function")reRender();
   });
 }

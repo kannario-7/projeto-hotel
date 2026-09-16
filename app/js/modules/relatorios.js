@@ -8,25 +8,25 @@ import { despesasEfetivadas } from "./financeiro-core.js";
 
 var periodo = { fi:"", ff:"" };
 var abaAtual = "ocupacao";
-var TITULOS = { ocupacao:"Ocupacao e Desempenho", receita:"Receita Detalhada", tipos:"Desempenho por Tipo de Quarto", reservas:"Relatorio de Reservas", lucro:"Resultado (Lucro)", fluxo:"Fluxo de Caixa", dre:"DRE - Demonstrativo de Resultado", extrato:"Extrato por Hospede", proximas:"Proximas Chegadas", vip:"Hospedes Fieis" };
+var TITULOS = { ocupacao:"Ocupação e Desempenho", receita:"Receita Detalhada", tipos:"Desempenho por Tipo de Quarto", reservas:"Relatório de Reservas", lucro:"Resultado (Lucro)", fluxo:"Fluxo de Caixa", dre:"DRE - Demonstrativo de Resultado", extrato:"Extrato por Hóspede", proximas:"Próximas Chegadas", vip:"Hóspedes Fiéis" };
 
 export function renderRelatorios(){var el=document.getElementById("pageContent");
-el.innerHTML='<div class="page-header"><div><h2>Relatorios</h2><p>Relatorios e estatisticas do hotel</p></div></div>'+
+el.innerHTML='<div class="page-header"><div><h2>Relatórios</h2><p>Relatórios e estatísticas do hotel</p></div></div>'+
 '<div style="display:flex;gap:12px;align-items:end;margin-bottom:16px;flex-wrap:wrap">'+
-'<div class="form-group" style="margin:0"><label>Data Inicio</label><input type="date" id="relFi" value="'+esc(periodo.fi)+'"></div>'+
+'<div class="form-group" style="margin:0"><label>Data Início</label><input type="date" id="relFi" value="'+esc(periodo.fi)+'"></div>'+
 '<div class="form-group" style="margin:0"><label>Data Fim</label><input type="date" id="relFf" value="'+esc(periodo.ff)+'"></div>'+
 '<button class="btn btn-primary btn-sm" onclick="aplicarPeriodoRel()">Aplicar</button>'+
 '<button class="btn btn-secondary btn-sm" onclick="limparPeriodoRel()">Limpar</button></div>'+
 '<div class="tabs">'+
-'<div class="tab active" onclick="mudarRelatorio(this,\'ocupacao\')">Ocupacao e KPIs</div>'+
+'<div class="tab active" onclick="mudarRelatorio(this,\'ocupacao\')">Ocupação e KPIs</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'tipos\')">Por Tipo de Quarto</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'reservas\')">Reservas</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'proximas\')">Chegadas</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'extrato\')">Extrato do Hospede</div>'+
-'<div class="tab" onclick="mudarRelatorio(this,\'vip\')">Hospedes Fieis</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'extrato\')">Extrato do Hóspede</div>'+
+'<div class="tab" onclick="mudarRelatorio(this,\'vip\')">Hóspedes Fiéis</div>'+
 '<div class="tab" onclick="mudarRelatorio(this,\'turno\')">Por Turno</div>'+
 '</div>'+
-'<p style="color:var(--text-mute);font-size:12px;margin:10px 2px 0">Relatorios de analise e ocupacao. Para receitas, despesas e lucro, use o modulo <b>Financeiro</b>.</p>'+
+'<p style="color:var(--text-mute);font-size:12px;margin:10px 2px 0">Relatórios de análise e ocupação. Para receitas, despesas e lucro, use o módulo <b>Financeiro</b>.</p>'+
 '<div id="relatorioContent">'+render(abaAtual)+'</div>';}
 
 export function mudarRelatorio(tab,tipo){tab.parentElement.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});tab.classList.add("active");abaAtual=tipo;
@@ -52,13 +52,13 @@ function render(tipo){
 
 // Classifica um pagamento em turno pela HORA de criadoEm. Sem criadoEm -> "Sem horario".
 function turnoDoPagamento(p){
-  if(!p.criadoEm) return "Sem horario";
+  if(!p.criadoEm) return "Sem horário";
   var h=new Date(p.criadoEm).getHours();
-  if(h>=6 && h<14) return "Manha";
+  if(h>=6 && h<14) return "Manhã";
   if(h>=14 && h<22) return "Tarde";
   return "Noite";
 }
-var ORDEM_TURNO=["Manha","Tarde","Noite","Sem horario"];
+var ORDEM_TURNO=["Manhã","Tarde","Noite","Sem horário"];
 
 // Filtra pagamentos pelo periodo usando a data do pagamento (campo .data), aceitando os que tem criadoEm.
 function pagamentosNoPeriodo(){
@@ -76,7 +76,7 @@ function buildPorTurno(){
   var totalGeral=pg.reduce(function(s,p){return s+(p.valor||0);},0);
   if(!pg.length){
     return '<div class="report-container"><h3 style="color:var(--text)">Produtividade por turno'+labelPer()+'</h3>'+
-      '<p style="padding:16px 0;color:var(--text-mute)">Nenhum pagamento no periodo. Os dados de turno/operador passam a ser registrados a cada pagamento e check-out.</p></div>';
+      '<p style="padding:16px 0;color:var(--text-mute)">Nenhum pagamento no período. Os dados de turno/operador passam a ser registrados a cada pagamento e check-out.</p></div>';
   }
   // agrupa por turno
   var porTurno={}; ORDEM_TURNO.forEach(function(t){porTurno[t]={total:0,qtd:0};});
@@ -84,7 +84,7 @@ function buildPorTurno(){
   pg.forEach(function(p){
     var t=turnoDoPagamento(p);
     porTurno[t].total+=(p.valor||0); porTurno[t].qtd++;
-    var op=p.usuarioNome||"Nao identificado";
+    var op=p.usuarioNome||"Não identificado";
     if(!porOperador[op])porOperador[op]={total:0,qtd:0};
     porOperador[op].total+=(p.valor||0); porOperador[op].qtd++;
   });
@@ -101,11 +101,11 @@ function buildPorTurno(){
   html+=barrasH(turnos.map(function(t){return {label:t, valor:porTurno[t].total, exib:fmtC(porTurno[t].total)};}));
   // tabela por operador
   var ops=Object.keys(porOperador).sort(function(a,b){return porOperador[b].total-porOperador[a].total;});
-  html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por operador</h3><table><tr><th>Operador</th><th>Recebido</th><th>Pagamentos</th><th>Ticket medio</th><th>%</th></tr>'+
+  html+='<h3 style="margin:16px 0 10px;color:var(--text)">Por operador</h3><table><tr><th>Operador</th><th>Recebido</th><th>Pagamentos</th><th>Ticket médio</th><th>%</th></tr>'+
     ops.map(function(op){var d=porOperador[op];var ticket=d.qtd?Math.round(d.total/d.qtd):0;var pc=totalGeral?Math.round(d.total/totalGeral*100):0;
       return '<tr><td>'+esc(op)+'</td><td>'+fmtC(d.total)+'</td><td>'+d.qtd+'</td><td>'+fmtC(ticket)+'</td><td>'+pc+'%</td></tr>';
     }).join('')+'</table>';
-  html+='<p style="color:var(--text-mute);font-size:12px;margin-top:10px">O turno e definido pela hora em que o pagamento foi registrado. Pagamentos antigos, sem horario, aparecem como "Sem horario".</p>';
+  html+='<p style="color:var(--text-mute);font-size:12px;margin-top:10px">O turno é definido pela hora em que o pagamento foi registrado. Pagamentos antigos, sem horário, aparecem como "Sem horário".</p>';
   html+=acoesRel("por-turno");
   html+='</div>';
   return html;
@@ -134,7 +134,7 @@ function colunasMes(meses){
     return '<div class="chartc-col"><div class="chartc-bars"><div class="chartc-bar rec" style="height:'+hr+'%" title="Receita: '+fmtC(m.rec)+'"></div><div class="chartc-bar des" style="height:'+hd+'%" title="Despesa: '+fmtC(m.des)+'"></div></div><div class="chartc-lbl">'+esc(m.lbl)+'</div></div>';
   }).join('')+'</div>';
 }
-function labelPer(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi?fmtD(periodo.fi):"inicio")+' a '+(periodo.ff?fmtD(periodo.ff):"hoje");return' &middot; todo o periodo';}
+function labelPer(){if(periodo.fi||periodo.ff)return' &middot; '+(periodo.fi?fmtD(periodo.fi):"início")+' a '+(periodo.ff?fmtD(periodo.ff):"hoje");return' &middot; todo o período';}
 function diasPeriodo(){ // numero de dias do periodo (para RevPAR); se sem filtro, usa amplitude das reservas
   if(periodo.fi&&periodo.ff){var d=dB(periodo.fi,periodo.ff);return d>0?d:1;}
   return 30; // padrao mensal quando sem periodo definido
@@ -150,7 +150,7 @@ export function imprimirRelatorioAtual(){
   clone.querySelectorAll(".no-print").forEach(function(n){n.remove()});
   // extrai so o interior do primeiro report-container (evita repetir wrappers)
   var corpo=clone.innerHTML;
-  imprimirDocumento(TITULOS[abaAtual]||"Relatorio", (periodo.fi||periodo.ff)?("Periodo: "+(periodo.fi?fmtD(periodo.fi):"inicio")+" a "+(periodo.ff?fmtD(periodo.ff):"hoje")):"Periodo: todo o historico", corpo);
+  imprimirDocumento(TITULOS[abaAtual]||"Relatório", (periodo.fi||periodo.ff)?("Período: "+(periodo.fi?fmtD(periodo.fi):"início")+" a "+(periodo.ff?fmtD(periodo.ff):"hoje")):"Período: todo o histórico", corpo);
 }
 
 // reservas que se sobrepoem ao periodo (por checkin)
@@ -180,21 +180,21 @@ function buildOcupacao(){
   var disp=quartos.filter(function(q){return q.status==="disponivel"}).length;
   var manut=quartos.filter(function(q){return q.status==="manutencao"}).length;
   var limp=quartos.filter(function(q){return q.status==="limpeza"}).length;
-  var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Ocupacao e Desempenho'+labelPer()+'</h3>'+
+  var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Ocupação e Desempenho'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
-  '<div class="stat-card"><h3>Taxa de Ocupacao</h3><div class="value">'+taxaOcup+'%</div><div class="sub">'+noitesVendidas+' de '+quartoNoitesDisp+' noites</div></div>'+
-  '<div class="stat-card"><h3>Diaria Media (ADR)</h3><div class="value">'+fmtC(adr)+'</div></div>'+
-  '<div class="stat-card"><h3>RevPAR</h3><div class="value">'+fmtC(revpar)+'</div><div class="sub">receita diarias/quarto disp.</div></div>'+
+  '<div class="stat-card"><h3>Taxa de Ocupação</h3><div class="value">'+taxaOcup+'%</div><div class="sub">'+noitesVendidas+' de '+quartoNoitesDisp+' noites</div></div>'+
+  '<div class="stat-card"><h3>Diária Média (ADR)</h3><div class="value">'+fmtC(adr)+'</div></div>'+
+  '<div class="stat-card"><h3>RevPAR</h3><div class="value">'+fmtC(revpar)+'</div><div class="sub">receita diárias/quarto disp.</div></div>'+
   '<div class="stat-card"><h3>TrevPAR</h3><div class="value">'+fmtC(trevpar)+'</div><div class="sub">receita total/quarto disp.</div></div>'+
   '<div class="stat-card"><h3>GOPPAR</h3><div class="value" style="color:'+(goppar>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(goppar)+'</div><div class="sub">lucro/quarto disp.</div></div>'+
   '<div class="stat-card"><h3>Noites Vendidas</h3><div class="value">'+noitesVendidas+'</div></div>'+
-  '<div class="stat-card"><h3>Receita de Diarias</h3><div class="value">'+fmtC(receitaDiarias)+'</div></div>'+
+  '<div class="stat-card"><h3>Receita de Diárias</h3><div class="value">'+fmtC(receitaDiarias)+'</div></div>'+
   '</div>'+
   '<h3 style="margin:18px 0 10px;color:var(--text)">Status atual dos quartos</h3>'+
   barrasH([
     {label:"Ocupados",valor:ocupados,exib:ocupados+" ("+(totalQuartos?Math.round(ocupados/totalQuartos*100):0)+"%)"},
-    {label:"Disponiveis",valor:disp,exib:disp+" ("+(totalQuartos?Math.round(disp/totalQuartos*100):0)+"%)"},
-    {label:"Manutencao",valor:manut,exib:""+manut},
+    {label:"Disponíveis",valor:disp,exib:disp+" ("+(totalQuartos?Math.round(disp/totalQuartos*100):0)+"%)"},
+    {label:"Manutenção",valor:manut,exib:""+manut},
     {label:"Limpeza",valor:limp,exib:""+limp}
   ])+
   '</div>'+acoesRel("ocupacao");
@@ -213,13 +213,13 @@ function buildReceita(){
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Receita Detalhada'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Total Recebido</h3><div class="value" style="color:var(--pos)">'+fmtC(totalPago)+'</div></div>'+
-  '<div class="stat-card"><h3>Diarias (reservas)</h3><div class="value">'+fmtC(recDiarias)+'</div></div>'+
-  '<div class="stat-card"><h3>Servicos/Consumo</h3><div class="value">'+fmtC(recServicos)+'</div></div>'+
+  '<div class="stat-card"><h3>Diárias (reservas)</h3><div class="value">'+fmtC(recDiarias)+'</div></div>'+
+  '<div class="stat-card"><h3>Serviços/Consumo</h3><div class="value">'+fmtC(recServicos)+'</div></div>'+
   '</div>';
   var dias=Object.keys(porDia).sort().slice(-15); // ultimos 15 dias com movimento, em ordem
   if(dias.length){html+='<h3 style="margin:18px 0 10px;color:var(--text)">Receita por Dia</h3>'+
   barrasH(dias.map(function(d){return {label:fmtD(d).slice(0,5),valor:porDia[d],exib:fmtC(porDia[d])}}),"pos");}
-  else{html+='<p style="color:var(--text-mute);padding:16px 0">Nenhuma receita no periodo.</p>';}
+  else{html+='<p style="color:var(--text-mute);padding:16px 0">Nenhuma receita no período.</p>';}
   html+='</div>'+acoesRel("receita");
   return html;
 }
@@ -238,7 +238,7 @@ function buildPorTipo(){
     '<table><tr><th>Tipo</th><th>Reservas</th><th>Noites</th><th>Receita</th><th>% Receita</th></tr>'+
   linhas.sort(function(a,b){return b.receita-a.receita}).map(function(s){var pc=totalRec?Math.round(s.receita/totalRec*100):0;return'<tr><td>'+esc(s.nome)+'</td><td>'+s.reservas+'</td><td>'+s.noites+'</td><td>'+fmtC(s.receita)+'</td><td>'+pc+'%</td></tr>'}).join('')+
   '<tr><td><b>Total</b></td><td><b>'+linhas.reduce(function(s,x){return s+x.reservas},0)+'</b></td><td><b>'+linhas.reduce(function(s,x){return s+x.noites},0)+'</b></td><td><b>'+fmtC(totalRec)+'</b></td><td><b>100%</b></td></tr></table>';}
-  else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem dados de reservas no periodo.</p>';}
+  else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem dados de reservas no período.</p>';}
   html+='</div>'+acoesRel("por-tipo");
   return html;
 }
@@ -252,11 +252,11 @@ function buildReservas(){
   var taxaCancel=total?Math.round(canceladas/total*100):0;
   var comNoites=r.filter(function(x){return x.noites});
   var estadiaMedia=comNoites.length?(comNoites.reduce(function(s,x){return s+x.noites},0)/comNoites.length):0;
-  var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Relatorio de Reservas'+labelPer()+'</h3>'+
+  var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Relatório de Reservas'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Total de Reservas</h3><div class="value">'+total+'</div></div>'+
   '<div class="stat-card"><h3>Taxa de Cancelamento</h3><div class="value" style="color:'+(taxaCancel>20?"var(--neg)":"var(--text)")+'">'+taxaCancel+'%</div></div>'+
-  '<div class="stat-card"><h3>Estadia Media</h3><div class="value">'+estadiaMedia.toFixed(1)+'</div><div class="sub">noites</div></div>'+
+  '<div class="stat-card"><h3>Estadia Média</h3><div class="value">'+estadiaMedia.toFixed(1)+'</div><div class="sub">noites</div></div>'+
   '</div>'+
   '<h3 style="margin:18px 0 10px;color:var(--text)">Por Status</h3><table><tr><th>Status</th><th>Qtd</th><th>%</th></tr>'+
   Object.keys(porStatus).map(function(s){var pc=total?Math.round(porStatus[s]/total*100):0;return'<tr><td>'+getStatusBadge(s)+'</td><td>'+porStatus[s]+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>'+
@@ -275,7 +275,7 @@ function buildLucro(){
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Receita</h3><div class="value" style="color:var(--pos)">'+fmtC(receita)+'</div></div>'+
   '<div class="stat-card"><h3>Despesa</h3><div class="value" style="color:var(--neg)">'+fmtC(despesa)+'</div></div>'+
-  '<div class="stat-card"><h3>Lucro Liquido</h3><div class="value" style="color:'+(lucro>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
+  '<div class="stat-card"><h3>Lucro Líquido</h3><div class="value" style="color:'+(lucro>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(lucro)+'</div><div class="sub">margem '+margem+'%</div></div>'+
   '</div>';
   if(Object.keys(porCat).length){html+='<h3 style="margin:18px 0 10px;color:var(--text)">Despesas por Categoria</h3><table><tr><th>Categoria</th><th>Total</th><th>%</th></tr>'+
   Object.keys(porCat).sort(function(a,b){return porCat[b]-porCat[a]}).map(function(c){var pc=despesa?Math.round(porCat[c]/despesa*100):0;return'<tr><td>'+esc(c)+'</td><td>'+fmtC(porCat[c])+'</td><td>'+pc+'%</td></tr>'}).join('')+'</table>';}
@@ -297,19 +297,19 @@ function buildFluxoCaixa(){
   var html='<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Fluxo de Caixa'+labelPer()+'</h3>'+
   '<div class="cards-row">'+
   '<div class="stat-card"><h3>Entradas</h3><div class="value" style="color:var(--pos)">'+fmtC(totEnt)+'</div></div>'+
-  '<div class="stat-card"><h3>Saidas</h3><div class="value" style="color:var(--neg)">'+fmtC(totSai)+'</div></div>'+
-  '<div class="stat-card"><h3>Saldo do Periodo</h3><div class="value" style="color:'+(saldo>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(saldo)+'</div></div>'+
+  '<div class="stat-card"><h3>Saídas</h3><div class="value" style="color:var(--neg)">'+fmtC(totSai)+'</div></div>'+
+  '<div class="stat-card"><h3>Saldo do Período</h3><div class="value" style="color:'+(saldo>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(saldo)+'</div></div>'+
   '</div>';
   // grafico de colunas por mes (receita x despesa)
   var porMes={};
   St.ga("pg").forEach(function(p){var m=p.data?p.data.slice(0,7):"";if(m){porMes[m]=porMes[m]||{rec:0,des:0};porMes[m].rec+=(p.valor||0);}});
   despesasEfetivadas().forEach(function(x){var m=x.data?x.data.slice(0,7):"";if(m){porMes[m]=porMes[m]||{rec:0,des:0};porMes[m].des+=(x.valor||0);}});
   var mesesChaves=Object.keys(porMes).sort().slice(-6);
-  if(mesesChaves.length){html+='<h3 style="margin:18px 0 6px;color:var(--text)">Receita x Despesa (ultimos meses)</h3>'+
+  if(mesesChaves.length){html+='<h3 style="margin:18px 0 6px;color:var(--text)">Receita x Despesa (últimos meses)</h3>'+
   colunasMes(mesesChaves.map(function(m){return {lbl:m.slice(5)+"/"+m.slice(2,4),rec:porMes[m].rec,des:porMes[m].des}}));}
-  if(chaves.length){var acum=0;html+='<h3 style="margin:18px 0 10px;color:var(--text)">Movimento Diario</h3><table><tr><th>Data</th><th>Entradas</th><th>Saidas</th><th>Saldo do dia</th><th>Saldo acumulado</th></tr>'+
+  if(chaves.length){var acum=0;html+='<h3 style="margin:18px 0 10px;color:var(--text)">Movimento Diário</h3><table><tr><th>Data</th><th>Entradas</th><th>Saídas</th><th>Saldo do dia</th><th>Saldo acumulado</th></tr>'+
   chaves.map(function(d){var v=dias[d];var sd=v.ent-v.sai;acum+=sd;return'<tr><td>'+fmtD(d)+'</td><td style="color:var(--pos)">'+fmtC(v.ent)+'</td><td style="color:var(--neg)">'+fmtC(v.sai)+'</td><td style="color:'+(sd>=0?"var(--pos)":"var(--neg)")+'">'+fmtC(sd)+'</td><td style="color:'+(acum>=0?"var(--pos)":"var(--neg)")+'"><b>'+fmtC(acum)+'</b></td></tr>'}).join('')+'</table>';}
-  else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem movimentacoes no periodo.</p>';}
+  else{html+='<p style="color:var(--text-mute);padding:16px 0">Sem movimentações no período.</p>';}
   html+='</div>'+acoesRel("fluxo-de-caixa");
   return html;
 }
@@ -331,12 +331,12 @@ function buildDRE(){
   var a=totaisDoMes(ym), b=totaisDoMes(ymAnt);
   var fmtMes=function(y){return y.split("-").reverse().join("/")};
   var html='<div class="report-container"><h3 style="margin-bottom:6px;color:var(--text)">DRE - Demonstrativo de Resultado</h3>'+
-  '<p style="color:var(--text-mute);font-size:12px;margin-bottom:16px">Mes de referencia: '+fmtMes(ym)+' (comparado com '+fmtMes(ymAnt)+')</p>'+
-  '<table><tr><th>Indicador</th><th>'+fmtMes(ym)+'</th><th>'+fmtMes(ymAnt)+'</th><th>Variacao</th></tr>'+
+  '<p style="color:var(--text-mute);font-size:12px;margin-bottom:16px">Mês de referência: '+fmtMes(ym)+' (comparado com '+fmtMes(ymAnt)+')</p>'+
+  '<table><tr><th>Indicador</th><th>'+fmtMes(ym)+'</th><th>'+fmtMes(ymAnt)+'</th><th>Variação</th></tr>'+
   '<tr><td>Receita Bruta</td><td style="color:var(--pos)">'+fmtC(a.rec)+'</td><td>'+fmtC(b.rec)+'</td><td>'+varPct(a.rec,b.rec)+'</td></tr>'+
   '<tr><td>(-) Despesas</td><td style="color:var(--neg)">'+fmtC(a.des)+'</td><td>'+fmtC(b.des)+'</td><td>'+varPct(a.des,b.des)+'</td></tr>'+
-  '<tr><td><b>(=) Lucro Liquido</b></td><td style="color:'+(a.lucro>=0?"var(--pos)":"var(--neg)")+'"><b>'+fmtC(a.lucro)+'</b></td><td><b>'+fmtC(b.lucro)+'</b></td><td><b>'+varPct(a.lucro,b.lucro)+'</b></td></tr>'+
-  '<tr><td>Margem Liquida</td><td>'+(a.rec?Math.round(a.lucro/a.rec*100):0)+'%</td><td>'+(b.rec?Math.round(b.lucro/b.rec*100):0)+'%</td><td>-</td></tr>'+
+  '<tr><td><b>(=) Lucro Líquido</b></td><td style="color:'+(a.lucro>=0?"var(--pos)":"var(--neg)")+'"><b>'+fmtC(a.lucro)+'</b></td><td><b>'+fmtC(b.lucro)+'</b></td><td><b>'+varPct(a.lucro,b.lucro)+'</b></td></tr>'+
+  '<tr><td>Margem Líquida</td><td>'+(a.rec?Math.round(a.lucro/a.rec*100):0)+'%</td><td>'+(b.rec?Math.round(b.lucro/b.rec*100):0)+'%</td><td>-</td></tr>'+
   '</table></div>'+acoesRel("dre");
   return html;
 }
@@ -344,13 +344,13 @@ function buildDRE(){
 // ---- EXTRATO POR HOSPEDE ----
 function buildExtrato(){
   var hospedes=St.ga("h").filter(function(h){return h.ativo!==false});
-  var sel='<div class="form-group" style="max-width:360px"><label>Selecione o hospede</label><select id="extHospede" onchange="renderExtratoHospede(this.value)"><option value="">Selecione...</option>'+
+  var sel='<div class="form-group" style="max-width:360px"><label>Selecione o hóspede</label><select id="extHospede" onchange="renderExtratoHospede(this.value)"><option value="">Selecione...</option>'+
   hospedes.map(function(h){return'<option value="'+h.id+'">'+esc(h.nome)+(h.documento?' - '+esc(h.documento):'')+'</option>'}).join('')+'</select></div>';
-  return'<div class="report-container"><h3 style="margin-bottom:14px;color:var(--text)">Extrato Financeiro por Hospede</h3>'+sel+'<div id="extratoConteudo"><p style="color:var(--text-mute);padding:10px 0">Escolha um hospede para ver o extrato detalhado (reservas, consumos e pagamentos).</p></div></div>';
+  return'<div class="report-container"><h3 style="margin-bottom:14px;color:var(--text)">Extrato Financeiro por Hóspede</h3>'+sel+'<div id="extratoConteudo"><p style="color:var(--text-mute);padding:10px 0">Escolha um hóspede para ver o extrato detalhado (reservas, consumos e pagamentos).</p></div></div>';
 }
 export function renderExtratoHospede(id){
   var alvo=document.getElementById("extratoConteudo");if(!alvo)return;
-  if(!id){alvo.innerHTML='<p style="color:var(--text-mute);padding:10px 0">Escolha um hospede.</p>';return;}
+  if(!id){alvo.innerHTML='<p style="color:var(--text-mute);padding:10px 0">Escolha um hóspede.</p>';return;}
   var h=St.fi("h",id);if(!h)return;
   var reservas=St.ga("r").filter(function(r){return r.hospedeId===id});
   var pagamentos=St.ga("pg").filter(function(p){return p.hospedeId===id});
@@ -370,14 +370,14 @@ export function renderExtratoHospede(id){
 // ---- CHEGADAS ----
 function buildChegadas(){var hoje=td(),prox=St.ga("r").filter(function(r){return r.dataCheckin>=hoje&&["confirmada","pendente"].indexOf(r.status)>=0}).sort(function(a,b){return a.dataCheckin.localeCompare(b.dataCheckin)}).slice(0,30);
 if(!prox.length)return'<div class="report-container"><p style="color:var(--text-mute)">Nenhuma chegada prevista.</p></div>';
-return'<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Proximas Chegadas</h3><table><tr><th>Data</th><th>Hospede</th><th>Quarto</th><th>Noites</th><th>Status</th></tr>'+
+return'<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Próximas Chegadas</h3><table><tr><th>Data</th><th>Hóspede</th><th>Quarto</th><th>Noites</th><th>Status</th></tr>'+
 prox.map(function(r){var h=St.fi("h",r.hospedeId),q=St.fi("q",r.quartoId);return'<tr><td>'+fmtD(r.dataCheckin)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+(q?esc("Apto "+q.numero):"-")+'</td><td>'+(r.noites||"-")+'</td><td>'+getStatusBadge(r.status)+'</td></tr>'}).join('')+'</table></div>'+acoesRel("chegadas");}
 
 // ---- HOSPEDES FIEIS ----
 function buildVIP(){var count={};St.ga("r").filter(function(r){return r.status==="checkout"}).forEach(function(r){count[r.hospedeId]=(count[r.hospedeId]||0)+1});
 var sorted=Object.keys(count).sort(function(a,b){return count[b]-count[a]}).slice(0,15);
-if(!sorted.length)return'<div class="report-container"><p style="color:var(--text-mute)">Nenhum hospede com estadias concluidas.</p></div>';
-return'<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Top Hospedes - Mais Estadias</h3><table><tr><th>#</th><th>Hospede</th><th>Estadias</th></tr>'+
+if(!sorted.length)return'<div class="report-container"><p style="color:var(--text-mute)">Nenhum hóspede com estadias concluídas.</p></div>';
+return'<div class="report-container"><h3 style="margin-bottom:16px;color:var(--text)">Top Hóspedes - Mais Estadias</h3><table><tr><th>#</th><th>Hóspede</th><th>Estadias</th></tr>'+
 sorted.map(function(id,i){var h=St.fi("h",id);return'<tr><td>'+(i+1)+'</td><td>'+(h?esc(h.nome):"-")+'</td><td>'+count[id]+'</td></tr>'}).join('')+'</table></div>'+acoesRel("hospedes-fieis");}
 
 // ---- EXPORTACAO CSV (baixarCSV/reais vem de utils.js) ----
@@ -391,12 +391,12 @@ export function exportarRelatorioCSV(nome){
   else if(abaAtual==="turno"){
     var pgT=pagamentosNoPeriodo();
     var opT={};
-    pgT.forEach(function(p){var op=p.usuarioNome||"Nao identificado";var t=turnoDoPagamento(p);var k=op+" | "+t;if(!opT[k])opT[k]={op:op,t:t,total:0,qtd:0};opT[k].total+=(p.valor||0);opT[k].qtd++;});
+    pgT.forEach(function(p){var op=p.usuarioNome||"Não identificado";var t=turnoDoPagamento(p);var k=op+" | "+t;if(!opT[k])opT[k]={op:op,t:t,total:0,qtd:0};opT[k].total+=(p.valor||0);opT[k].qtd++;});
     linhas.push(["Operador","Turno","Recebido","Pagamentos"]);
     Object.keys(opT).forEach(function(k){var d=opT[k];linhas.push([d.op,d.t,reais(d.total),d.qtd]);});
   }
   else{ // ocupacao e demais: exporta resumo simples
     var quartos=St.ga("q").filter(function(q){return q.ativo!==false});var rO=reservasNoPeriodo().filter(function(x){return ["confirmada","checkin","checkout"].indexOf(x.status)>=0});var noites=rO.reduce(function(s,x){return s+(x.noites||0)},0);linhas.push(["Indicador","Valor"],["Total de quartos",quartos.length],["Noites vendidas",noites]);
   }
-  baixarCSV((nome||"relatorio")+".csv",linhas);st("Relatorio exportado.","success");
+  baixarCSV((nome||"relatorio")+".csv",linhas);st("Relatório exportado.","success");
 }
