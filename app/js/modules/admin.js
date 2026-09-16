@@ -5,6 +5,7 @@ import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser } from "../auth.js";
 import { suporteConversas, suporteEnviar, suporteMarcarLidas, avaliacoesSuporte, suporteStatusTodos, suporteDefinirStatus, leadsListar, leadAtualizar, leadExcluir, prospectar, importarProspecto } from "../db.js";
 import { showRedefinirSenhaUsuario } from "./usuarios.js";
+import { observarHotel } from "../presenca.js";
 
 var cacheHoteis = [];
 var PLANOS = { trial:"Teste Grátis", essencial:"Essencial", profissional:"Profissional" };
@@ -287,10 +288,30 @@ async function carregarUsuariosHotelDono(hotelId){
     var st2=ativo?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>';
     // So mostra "Redefinir senha" para usuarios ativos.
     var btn=ativo?'<button class="btn btn-sm btn-secondary" onclick="showRedefinirSenhaUsuario(\''+p.id+'\',\''+nomeEsc+'\')">Redefinir senha</button>':'<span style="color:var(--text-mute);font-size:12px">-</span>';
-    return '<tr><td>'+esc(p.nome||"-")+'</td><td>'+esc(p.papel||"-")+(p.is_owner?" (dono)":"")+'</td><td>'+st2+'</td><td>'+btn+'</td></tr>';
+    return '<tr><td>'+esc(p.nome||"-")+'</td><td>'+esc(p.papel||"-")+(p.is_owner?" (dono)":"")+'</td><td id="dono-presenca-'+p.id+'">'+badgePresencaDono(false)+'</td><td>'+st2+'</td><td>'+btn+'</td></tr>';
   }).join('');
   box.innerHTML='<div style="border-top:1px solid var(--border);padding-top:14px"><h4 style="color:var(--text);margin-bottom:10px">Usuários</h4>'+
-    '<table><tr><th>Nome</th><th>Papel</th><th>Status</th><th></th></tr>'+linhas+'</table></div>';
+    '<table><tr><th>Nome</th><th>Papel</th><th>Online</th><th>Status</th><th></th></tr>'+linhas+'</table></div>';
+  // Presença em tempo real deste hotel (o dono observa sem anunciar presença própria)
+  observarPresencaDono(hotelId, perfis.map(function(p){return p.id;}));
+}
+
+function badgePresencaDono(online){
+  return online
+    ? '<span class="badge badge-success" style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--pos)"></span>Online</span>'
+    : '<span style="display:inline-flex;align-items:center;gap:5px;color:var(--text-mute);font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:var(--border)"></span>Offline</span>';
+}
+
+var _cancelarPresencaDono = null;
+function observarPresencaDono(hotelId, ids){
+  if(_cancelarPresencaDono){ try{ _cancelarPresencaDono(); }catch(e){} _cancelarPresencaDono=null; }
+  if(!hotelId) return;
+  _cancelarPresencaDono = observarHotel(hotelId, function(online){
+    ids.forEach(function(id){
+      var cel=document.getElementById("dono-presenca-"+id);
+      if(cel) cel.innerHTML=badgePresencaDono(online[id]===true);
+    });
+  });
 }
 
 // Tempo relativo amigavel: "ha 2 dias", "hoje as 14:30", "nunca"

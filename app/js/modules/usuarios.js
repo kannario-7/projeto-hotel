@@ -4,6 +4,7 @@ import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "../supabase.js";
 import { st, sm, cm, closeModal, confirmar } from "../ui.js";
 import { getCurrentUser, MODULOS, PADRAO_PERMISSOES } from "../auth.js";
 import { getHotelId, auditar } from "../store.js";
+import { observarHotel } from "../presenca.js";
 
 // Monta os checkboxes de modulos para um papel/permissoes atuais.
 // permAtual: objeto {mod:true/false/"view"} (override) ou null (usa padrao do papel).
@@ -43,7 +44,7 @@ export async function renderUsuariosHotel(){
   if(meu&&meu.papel==="admin") html+='<button class="btn btn-primary" onclick="showNovoUsuarioHotel()">+ Criar usuário</button><button class="btn btn-secondary" onclick="showGerarConvite()">Gerar link de convite</button>';
   html+='<button class="btn btn-secondary" onclick="showAlterarMinhaSenha()">Alterar minha senha</button>';
   html+='</div>';
-  html+='<table><tr><th>Nome</th><th>Papel</th><th>Turno</th><th>Status</th>'+(meu&&meu.papel==="admin"?'<th>Ações</th>':'')+'</tr>'+
+  html+='<table><tr><th>Nome</th><th>Papel</th><th>Turno</th><th>Online</th><th>Status</th>'+(meu&&meu.papel==="admin"?'<th>Ações</th>':'')+'</tr>'+
   (perfis||[]).map(function(p){
     var nomeEsc=(""+(p.nome||"")).replace(/'/g,"\\'");
     var podeGerir=(meu&&meu.papel==="admin"&&p.id!==meu.id);
@@ -53,7 +54,7 @@ export async function renderUsuariosHotel(){
     // Excluir permanente: so admin, e nunca o dono do SaaS
     var btnExcluir=(podeGerir&&p.is_owner!==true)?'<button class="btn btn-sm btn-danger" onclick="excluirUsuarioHotel(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-left:4px">Excluir</button>':'';
     var acoes=podeGerir?(btnPerm+btnSenha+'<button class="btn btn-sm '+(p.ativo!==false?'btn-secondary':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>'+btnExcluir):'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'você':'')+'</span>';
-    return '<tr><td>'+esc(p.nome)+'</td><td>'+esc(p.papel)+'</td><td>'+esc(p.turno||"-")+'</td><td>'+(p.ativo!==false?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>')+'</td>'+(meu&&meu.papel==="admin"?'<td>'+acoes+'</td>':'')+'</tr>';
+    return '<tr><td>'+esc(p.nome)+'</td><td>'+esc(p.papel)+'</td><td>'+esc(p.turno||"-")+'</td><td id="presenca-'+p.id+'">'+badgePresenca(false)+'</td><td>'+(p.ativo!==false?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>')+'</td>'+(meu&&meu.papel==="admin"?'<td>'+acoes+'</td>':'')+'</tr>';
   }).join('')+'</table>';
   if(convites&&convites.length){
     html+='<h4 style="margin:18px 0 10px;color:var(--text)">Convites pendentes</h4><table><tr><th>Nome</th><th>Papel</th><th>Link</th></tr>'+
@@ -61,6 +62,28 @@ export async function renderUsuariosHotel(){
   }
   html+='</div>';
   alvo.innerHTML=html;
+  // Presença em tempo real: atualiza a coluna "Online" ao vivo
+  observarPresencaLista(getHotelId(), (perfis||[]).map(function(p){return p.id;}));
+}
+
+// Indicador visual de presença (bolinha + texto).
+function badgePresenca(online){
+  return online
+    ? '<span class="badge badge-success" style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--pos);box-shadow:0 0 0 3px var(--pos-bg)"></span>Online</span>'
+    : '<span style="display:inline-flex;align-items:center;gap:5px;color:var(--text-mute);font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:var(--border)"></span>Offline</span>';
+}
+
+// Guarda o cancelador da observação anterior para não acumular listeners a cada re-render.
+var _cancelarPresenca = null;
+function observarPresencaLista(hotelId, ids){
+  if(_cancelarPresenca){ try{ _cancelarPresenca(); }catch(e){} _cancelarPresenca=null; }
+  if(!hotelId) return;
+  _cancelarPresenca = observarHotel(hotelId, function(online){
+    ids.forEach(function(id){
+      var cel=document.getElementById("presenca-"+id);
+      if(cel) cel.innerHTML=badgePresenca(online[id]===true);
+    });
+  });
 }
 
 export function showNovoUsuarioHotel(){

@@ -6,6 +6,7 @@ import { registrarAcesso } from "./db.js";
 import { st } from "./ui.js";
 import { showChangelog, atualizarBadgeNovidade, temNovidade } from "./changelog.js";
 import { renderPage } from "./nav.js";
+import { iniciarPresenca, pararPresenca } from "./presenca.js";
 
 var usuarioAtual = null; // { id, nome, papel, hotelId }
 var emRecuperacaoSenha = false; // true quando o usuario chegou pelo link de recuperacao de senha
@@ -179,6 +180,7 @@ async function aposAutenticar(user){
   setHotelId(perfil.hotel_id);
   await carregarTudo(perfil.hotel_id);
   registrarAcesso(); // marca ultimo acesso (nao bloqueia o fluxo)
+  try{ iniciarPresenca(usuarioAtual.id, usuarioAtual.hotelId); }catch(e){} // presenca em tempo real
   hideLogin();
   window.location.hash = "#d";
   renderPage();
@@ -201,6 +203,7 @@ function mostrarBloqueio(){
 }
 
 export async function logout(){
+  try{ await pararPresenca(); }catch(e){} // sai da presenca antes de deslogar
   await supabase.auth.signOut();
   usuarioAtual = null;
   document.getElementById("userInfo").innerHTML="";
@@ -225,6 +228,7 @@ export async function restaurarSessao(){
     setHotelId(perfil.hotel_id);
     await carregarTudo(perfil.hotel_id);
     registrarAcesso(); // marca ultimo acesso (nao bloqueia o fluxo)
+    try{ iniciarPresenca(usuarioAtual.id, usuarioAtual.hotelId); }catch(e){} // presenca em tempo real
     return true;
   }catch(e){
     console.error("Erro ao restaurar sessao:", e);
