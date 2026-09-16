@@ -193,8 +193,9 @@ a{color:inherit;text-decoration:none}
 .footer-brand p{color:var(--text-mute);font-size:14px;margin-top:12px;max-width:300px;line-height:1.55}
 .footer-cols{display:flex;gap:64px;flex-wrap:wrap}
 .footer-cols h4{font-size:13px;margin-bottom:14px;color:var(--tinta);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
-.footer-cols a{display:block;color:var(--text-dim);font-size:14px;padding:5px 0;transition:color .2s}
+.footer-cols a{display:flex;align-items:center;gap:9px;color:var(--text-dim);font-size:14px;padding:5px 0;transition:color .2s}
 .footer-cols a:hover{color:var(--coral)}
+.footer-cols a svg{width:16px;height:16px;flex:none}
 .footer-base{border-top:1px solid var(--border);max-width:var(--maxw);margin:0 auto;padding:22px 28px;display:flex;justify-content:space-between;color:var(--text-mute);font-size:13px}
 
 /* ===== GUIAS ===== */
