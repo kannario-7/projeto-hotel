@@ -48,8 +48,8 @@ export async function renderUsuariosHotel(){
     var nomeEsc=(""+(p.nome||"")).replace(/'/g,"\\'");
     var podeGerir=(meu&&meu.papel==="admin"&&p.id!==meu.id);
     var btnPerm=(podeGerir&&p.papel!=="admin"&&p.is_owner!==true)?'<button class="btn btn-sm btn-secondary" onclick="editarPermissoes(\''+p.id+'\')" style="margin-right:4px">Permissões</button>':'';
-    // Redefinir senha: admin do hotel pode, exceto o dono do SaaS
-    var btnSenha=(podeGerir&&p.is_owner!==true)?'<button class="btn btn-sm btn-secondary" onclick="showRedefinirSenhaUsuario(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-right:4px">Redefinir senha</button>':'';
+    // Redefinir senha: admin do hotel pode, exceto o dono do SaaS e apenas se o usuario estiver ATIVO
+    var btnSenha=(podeGerir&&p.is_owner!==true&&p.ativo!==false)?'<button class="btn btn-sm btn-secondary" onclick="showRedefinirSenhaUsuario(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-right:4px">Redefinir senha</button>':'';
     // Excluir permanente: so admin, e nunca o dono do SaaS
     var btnExcluir=(podeGerir&&p.is_owner!==true)?'<button class="btn btn-sm btn-danger" onclick="excluirUsuarioHotel(\''+p.id+'\',\''+nomeEsc+'\')" style="margin-left:4px">Excluir</button>':'';
     var acoes=podeGerir?(btnPerm+btnSenha+'<button class="btn btn-sm '+(p.ativo!==false?'btn-secondary':'btn-success')+'" onclick="toggleUsuarioHotel(\''+p.id+'\','+(p.ativo!==false)+',\''+nomeEsc+'\')">'+(p.ativo!==false?'Desativar':'Ativar')+'</button>'+btnExcluir):'<span style="color:var(--text-mute);font-size:12px">'+(p.id===meu.id?'você':'')+'</span>';

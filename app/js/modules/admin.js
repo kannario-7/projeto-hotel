@@ -283,8 +283,10 @@ async function carregarUsuariosHotelDono(hotelId){
   if(!perfis||!perfis.length){ box.innerHTML='<div style="border-top:1px solid var(--border);padding-top:14px"><h4 style="color:var(--text);margin-bottom:6px">Usuários</h4><p style="color:var(--text-mute);font-size:13px">Nenhum usuário neste hotel.</p></div>'; return; }
   var linhas=perfis.map(function(p){
     var nomeEsc=(""+(p.nome||"")).replace(/'/g,"\\'");
-    var st2=p.ativo!==false?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>';
-    var btn='<button class="btn btn-sm btn-secondary" onclick="showRedefinirSenhaUsuario(\''+p.id+'\',\''+nomeEsc+'\')">Redefinir senha</button>';
+    var ativo=p.ativo!==false;
+    var st2=ativo?'<span class="badge badge-success">Ativo</span>':'<span class="badge badge-danger">Inativo</span>';
+    // So mostra "Redefinir senha" para usuarios ativos.
+    var btn=ativo?'<button class="btn btn-sm btn-secondary" onclick="showRedefinirSenhaUsuario(\''+p.id+'\',\''+nomeEsc+'\')">Redefinir senha</button>':'<span style="color:var(--text-mute);font-size:12px">-</span>';
     return '<tr><td>'+esc(p.nome||"-")+'</td><td>'+esc(p.papel||"-")+(p.is_owner?" (dono)":"")+'</td><td>'+st2+'</td><td>'+btn+'</td></tr>';
   }).join('');
   box.innerHTML='<div style="border-top:1px solid var(--border);padding-top:14px"><h4 style="color:var(--text);margin-bottom:10px">Usuários</h4>'+
