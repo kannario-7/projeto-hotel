@@ -113,4 +113,8 @@ r.textContent=(fail===0? "TODOS PASSARAM: " : "FALHAS: ")+pass+" OK, "+fail+" fa
 r.className=fail===0?"pass":"fail";
 document.getElementById("out").innerHTML=html;
 </script>
+<script type="module">
+  import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
+  inject();
+</script>
 </body></html>
