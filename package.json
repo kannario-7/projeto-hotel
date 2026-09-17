@@ -1,0 +1,12 @@
+{
+  "name": "projeto-hotel",
+  "version": "2.8.0",
+  "description": "HospedaPrime - Sistema de Gestão Hoteleira",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No build step required for static site'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
